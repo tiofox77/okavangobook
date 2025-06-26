@@ -1,0 +1,227 @@
+@extends('layouts.app')
+
+@section('title', 'Página Inicial - Encontre Hotéis em Angola')
+
+@section('content')
+    <!-- Hero Section com background image -->
+    <div class="relative bg-cover bg-center h-screen" style="background-image: url('https://images.unsplash.com/photo-1489392191049-fc10c97e64b6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1500&q=80');">
+        <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+        <div class="container mx-auto px-4 h-full flex flex-col justify-center items-center relative z-10">
+            <h1 class="text-4xl md:text-5xl font-bold text-white mb-6 text-center">Descubra as Melhores Acomodações em Angola</h1>
+            <p class="text-xl text-white mb-8 text-center max-w-3xl">Compare preços de hotéis, pousadas e resorts em todo o país e reserve com os melhores preços garantidos.</p>
+            
+            <div class="w-full max-w-4xl">
+                @livewire('search-form')
+            </div>
+        </div>
+    </div>
+
+    <!-- Destinos Populares -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-12">Destinos Populares em Angola</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Luanda -->
+                <div class="rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
+                    <img src="https://images.unsplash.com/photo-1576485375217-d6a95e34d043?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Luanda" class="w-full h-64 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2">Luanda</h3>
+                        <p class="text-gray-600 mb-4">Capital de Angola, com belas praias e rica história colonial.</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-500">150+ hotéis</span>
+                            <a href="#" class="text-primary hover:underline">Explorar <i class="fas fa-arrow-right ml-1"></i></a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Benguela -->
+                <div class="rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
+                    <img src="https://images.unsplash.com/photo-1580431791954-1276d9762617?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Benguela" class="w-full h-64 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2">Benguela</h3>
+                        <p class="text-gray-600 mb-4">Conhecida pelas suas praias deslumbrantes e história rica.</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-500">80+ hotéis</span>
+                            <a href="#" class="text-primary hover:underline">Explorar <i class="fas fa-arrow-right ml-1"></i></a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Lubango -->
+                <div class="rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
+                    <img src="https://images.unsplash.com/photo-1562711988-bff1cb3f63e1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Lubango" class="w-full h-64 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2">Lubango</h3>
+                        <p class="text-gray-600 mb-4">Lar do Cristo Rei e paisagens montanhosas deslumbrantes.</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-500">50+ hotéis</span>
+                            <a href="#" class="text-primary hover:underline">Explorar <i class="fas fa-arrow-right ml-1"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-12">
+                <a href="#" class="inline-block bg-white text-primary border border-primary font-bold py-3 px-6 rounded-lg hover:bg-primary hover:text-white transition duration-300">
+                    Ver Todos os Destinos
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Por que escolher o Okavango Book -->
+    <section class="py-16 bg-gray-100">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-12">Por que escolher o Okavango Book</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                    <div class="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-primary bg-opacity-10 rounded-full text-primary">
+                        <i class="fas fa-search text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Comparação de Preços</h3>
+                    <p class="text-gray-600">Encontre o melhor preço comparando várias plataformas de reserva.</p>
+                </div>
+                
+                <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                    <div class="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-primary bg-opacity-10 rounded-full text-primary">
+                        <i class="fas fa-thumbs-up text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Avaliações Verificadas</h3>
+                    <p class="text-gray-600">Leia avaliações autênticas de viajantes reais.</p>
+                </div>
+                
+                <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                    <div class="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-primary bg-opacity-10 rounded-full text-primary">
+                        <i class="fas fa-map-marked-alt text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Especialistas em Angola</h3>
+                    <p class="text-gray-600">Conhecemos cada região e as melhores acomodações do país.</p>
+                </div>
+                
+                <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                    <div class="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-primary bg-opacity-10 rounded-full text-primary">
+                        <i class="fas fa-lock text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Reservas Seguras</h3>
+                    <p class="text-gray-600">Faça suas reservas com total segurança e tranquilidade.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Ofertas Especiais -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center mb-12">
+                <h2 class="text-3xl font-bold">Ofertas Especiais</h2>
+                <a href="#" class="text-primary hover:underline">Ver todas <i class="fas fa-arrow-right ml-1"></i></a>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="border border-gray-200 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Hotel Presidente" class="w-full h-48 object-cover">
+                        <div class="absolute top-0 right-0 bg-secondary text-white px-3 py-1 m-2 rounded font-semibold">
+                            -30%
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2">Hotel Presidente</h3>
+                        <div class="flex items-center mb-2">
+                            <span class="text-yellow-400 mr-1"><i class="fas fa-star"></i></span>
+                            <span class="text-yellow-400 mr-1"><i class="fas fa-star"></i></span>
+                            <span class="text-yellow-400 mr-1"><i class="fas fa-star"></i></span>
+                            <span class="text-yellow-400 mr-1"><i class="fas fa-star"></i></span>
+                            <span class="text-gray-300 mr-1"><i class="fas fa-star"></i></span>
+                            <span class="text-gray-600 text-sm ml-2">(120 avaliações)</span>
+                        </div>
+                        <p class="text-gray-600 mb-4">Luanda, Angola</p>
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="line-through text-gray-500">AKZ 55,000</span>
+                                <span class="text-xl font-bold text-primary">AKZ 38,500</span>
+                                <span class="text-gray-600 text-sm">/noite</span>
+                            </div>
+                            <a href="#" class="bg-primary text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-300">Ver Oferta</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="border border-gray-200 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="EPIC SANA Luanda" class="w-full h-48 object-cover">
+                        <div class="absolute top-0 right-0 bg-secondary text-white px-3 py-1 m-2 rounded font-semibold">
+                            -25%
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2">EPIC SANA Luanda</h3>
+                        <div class="flex items-center mb-2">
+                            <span class="text-yellow-400 mr-1"><i class="fas fa-star"></i></span>
+                            <span class="text-yellow-400 mr-1"><i class="fas fa-star"></i></span>
+                            <span class="text-yellow-400 mr-1"><i class="fas fa-star"></i></span>
+                            <span class="text-yellow-400 mr-1"><i class="fas fa-star"></i></span>
+                            <span class="text-yellow-400 mr-1"><i class="fas fa-star"></i></span>
+                            <span class="text-gray-600 text-sm ml-2">(240 avaliações)</span>
+                        </div>
+                        <p class="text-gray-600 mb-4">Luanda, Angola</p>
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="line-through text-gray-500">AKZ 85,000</span>
+                                <span class="text-xl font-bold text-primary">AKZ 63,750</span>
+                                <span class="text-gray-600 text-sm">/noite</span>
+                            </div>
+                            <a href="#" class="bg-primary text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-300">Ver Oferta</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="border border-gray-200 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Hotel Tropicana" class="w-full h-48 object-cover">
+                        <div class="absolute top-0 right-0 bg-secondary text-white px-3 py-1 m-2 rounded font-semibold">
+                            -20%
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2">Hotel Tropicana</h3>
+                        <div class="flex items-center mb-2">
+                            <span class="text-yellow-400 mr-1"><i class="fas fa-star"></i></span>
+                            <span class="text-yellow-400 mr-1"><i class="fas fa-star"></i></span>
+                            <span class="text-yellow-400 mr-1"><i class="fas fa-star"></i></span>
+                            <span class="text-yellow-400 mr-1"><i class="fas fa-star"></i></span>
+                            <span class="text-gray-300 mr-1"><i class="fas fa-star"></i></span>
+                            <span class="text-gray-600 text-sm ml-2">(80 avaliações)</span>
+                        </div>
+                        <p class="text-gray-600 mb-4">Benguela, Angola</p>
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="line-through text-gray-500">AKZ 45,000</span>
+                                <span class="text-xl font-bold text-primary">AKZ 36,000</span>
+                                <span class="text-gray-600 text-sm">/noite</span>
+                            </div>
+                            <a href="#" class="bg-primary text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-300">Ver Oferta</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA - Newsletter -->
+    <section class="py-16 bg-primary text-white">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-3xl font-bold mb-4">Receba as Melhores Ofertas</h2>
+            <p class="text-lg mb-8 max-w-2xl mx-auto">Inscreva-se na nossa newsletter e receba ofertas exclusivas, dicas de viagem e novidades sobre os melhores hotéis em Angola.</p>
+            
+            <form class="max-w-lg mx-auto flex flex-col sm:flex-row">
+                <input type="email" placeholder="Seu endereço de e-mail" class="flex-grow px-4 py-3 rounded-lg sm:rounded-r-none mb-2 sm:mb-0 text-gray-800 focus:outline-none">
+                <button type="submit" class="bg-secondary text-white font-bold px-6 py-3 rounded-lg sm:rounded-l-none hover:bg-yellow-600 transition duration-300">
+                    Inscrever-se
+                </button>
+            </form>
+        </div>
+    </section>
+@endsection
