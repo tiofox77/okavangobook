@@ -98,6 +98,34 @@ class SystemUpdates extends Component
     }
 
     /**
+     * Get latest release from GitHub repository
+     */
+    private function getLatestRelease(string $repo): array|null
+    {
+        try {
+            $response = Http::withHeaders([
+                'Accept' => 'application/vnd.github.v3+json',
+                'User-Agent' => 'OkavangoBook-Updater'
+            ])->get("https://api.github.com/repos/{$repo}/releases");
+
+            if ($response->successful()) {
+                $releases = $response->json();
+                
+                if (empty($releases)) {
+                    return null;
+                }
+
+                return $releases[0]; // Return the latest (first) release
+            }
+
+            return null;
+        } catch (\Exception $e) {
+            Log::error('Error getting latest release: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
      * Check for available updates
      */
     public function checkForUpdates(): void
@@ -117,41 +145,28 @@ class SystemUpdates extends Component
         $this->isCheckingForUpdates = true;
 
         try {
-            // Use public GitHub API (no token required)
-            $response = Http::withHeaders([
-                'Accept' => 'application/vnd.github.v3+json',
-                'User-Agent' => 'OkavangoBook-Updater'
-            ])->get("https://api.github.com/repos/{$this->githubRepo}/releases/latest");
+            $latestRelease = $this->getLatestRelease($this->githubRepo);
 
-            if ($response->successful()) {
-                $release = $response->json();
-                
-                $this->latestVersion = ltrim($release['tag_name'] ?? '', 'v');
+            if ($latestRelease) {
+                $this->latestVersion = ltrim($latestRelease['tag_name'] ?? '', 'v');
                 $this->latestReleaseData = [
-                    'name' => $release['name'] ?? '',
-                    'body' => $release['body'] ?? '',
-                    'published_at' => $release['published_at'] ?? '',
-                    'download_url' => $release['zipball_url'] ?? '',
-                    'html_url' => $release['html_url'] ?? ''
+                    'name' => $latestRelease['name'] ?? '',
+                    'body' => $latestRelease['body'] ?? '',
+                    'published_at' => $latestRelease['published_at'] ?? '',
+                    'download_url' => $latestRelease['zipball_url'] ?? '',
+                    'html_url' => $latestRelease['html_url'] ?? ''
                 ];
 
                 // Compare versions
                 if (version_compare($this->latestVersion, $this->currentVersion, '>')) {
                     $this->updateAvailable = true;
-                    session()->flash('success', "Nova versão disponível: {$this->latestVersion}");
+                    session()->flash('success', "Nova versão disponível: {$this->latestVersion} (atual: {$this->currentVersion})");
                 } else {
                     $this->updateAvailable = false;
-                    session()->flash('info', 'Aplicação está atualizada!');
+                    session()->flash('info', "Aplicação está atualizada! Versão atual: {$this->currentVersion}");
                 }
-            } elseif ($response->status() === 404) {
-                session()->flash('error', 'Repositório não encontrado ou não possui releases públicas. Verifique se:
-                    • A URL está correta
-                    • O repositório é público
-                    • Existe pelo menos uma release publicada');
-            } elseif ($response->status() === 403) {
-                session()->flash('error', 'Limite de requisições excedido. Tente novamente em alguns minutos.');
             } else {
-                throw new \Exception('Erro ao consultar API do GitHub: HTTP ' . $response->status());
+                session()->flash('error', 'Repositório não possui releases ou não foi possível acessá-lo.');
             }
         } catch (\Exception $e) {
             Log::error('Error checking updates: ' . $e->getMessage());
@@ -723,23 +738,14 @@ class SystemUpdates extends Component
                 if ($repoData['private'] ?? false) {
                     session()->flash('warning', 'Repositório encontrado, mas é privado. Para atualizações automáticas, use um repositório público.');
                 } else {
-                    // Check if it has releases
-                    $releasesResponse = Http::withHeaders([
-                        'Accept' => 'application/vnd.github.v3+json',
-                        'User-Agent' => 'OkavangoBook-Updater'
-                    ])->get("https://api.github.com/repos/{$repo}/releases");
-
-                    if ($releasesResponse->successful()) {
-                        $releases = $releasesResponse->json();
-                        
-                        if (empty($releases)) {
-                            session()->flash('warning', 'Repositório encontrado, mas não possui releases. Crie uma release primeiro.');
-                        } else {
-                            $latestRelease = $releases[0];
-                            session()->flash('success', 'Repositório válido! Última release: ' . ($latestRelease['tag_name'] ?? 'N/A'));
-                        }
+                    // Use the same method as checkForUpdates
+                    $latestRelease = $this->getLatestRelease($repo);
+                    
+                    if ($latestRelease) {
+                        $tagName = $latestRelease['tag_name'] ?? 'N/A';
+                        session()->flash('success', "Repositório válido! Última release: {$tagName}");
                     } else {
-                        session()->flash('warning', 'Repositório encontrado, mas não foi possível verificar as releases.');
+                        session()->flash('warning', 'Repositório encontrado, mas não possui releases. Crie uma release primeiro.');
                     }
                 }
             } elseif ($response->status() === 404) {
