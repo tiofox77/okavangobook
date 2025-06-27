@@ -469,9 +469,9 @@
                                                 <option value="{{ $room->id }}">Nº {{ $room->room_number }} ({{ $room->floor }}º andar)</option>
                                             @endforeach
                                         </select>
-                                        @error('selectedRoomId')
-                                            <span class="text-red-600 dark:text-red-400 text-sm">{{ $message }}</span>
-                                        @enderror
+                                        @if($errors->has('selectedRoomId'))
+                                            <span class="text-red-600 dark:text-red-400 text-sm">{{ $errors->first('selectedRoomId') }}</span>
+                                        @endif
                                     </div>
 
                                     <div class="mb-4">
@@ -811,9 +811,9 @@
                                                 <option value="{{ $value }}">{{ $label }}</option>
                                             @endforeach
                                         </select>
-                                        @error('cancellationReason')
-                                            <span class="text-red-600 dark:text-red-400 text-sm">{{ $message }}</span>
-                                        @enderror
+                                        @if($errors->has('cancellationReason'))
+                                            <span class="text-red-600 dark:text-red-400 text-sm">{{ $errors->first('cancellationReason') }}</span>
+                                        @endif
                                     </div>
 
                                     <div class="mb-4">

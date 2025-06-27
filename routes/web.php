@@ -24,6 +24,17 @@ Route::get('/destination/{province}', App\Livewire\LocationDetails::class)->name
 Route::get('/about-angola', App\Livewire\AboutAngola::class)->name('about.angola');
 Route::get('/contact', App\Livewire\Contact::class)->name('contact');
 
+// Sistema de Reservas - Público (não requer login)
+Route::get('/booking/create', App\Livewire\BookingCreate::class)->name('booking.create');
+Route::get('/booking/confirm/{booking}', App\Livewire\BookingConfirm::class)->name('booking.confirm');
+Route::get('/booking/success/{booking}', App\Livewire\BookingSuccess::class)->name('booking.success');
+
+// Sistema de Reservas - Utilizador Logado
+Route::middleware(['auth'])->group(function () {
+    Route::get('/my-bookings', App\Livewire\MyBookings::class)->name('my.bookings');
+    Route::get('/booking/{booking}', App\Livewire\BookingDetails::class)->name('booking.details');
+});
+
 // Rotas de autenticação
 Auth::routes();
 
@@ -43,4 +54,7 @@ Route::middleware(['auth', 'role:Admin'])->prefix('admin')->group(function () {
     Route::get('/amenities', App\Livewire\Admin\AmenityManagement::class)->name('admin.amenities');
     Route::get('/reservations', App\Livewire\Admin\ReservationManagement::class)->name('admin.reservations');
     Route::get('/reservations/create', App\Livewire\Admin\ReservationCreation::class)->name('admin.reservations.create');
+    // Configurações do Sistema
+    Route::get('/settings', App\Livewire\Admin\SettingsManagement::class)->name('admin.settings');
+    Route::get('/updates', App\Livewire\Admin\SystemUpdates::class)->name('admin.updates');
 });

@@ -48,9 +48,6 @@ class ReservationManagement extends Component
     public ?int $guests = null;
     public ?string $specialRequests = null;
     
-    // Propriedade para mensagens de feedback
-    public array $errors = [];
-    
     /**
      * Regras de validação para as propriedades
      *

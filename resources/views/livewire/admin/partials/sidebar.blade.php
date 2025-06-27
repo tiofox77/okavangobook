@@ -87,6 +87,39 @@
         
         <div class="border-t border-gray-700 my-4 opacity-50"></div>
         
+        <!-- Menu Configurações -->
+        <div class="mb-1">
+            <a href="#" id="config-menu-toggle" class="menu-item flex items-center py-3 px-3 rounded-lg mb-1 tooltip">
+                <div class="icon-container bg-gray-500 bg-opacity-20 text-gray-400">
+                    <i class="fas fa-cog"></i>
+                </div>
+                <span class="sidebar-link-text transition-opacity duration-300 flex-1">Configurações</span>
+                <i id="config-chevron" class="fas fa-chevron-down text-gray-400 transition-transform duration-200"></i>
+                <span class="tooltip-text">Configurações</span>
+            </a>
+            
+            <!-- Submenu Configurações -->
+            <div id="config-submenu" class="hidden ml-8 space-y-1">
+                <a href="{{ route('admin.settings') }}" class="menu-item flex items-center py-2 px-3 rounded-lg mb-1 tooltip text-sm">
+                    <div class="icon-container bg-blue-500 bg-opacity-20 text-blue-400 w-8 h-8">
+                        <i class="fas fa-sliders-h text-sm"></i>
+                    </div>
+                    <span class="sidebar-link-text transition-opacity duration-300 ml-2">Configurações Gerais</span>
+                    <span class="tooltip-text">Configurações Gerais</span>
+                </a>
+                
+                <a href="{{ route('admin.updates') }}" class="menu-item flex items-center py-2 px-3 rounded-lg mb-1 tooltip text-sm">
+                    <div class="icon-container bg-green-500 bg-opacity-20 text-green-400 w-8 h-8">
+                        <i class="fas fa-download text-sm"></i>
+                    </div>
+                    <span class="sidebar-link-text transition-opacity duration-300 ml-2">Actualizações</span>
+                    <span class="tooltip-text">Actualizações</span>
+                </a>
+            </div>
+        </div>
+        
+        <div class="border-t border-gray-700 my-4 opacity-50"></div>
+        
         <a href="{{ route('home') }}" class="menu-item flex items-center py-3 px-3 rounded-lg mb-1 tooltip">
             <div class="icon-container bg-gray-500 bg-opacity-20 text-gray-400">
                 <i class="fas fa-home"></i>
