@@ -300,7 +300,7 @@
                         <div class="mt-6">
                             <h4 class="text-sm font-medium text-gray-900 mb-2">Log da Atualização</h4>
                             <div class="bg-gray-50 rounded-lg p-3 max-h-48 overflow-y-auto">
-                                <pre class="text-xs text-gray-700 whitespace-pre-wrap">{{ implode("\n", $updateLog) }}</pre>
+                                <pre class="text-xs text-gray-700 whitespace-pre-wrap">@foreach($updateLog as $logEntry){{ $logEntry }}{{ $loop->last ? '' : "\n" }}@endforeach</pre>
                             </div>
                         </div>
                     @endif
