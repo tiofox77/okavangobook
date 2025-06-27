@@ -40,6 +40,7 @@ class SystemUpdates extends Component
     public array $systemRequirements = [];
     public array $requirementsStatus = ['passed' => 0, 'warnings' => 0, 'failed' => 0];
     public bool $isCheckingRequirements = false;
+    public bool $requirementsMet = false;
 
     // Confirmation modal
     public bool $showConfirmModal = false;
@@ -53,6 +54,21 @@ class SystemUpdates extends Component
     {
         $this->loadSettings();
         $this->getCurrentVersion();
+        
+        // Initialize requirements check if needed
+        if (empty($this->systemRequirements)) {
+            $this->requirementsMet = false;
+        }
+        
+        // Ensure requirementsStatus is properly initialized
+        if (!is_array($this->requirementsStatus)) {
+            $this->requirementsStatus = ['passed' => 0, 'warnings' => 0, 'failed' => 0];
+        }
+        
+        // Ensure updateLog is properly initialized as array
+        if (!is_array($this->updateLog)) {
+            $this->updateLog = [];
+        }
     }
 
     /**
@@ -186,9 +202,25 @@ class SystemUpdates extends Component
             return;
         }
 
+        // Check system requirements if not already checked
+        if (empty($this->systemRequirements)) {
+            $this->checkSystemRequirements();
+        }
+
         if (!$this->requirementsMet) {
-            session()->flash('error', 'Requisitos do sistema não atendidos. Verifique as configurações.');
-            return;
+            $failedCount = $this->requirementsStatus['failed'] ?? 0;
+            $warningCount = $this->requirementsStatus['warnings'] ?? 0;
+            
+            if ($failedCount > 0) {
+                session()->flash('error', "Requisitos críticos não atendidos ({$failedCount} falhas). Verifique a aba 'Requisitos do Sistema'.");
+            } else {
+                session()->flash('warning', "Alguns requisitos geraram avisos ({$warningCount} avisos). Continuando com a atualização...");
+                // Allow update to proceed with warnings
+            }
+            
+            if ($failedCount > 0) {
+                return;
+            }
         }
 
         $this->isUpdating = true;
@@ -659,9 +691,13 @@ class SystemUpdates extends Component
             ];
             if ($gitAvailable) $this->requirementsStatus['passed']++; else $this->requirementsStatus['warnings']++;
 
+            // Update requirementsMet based on requirements status
+            $this->requirementsMet = ($this->requirementsStatus['failed'] === 0);
+
         } catch (\Exception $e) {
             Log::error('Error checking system requirements: ' . $e->getMessage());
             session()->flash('error', 'Erro ao verificar requisitos do sistema: ' . $e->getMessage());
+            $this->requirementsMet = false;
         } finally {
             $this->isCheckingRequirements = false;
         }
@@ -838,15 +874,20 @@ class SystemUpdates extends Component
     }
 
     /**
-     * Set active tab
+     * Set active tab and perform auto-checks
      */
     public function setActiveTab(string $tab): void
     {
         $this->activeTab = $tab;
         
-        // Auto-check requirements when switching to requirements tab
-        if ($tab === 'requirements' && empty($this->systemRequirements)) {
+        // Auto-check system requirements when switching to requirements tab
+        if ($tab === 'requirements' && (empty($this->systemRequirements) || !$this->requirementsMet)) {
             $this->checkSystemRequirements();
+        }
+        
+        // Auto-check for updates when switching to updates tab if repository is configured
+        if ($tab === 'updates' && !empty($this->repositoryUrl) && empty($this->latestVersion)) {
+            $this->checkForUpdates();
         }
     }
 
