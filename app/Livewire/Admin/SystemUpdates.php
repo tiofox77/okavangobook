@@ -230,57 +230,72 @@ class SystemUpdates extends Component
 
         try {
             // Step 1: Create backup if enabled
-            $this->updateProgress[] = 'Criando backup...';
+            $this->updateProgress['criar_backup'] = 'processing';
+            $this->addToLog('Criando backup...');
             $this->createBackup();
+            $this->updateProgress['criar_backup'] = 'completed';
 
             // Step 2: Enable maintenance mode
-            $this->updateProgress[] = 'Ativando modo de manutenção...';
+            $this->updateProgress['modo_manutencao'] = 'processing';
+            $this->addToLog('Ativando modo de manutenção...');
             $this->enableMaintenanceMode();
+            $this->updateProgress['modo_manutencao'] = 'completed';
 
             // Step 3: Download update
-            $this->updateProgress[] = 'Baixando atualização...';
+            $this->updateProgress['baixar_atualizacao'] = 'processing';
+            $this->addToLog('Baixando atualização...');
             $updateFile = $this->downloadUpdate();
+            $this->updateProgress['baixar_atualizacao'] = 'completed';
 
             // Step 4: Extract and validate
-            $this->updateProgress[] = 'Extraindo arquivos...';
+            $this->updateProgress['extrair_arquivos'] = 'processing';
+            $this->addToLog('Extraindo arquivos...');
             $this->extractUpdate($updateFile);
+            $this->updateProgress['extrair_arquivos'] = 'completed';
 
             // Step 5: Install update
-            $this->updateProgress[] = 'Instalando atualização...';
+            $this->updateProgress['instalar_atualizacao'] = 'processing';
+            $this->addToLog('Instalando atualização...');
             $this->installUpdate();
+            $this->updateProgress['instalar_atualizacao'] = 'completed';
 
-            // Step 6: Run migrations and clear cache
-            $this->updateProgress[] = 'Executando migrações...';
+            // Step 6: Run migrations
+            $this->updateProgress['executar_migracoes'] = 'processing';
+            $this->addToLog('Executando migrações...');
             $this->runMigrations();
+            $this->updateProgress['executar_migracoes'] = 'completed';
 
-            // Step 7: Update version
-            $this->updateProgress[] = 'Finalizando...';
-            $this->updateVersion();
+            // Step 7: Finalize
+            $this->updateProgress['finalizar'] = 'processing';
+            $this->addToLog('Finalizando...');
+            $this->finalizeUpdate();
+            $this->updateProgress['finalizar'] = 'completed';
 
             // Step 8: Disable maintenance mode
-            $this->updateProgress[] = 'Desativando modo de manutenção...';
+            $this->updateProgress['desativar_manutencao'] = 'processing';
+            $this->addToLog('Desativando modo de manutenção...');
             $this->disableMaintenanceMode();
+            $this->updateProgress['desativar_manutencao'] = 'completed';
 
-            $this->updateProgress[] = 'Atualização concluída com sucesso!';
-            $this->addToLog('Atualização para versão ' . $this->latestVersion . ' concluída com sucesso!');
-
+            $this->addToLog('Atualização concluída com sucesso!');
+            $this->isUpdating = false;
+            
             // Update current version
             $this->currentVersion = $this->latestVersion;
             $this->updateAvailable = false;
-
-            session()->flash('success', 'Sistema atualizado com sucesso para versão ' . $this->latestVersion . '!');
+            
+            session()->flash('success', 'Atualização instalada com sucesso!');
+            
         } catch (\Exception $e) {
             Log::error('Update failed: ' . $e->getMessage());
-            $this->addToLog('Erro durante atualização: ' . $e->getMessage());
-            $this->updateProgress[] = 'Erro durante atualização';
+            $this->addToLog('Erro durante a atualização: ' . $e->getMessage());
             
-            // Try to restore from backup if it exists
+            // Try to restore from backup
             $this->restoreFromBackup();
             
-            session()->flash('error', 'Erro durante atualização: ' . $e->getMessage());
+            $this->isUpdating = false;
+            session()->flash('error', 'Erro durante a atualização: ' . $e->getMessage());
         }
-
-        $this->isUpdating = false;
     }
 
     /**
@@ -898,5 +913,25 @@ class SystemUpdates extends Component
     {
         return view('livewire.admin.system-updates')
             ->layout('layouts.admin');
+    }
+
+    /**
+     * Finalize update process
+     */
+    protected function finalizeUpdate(): void
+    {
+        // Clear caches
+        Artisan::call('cache:clear');
+        Artisan::call('config:clear');
+        Artisan::call('view:clear');
+        Artisan::call('route:clear');
+        
+        // Update version file if it exists
+        $versionFile = base_path('version.txt');
+        if (file_exists($versionFile)) {
+            file_put_contents($versionFile, $this->latestVersion);
+        }
+        
+        Log::info('Update finalization completed');
     }
 }
