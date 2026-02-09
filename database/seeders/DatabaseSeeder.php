@@ -20,6 +20,12 @@ class DatabaseSeeder extends Seeder
         
         // Executar os seeders na ordem correta para manter a integridade dos dados
         $this->call([
+            // Primeiro os roles e permissões (necessários para o sistema de autenticação)
+            RoleSeeder::class,
+            
+            // Criar usuários do sistema (após roles)
+            UserSeeder::class,
+            
             // Comodidades (independentes de outros dados)
             AmenitySeeder::class,
             

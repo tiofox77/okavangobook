@@ -280,7 +280,11 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <div class="flex items-center justify-end space-x-2">
-                                    <button wire:click="openModal({{ $location->id }})" class="bg-blue-100 hover:bg-blue-200 text-blue-800 px-3 py-1 rounded-md text-xs font-medium transition-colors duration-200">
+                                    <button wire:click="view({{ $location->id }})" class="bg-green-100 hover:bg-green-200 text-green-800 px-3 py-1 rounded-md text-xs font-medium transition-colors duration-200" title="Visualizar">
+                                        <i class="fas fa-eye mr-1"></i>
+                                        Ver
+                                    </button>
+                                    <button wire:click="openModal({{ $location->id }})" class="bg-blue-100 hover:bg-blue-200 text-blue-800 px-3 py-1 rounded-md text-xs font-medium transition-colors duration-200" title="Editar">
                                         <i class="fas fa-edit mr-1"></i>
                                         Editar
                                     </button>
@@ -402,6 +406,13 @@
                     <div class="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700">
                         <div class="flex space-x-2">
                             <button 
+                                wire:click="view({{ $location->id }})" 
+                                class="flex items-center justify-center w-8 h-8 bg-green-100 hover:bg-green-200 dark:bg-green-900 dark:hover:bg-green-800 text-green-600 dark:text-green-400 rounded-full transition-colors duration-200"
+                                title="Visualizar localização">
+                                <i class="fas fa-eye text-sm"></i>
+                            </button>
+                            
+                            <button 
                                 wire:click="openModal({{ $location->id }})" 
                                 class="flex items-center justify-center w-8 h-8 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:hover:bg-blue-800 text-blue-600 dark:text-blue-400 rounded-full transition-colors duration-200"
                                 title="Editar localização">
@@ -476,6 +487,9 @@
     
     <!-- Modal de criação/edição (usando partial) -->
     @include('livewire.admin.partials.location-form-modal')
+    
+    <!-- Modal de visualização -->
+    @include('livewire.admin.partials.location-view-modal')
     
     <!-- Modal de confirmação de eliminação (usando partial) -->
     @include('livewire.admin.partials.location-delete-modal')

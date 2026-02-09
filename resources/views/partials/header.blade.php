@@ -4,14 +4,16 @@
             <!-- Logo -->
             <div class="flex items-center">
                 <a href="{{ route('home') }}" class="flex items-center">
-                    <span class="text-2xl font-bold text-primary">Okavango<span class="text-secondary">Book</span></span>
+                    <span class="text-2xl font-bold text-primary">{{ \App\Models\Setting::get('app_name', 'Okavango') }}<span class="text-secondary">Book</span></span>
                 </a>
             </div>
             
             <!-- Menu de navegação para desktop -->
             <nav class="hidden md:flex space-x-8">
                 <a href="{{ route('home') }}" class="text-gray-700 hover:text-primary {{ request()->routeIs('home') ? 'font-bold text-primary' : '' }}">Início</a>
-                <a href="{{ route('search.results') }}" class="text-gray-700 hover:text-primary {{ request()->routeIs('search.results') && !request()->has('sort') ? 'font-bold text-primary' : '' }}">Hotéis</a>
+                <a href="{{ route('search.results') }}" class="text-gray-700 hover:text-primary {{ request()->routeIs('search.results') && !request()->has('sort') && !request()->has('property_types') ? 'font-bold text-primary' : '' }}">Hotéis</a>
+                <a href="{{ route('search.results', ['property_types' => ['resort']]) }}" class="text-gray-700 hover:text-primary {{ request()->input('property_types.0') === 'resort' ? 'font-bold text-primary' : '' }}">Resorts</a>
+                <a href="{{ route('search.results', ['property_types' => ['hospedaria']]) }}" class="text-gray-700 hover:text-primary {{ request()->input('property_types.0') === 'hospedaria' ? 'font-bold text-primary' : '' }}">Hospedarias</a>
                 <a href="{{ route('search.results', ['sort' => 'price_asc']) }}" class="text-gray-700 hover:text-primary {{ request()->has('sort') ? 'font-bold text-primary' : '' }}">Ofertas</a>
                 <a href="{{ route('destinations') }}" class="text-gray-700 hover:text-primary {{ request()->routeIs('destinations') ? 'font-bold text-primary' : '' }}">Destinos</a>
                 <a href="{{ route('about.angola') }}" class="text-gray-700 hover:text-primary {{ request()->routeIs('about.angola') ? 'font-bold text-primary' : '' }}">Sobre Angola</a>
@@ -20,6 +22,24 @@
             
             <!-- Botões de autenticação -->
             <div class="hidden md:flex items-center space-x-4">
+                <!-- Comparação de Hotéis -->
+                @php
+                    $compareCount = count(session('compare_hotels', []));
+                @endphp
+                <a href="{{ route('hotels.compare') }}" class="relative text-gray-700 hover:text-blue-600 transition p-2 rounded-full hover:bg-gray-100">
+                    <i class="fas fa-balance-scale text-xl"></i>
+                    @if($compareCount > 0)
+                        <span class="absolute top-0 right-0 bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                            {{ $compareCount }}
+                        </span>
+                    @endif
+                </a>
+                
+                <!-- Notificações (apenas para usuários logados) -->
+                @auth
+                    @livewire('notification-bell')
+                @endauth
+                
                 @guest
                     <a href="{{ route('login') }}" class="text-gray-700 hover:text-primary">Entrar</a>
                     <a href="{{ route('register') }}" class="bg-primary text-white px-4 py-2 rounded-md hover:bg-blue-700">Registrar</a>
@@ -107,7 +127,9 @@
     <!-- Menu mobile -->
     <div id="mobile-menu" class="hidden md:hidden">
         <a href="{{ route('home') }}" class="block py-2 px-4 text-sm hover:bg-gray-100 {{ request()->routeIs('home') ? 'font-bold bg-gray-100' : '' }}">Início</a>
-        <a href="{{ route('search.results') }}" class="block py-2 px-4 text-sm hover:bg-gray-100 {{ request()->routeIs('search.results') && !request()->has('sort') ? 'font-bold bg-gray-100' : '' }}">Hotéis</a>
+        <a href="{{ route('search.results') }}" class="block py-2 px-4 text-sm hover:bg-gray-100 {{ request()->routeIs('search.results') && !request()->has('sort') && !request()->has('property_types') ? 'font-bold bg-gray-100' : '' }}">Hotéis</a>
+        <a href="{{ route('search.results', ['property_types' => ['resort']]) }}" class="block py-2 px-4 text-sm hover:bg-gray-100 {{ request()->input('property_types.0') === 'resort' ? 'font-bold bg-gray-100' : '' }}">Resorts</a>
+        <a href="{{ route('search.results', ['property_types' => ['hospedaria']]) }}" class="block py-2 px-4 text-sm hover:bg-gray-100 {{ request()->input('property_types.0') === 'hospedaria' ? 'font-bold bg-gray-100' : '' }}">Hospedarias</a>
         <a href="{{ route('search.results', ['sort' => 'price_asc']) }}" class="block py-2 px-4 text-sm hover:bg-gray-100 {{ request()->has('sort') ? 'font-bold bg-gray-100' : '' }}">Ofertas</a>
         <a href="{{ route('destinations') }}" class="block py-2 px-4 text-sm hover:bg-gray-100 {{ request()->routeIs('destinations') ? 'font-bold bg-gray-100' : '' }}">Destinos</a>
         <a href="{{ route('about.angola') }}" class="block py-2 px-4 text-sm hover:bg-gray-100 {{ request()->routeIs('about.angola') ? 'font-bold bg-gray-100' : '' }}">Sobre Angola</a>

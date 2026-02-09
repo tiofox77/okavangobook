@@ -197,6 +197,79 @@
                         @endif
                     </div>
                     
+                    <!-- Filtro de Tipo de Propriedade -->
+                    <div class="mb-6" x-data="{open: true}" wire:key="property-type-filter">
+                        <div class="flex items-center justify-between cursor-pointer" @click="open = !open">
+                            <h3 class="font-medium text-gray-700 flex items-center">
+                                <i class="fas fa-building text-primary mr-2"></i>
+                                Tipo de Propriedade
+                                @if(count($propertyTypes) > 0)
+                                    <span class="ml-2 text-xs bg-primary text-white rounded-full px-2 py-0.5">{{ count($propertyTypes) }}</span>
+                                @endif
+                                <span wire:loading wire:target="togglePropertyType" class="ml-2">
+                                    <i class="fas fa-spinner fa-spin text-primary text-sm"></i>
+                                </span>
+                            </h3>
+                            <i class="fas" :class="open ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                        </div>
+                        
+                        <div x-show="open" class="mt-3 space-y-2" wire:loading.class="opacity-50" wire:target="togglePropertyType">
+                            <!-- Hotel -->
+                            <div 
+                                wire:click="togglePropertyType('hotel')"
+                                wire:key="filter-hotel"
+                                class="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-gray-50 transition-colors duration-200 border cursor-pointer {{ in_array('hotel', $propertyTypes) ? 'bg-blue-50 border-blue-300' : 'border-gray-100' }}"
+                            >
+                                <div class="flex items-center">
+                                    <div class="w-5 h-5 flex items-center justify-center mr-3 border-2 rounded {{ in_array('hotel', $propertyTypes) ? 'bg-primary border-primary' : 'border-gray-300 bg-white' }}">
+                                        @if(in_array('hotel', $propertyTypes))
+                                            <i class="fas fa-check text-xs text-white"></i>
+                                        @endif
+                                    </div>
+                                    <i class="fas fa-hotel text-blue-500 mr-2"></i>
+                                    <span class="text-sm {{ in_array('hotel', $propertyTypes) ? 'text-primary font-medium' : 'text-gray-700' }}">Hotel</span>
+                                </div>
+                                <span class="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">{{ $propertyTypeCounts['hotel'] ?? 0 }}</span>
+                            </div>
+                            
+                            <!-- Resort -->
+                            <div 
+                                wire:click="togglePropertyType('resort')"
+                                wire:key="filter-resort"
+                                class="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-gray-50 transition-colors duration-200 border cursor-pointer {{ in_array('resort', $propertyTypes) ? 'bg-orange-50 border-orange-300' : 'border-gray-100' }}"
+                            >
+                                <div class="flex items-center">
+                                    <div class="w-5 h-5 flex items-center justify-center mr-3 border-2 rounded {{ in_array('resort', $propertyTypes) ? 'bg-primary border-primary' : 'border-gray-300 bg-white' }}">
+                                        @if(in_array('resort', $propertyTypes))
+                                            <i class="fas fa-check text-xs text-white"></i>
+                                        @endif
+                                    </div>
+                                    <i class="fas fa-umbrella-beach text-orange-500 mr-2"></i>
+                                    <span class="text-sm {{ in_array('resort', $propertyTypes) ? 'text-primary font-medium' : 'text-gray-700' }}">Resort</span>
+                                </div>
+                                <span class="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">{{ $propertyTypeCounts['resort'] ?? 0 }}</span>
+                            </div>
+                            
+                            <!-- Hospedaria -->
+                            <div 
+                                wire:click="togglePropertyType('hospedaria')"
+                                wire:key="filter-hospedaria"
+                                class="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-gray-50 transition-colors duration-200 border cursor-pointer {{ in_array('hospedaria', $propertyTypes) ? 'bg-teal-50 border-teal-300' : 'border-gray-100' }}"
+                            >
+                                <div class="flex items-center">
+                                    <div class="w-5 h-5 flex items-center justify-center mr-3 border-2 rounded {{ in_array('hospedaria', $propertyTypes) ? 'bg-primary border-primary' : 'border-gray-300 bg-white' }}">
+                                        @if(in_array('hospedaria', $propertyTypes))
+                                            <i class="fas fa-check text-xs text-white"></i>
+                                        @endif
+                                    </div>
+                                    <i class="fas fa-home text-teal-500 mr-2"></i>
+                                    <span class="text-sm {{ in_array('hospedaria', $propertyTypes) ? 'text-primary font-medium' : 'text-gray-700' }}">Hospedaria</span>
+                                </div>
+                                <span class="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">{{ $propertyTypeCounts['hospedaria'] ?? 0 }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <!-- Filtro de províncias -->
                     <div class="mb-6" x-data="{open: true}">
                         <div class="flex items-center justify-between cursor-pointer" @click="open = !open">
@@ -701,9 +774,9 @@
                 </div>
                 
                 <!-- Resultados da busca -->
-                <div class="{{ $viewMode == 'grid' ? 'grid grid-cols-1 md:grid-cols-2 gap-6' : 'space-y-6' }}">
+                <div class="{{ $viewMode == 'grid' ? 'grid grid-cols-1 md:grid-cols-2 gap-6' : 'space-y-6' }}" wire:key="results-{{ implode('-', $propertyTypes) }}">
                     @forelse($searchResults as $hotel)
-                        <div class="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl border border-gray-100 hover:border-primary/20 relative group">
+                        <div wire:key="hotel-{{ $hotel->id }}" class="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl border border-gray-100 hover:border-primary/20 relative group">
                             <div class="{{ $viewMode == 'grid' ? 'flex flex-col' : 'flex flex-col md:flex-row' }}">
                                 <!-- Imagem do hotel -->
                                 <div class="{{ $viewMode == 'grid' ? 'w-full h-48' : 'md:w-1/3 h-48 md:h-64' }} relative overflow-hidden">

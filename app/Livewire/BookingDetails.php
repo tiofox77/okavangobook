@@ -15,12 +15,23 @@ class BookingDetails extends Component
     
     /**
      * Inicializar componente
+     * 
+     * @param Reservation|int $booking Objeto da reserva ou ID da reserva
      */
-    public function mount(int $booking): void
+    public function mount(Reservation|int $booking): void
     {
-        $this->booking = Reservation::with(['hotel', 'roomType', 'room', 'user'])
-            ->where('user_id', Auth::id())
-            ->findOrFail($booking);
+        if ($booking instanceof Reservation) {
+            // Verificar se a reserva pertence ao usuário atual
+            if ($booking->user_id === Auth::id()) {
+                $this->booking = $booking->load(['hotel', 'roomType', 'room', 'user']);
+            } else {
+                abort(403, 'Reserva não pertence a este utilizador');
+            }
+        } else {
+            $this->booking = Reservation::with(['hotel', 'roomType', 'room', 'user'])
+                ->where('user_id', Auth::id())
+                ->findOrFail($booking);
+        }
     }
     
     /**

@@ -417,18 +417,92 @@
     @if($activeTab === 'history')
         <div class="bg-white rounded-lg shadow-sm border border-gray-200">
             <div class="p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">
-                    <i class="fas fa-history text-blue-500 mr-2"></i>
-                    Histórico de Atualizações
-                </h3>
-                
-                <div class="text-center py-8">
-                    <i class="fas fa-clock text-gray-400 text-3xl mb-3"></i>
-                    <p class="text-gray-500">Funcionalidade em desenvolvimento.</p>
-                    <p class="text-sm text-gray-400 mt-2">
-                        Em breve você poderá visualizar o histórico completo de atualizações do sistema.
-                    </p>
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900">
+                        <i class="fas fa-history text-blue-500 mr-2"></i>
+                        Histórico de Atualizações
+                    </h3>
+                    <span class="text-sm text-gray-500">{{ count($updateHistories) }} registro(s)</span>
                 </div>
+                
+                @if(!empty($updateHistories))
+                    <div class="space-y-4">
+                        @foreach($updateHistories as $history)
+                            <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <div class="flex items-center space-x-3 mb-2">
+                                            @if($history['status'] === 'completed')
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                    <i class="fas fa-check-circle mr-1"></i>Concluída
+                                                </span>
+                                            @elseif($history['status'] === 'failed')
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                    <i class="fas fa-times-circle mr-1"></i>Falhou
+                                                </span>
+                                            @elseif($history['status'] === 'in_progress')
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                    <i class="fas fa-spinner fa-spin mr-1"></i>Em Progresso
+                                                </span>
+                                            @elseif($history['status'] === 'rolled_back')
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                                                    <i class="fas fa-undo mr-1"></i>Revertida
+                                                </span>
+                                            @else
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                                    {{ ucfirst($history['status']) }}
+                                                </span>
+                                            @endif
+                                            
+                                            <span class="text-sm font-mono text-gray-600">
+                                                v{{ $history['version_from'] ?? '?' }} → v{{ $history['version_to'] }}
+                                            </span>
+                                        </div>
+                                        
+                                        @if($history['release_name'])
+                                            <p class="text-sm font-medium text-gray-800 mb-1">{{ $history['release_name'] }}</p>
+                                        @endif
+                                        
+                                        <div class="flex items-center space-x-4 text-xs text-gray-500">
+                                            <span><i class="fas fa-user mr-1"></i>{{ $history['performed_by'] }}</span>
+                                            @if($history['started_at'])
+                                                <span><i class="fas fa-clock mr-1"></i>{{ $history['started_at'] }}</span>
+                                            @endif
+                                            @if($history['backup_file'])
+                                                <span class="text-green-600"><i class="fas fa-database mr-1"></i>Backup criado</span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="text-right text-xs text-gray-400">
+                                        {{ $history['created_at'] }}
+                                    </div>
+                                </div>
+                                
+                                @if($history['log'])
+                                    <details class="mt-3">
+                                        <summary class="text-xs text-blue-600 cursor-pointer hover:text-blue-800">
+                                            <i class="fas fa-file-alt mr-1"></i>Ver log da atualização
+                                        </summary>
+                                        <div class="mt-2 bg-gray-900 rounded-lg p-3 max-h-40 overflow-y-auto">
+                                            <pre class="text-xs text-green-400 whitespace-pre-wrap font-mono">{{ $history['log'] }}</pre>
+                                        </div>
+                                    </details>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="text-center py-12">
+                        <div class="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                            <i class="fas fa-history text-gray-400 text-2xl"></i>
+                        </div>
+                        <p class="text-gray-500 font-medium">Nenhuma atualização registrada</p>
+                        <p class="text-sm text-gray-400 mt-1">
+                            O histórico será preenchido automaticamente após a primeira atualização via sistema.
+                        </p>
+                    </div>
+                @endif
             </div>
         </div>
     @endif

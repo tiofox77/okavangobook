@@ -55,7 +55,12 @@
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <i class="fas fa-search text-gray-400"></i>
                     </div>
-                    <input type="text" id="search" wire:model.live="search" class="pl-10 w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="Nome, número, descrição...">
+                    <input type="text" 
+                           id="search" 
+                           wire:model.blur="search" 
+                           wire:keydown.enter="$refresh"
+                           class="pl-10 w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" 
+                           placeholder="Nome, número, descrição...">
                 </div>
             </div>
         </div>
@@ -166,12 +171,16 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <div class="flex justify-end space-x-2">
-                                    <button wire:click="edit({{ $room->id }})" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+                                    <button wire:click="view({{ $room->id }})" class="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300" title="Visualizar">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button wire:click="edit({{ $room->id }})" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300" title="Editar">
                                         <i class="fas fa-edit"></i>
                                     </button>
                                     <button 
                                         @click="confirmingDeletion = true; roomIdToDelete = {{ $room->id }}" 
-                                        class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300">
+                                        class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                                        title="Excluir">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </div>
@@ -268,4 +277,7 @@
     
     <!-- Form Modal -->
     @include('livewire.admin.partials.room-form-modal')
+    
+    <!-- View Modal -->
+    @include('livewire.admin.partials.room-view-modal')
 </div>

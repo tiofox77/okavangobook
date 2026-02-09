@@ -28,6 +28,13 @@ class SettingsManagement extends Component
     public $appLogo;
     public $appFavicon;
     public $heroBackground;
+    public $offersBackground;
+    
+    // URLs das imagens atuais
+    public ?string $currentAppLogo = null;
+    public ?string $currentAppFavicon = null;
+    public ?string $currentHeroBackground = null;
+    public ?string $currentOffersBackground = null;
     
     // Company Details
     public string $contactEmail = '';
@@ -130,6 +137,12 @@ class SettingsManagement extends Component
         // System Settings
         $this->maintenanceMode = (bool) Setting::get('maintenance_mode', false);
         $this->debugMode = (bool) Setting::get('debug_mode', false);
+        
+        // Carregar URLs das imagens atuais
+        $this->currentAppLogo = Setting::get('app_logo');
+        $this->currentAppFavicon = Setting::get('app_favicon');
+        $this->currentHeroBackground = Setting::get('hero_background');
+        $this->currentOffersBackground = Setting::get('offers_background');
     }
 
     /**
@@ -174,6 +187,9 @@ class SettingsManagement extends Component
             'heroBackground' => $this->heroBackground instanceof \Livewire\Features\SupportFileUploads\TemporaryUploadedFile
                 ? 'image|max:2048'
                 : 'nullable',
+            'offersBackground' => $this->offersBackground instanceof \Livewire\Features\SupportFileUploads\TemporaryUploadedFile
+                ? 'image|max:2048'
+                : 'nullable',
         ]);
 
         try {
@@ -187,21 +203,55 @@ class SettingsManagement extends Component
 
             // Handle file uploads
             if ($this->appLogo instanceof \Livewire\Features\SupportFileUploads\TemporaryUploadedFile) {
+                // Deletar logo antigo se existir
+                if ($this->currentAppLogo && Storage::disk('public')->exists($this->currentAppLogo)) {
+                    Storage::disk('public')->delete($this->currentAppLogo);
+                    Log::info('Old app logo deleted: ' . $this->currentAppLogo);
+                }
+                
                 $logoPath = $this->appLogo->store('assets', 'public');
                 Setting::set('app_logo', $logoPath, 'general', 'string', 'Logo da aplicação', true);
+                $this->currentAppLogo = $logoPath;
                 Log::info('App logo saved at: ' . $logoPath);
             }
 
             if ($this->appFavicon instanceof \Livewire\Features\SupportFileUploads\TemporaryUploadedFile) {
+                // Deletar favicon antigo se existir
+                if ($this->currentAppFavicon && Storage::disk('public')->exists($this->currentAppFavicon)) {
+                    Storage::disk('public')->delete($this->currentAppFavicon);
+                    Log::info('Old app favicon deleted: ' . $this->currentAppFavicon);
+                }
+                
                 $faviconPath = $this->appFavicon->store('assets', 'public');
                 Setting::set('app_favicon', $faviconPath, 'general', 'string', 'Favicon da aplicação', true);
+                $this->currentAppFavicon = $faviconPath;
                 Log::info('App favicon saved at: ' . $faviconPath);
             }
 
             if ($this->heroBackground instanceof \Livewire\Features\SupportFileUploads\TemporaryUploadedFile) {
+                // Deletar imagem de fundo antiga se existir
+                if ($this->currentHeroBackground && Storage::disk('public')->exists($this->currentHeroBackground)) {
+                    Storage::disk('public')->delete($this->currentHeroBackground);
+                    Log::info('Old hero background deleted: ' . $this->currentHeroBackground);
+                }
+                
                 $heroBgPath = $this->heroBackground->store('assets', 'public');
                 Setting::set('hero_background', $heroBgPath, 'general', 'string', 'Imagem de fundo hero', true);
+                $this->currentHeroBackground = $heroBgPath;
                 Log::info('Hero background saved at: ' . $heroBgPath);
+            }
+            
+            if ($this->offersBackground instanceof \Livewire\Features\SupportFileUploads\TemporaryUploadedFile) {
+                // Deletar imagem de fundo antiga se existir
+                if ($this->currentOffersBackground && Storage::disk('public')->exists($this->currentOffersBackground)) {
+                    Storage::disk('public')->delete($this->currentOffersBackground);
+                    Log::info('Old offers background deleted: ' . $this->currentOffersBackground);
+                }
+                
+                $offersBgPath = $this->offersBackground->store('assets', 'public');
+                Setting::set('offers_background', $offersBgPath, 'general', 'string', 'Imagem de fundo ofertas especiais', true);
+                $this->currentOffersBackground = $offersBgPath;
+                Log::info('Offers background saved at: ' . $offersBgPath);
             }
 
             // Save other settings
@@ -497,6 +547,94 @@ class SettingsManagement extends Component
         $this->confirmData = null;
     }
 
+    /**
+     * Remover logo da aplicação
+     */
+    public function removeAppLogo(): void
+    {
+        try {
+            if ($this->currentAppLogo && Storage::disk('public')->exists($this->currentAppLogo)) {
+                Storage::disk('public')->delete($this->currentAppLogo);
+                Log::info('App logo removed: ' . $this->currentAppLogo);
+            }
+            
+            Setting::set('app_logo', null, 'general', 'string', 'Logo da aplicação', true);
+            $this->currentAppLogo = null;
+            $this->appLogo = null;
+            
+            session()->flash('success', 'Logo removido com sucesso!');
+        } catch (\Exception $e) {
+            Log::error('Error removing app logo: ' . $e->getMessage());
+            session()->flash('error', 'Erro ao remover logo: ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Remover favicon
+     */
+    public function removeAppFavicon(): void
+    {
+        try {
+            if ($this->currentAppFavicon && Storage::disk('public')->exists($this->currentAppFavicon)) {
+                Storage::disk('public')->delete($this->currentAppFavicon);
+                Log::info('App favicon removed: ' . $this->currentAppFavicon);
+            }
+            
+            Setting::set('app_favicon', null, 'general', 'string', 'Favicon da aplicação', true);
+            $this->currentAppFavicon = null;
+            $this->appFavicon = null;
+            
+            session()->flash('success', 'Favicon removido com sucesso!');
+        } catch (\Exception $e) {
+            Log::error('Error removing app favicon: ' . $e->getMessage());
+            session()->flash('error', 'Erro ao remover favicon: ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Remover imagem de fundo hero
+     */
+    public function removeHeroBackground(): void
+    {
+        try {
+            if ($this->currentHeroBackground && Storage::disk('public')->exists($this->currentHeroBackground)) {
+                Storage::disk('public')->delete($this->currentHeroBackground);
+                Log::info('Hero background removed: ' . $this->currentHeroBackground);
+            }
+            
+            Setting::set('hero_background', null, 'general', 'string', 'Imagem de fundo hero', true);
+            $this->currentHeroBackground = null;
+            $this->heroBackground = null;
+            
+            session()->flash('success', 'Imagem de fundo removida com sucesso!');
+        } catch (\Exception $e) {
+            Log::error('Error removing hero background: ' . $e->getMessage());
+            session()->flash('error', 'Erro ao remover imagem de fundo: ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Remover imagem de fundo de ofertas especiais
+     */
+    public function removeOffersBackground(): void
+    {
+        try {
+            if ($this->currentOffersBackground && Storage::disk('public')->exists($this->currentOffersBackground)) {
+                Storage::disk('public')->delete($this->currentOffersBackground);
+                Log::info('Offers background removed: ' . $this->currentOffersBackground);
+            }
+            
+            Setting::set('offers_background', null, 'general', 'string', 'Imagem de fundo ofertas especiais', true);
+            $this->currentOffersBackground = null;
+            $this->offersBackground = null;
+            
+            session()->flash('success', 'Imagem de fundo de ofertas removida com sucesso!');
+        } catch (\Exception $e) {
+            Log::error('Error removing offers background: ' . $e->getMessage());
+            session()->flash('error', 'Erro ao remover imagem de fundo de ofertas: ' . $e->getMessage());
+        }
+    }
+    
     /**
      * Update .env file
      */

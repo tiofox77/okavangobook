@@ -11,10 +11,37 @@ Okavango Book é uma plataforma similar ao Trivago, que permite aos usuários pe
 - **Outras ferramentas**: PHP, JavaScript
 
 ## Progresso Atual
-- Layout principal implementado com header e footer
-- Componentes Livewire iniciais criados
-- Seeders implementados para dados iniciais
-- Migrações e modelos básicos configurados
+### ✅ Implementado (Janeiro 2026)
+- **Frontend Público**:
+  - Layout principal com header e footer responsivo
+  - Página inicial com busca avançada
+  - Listagem de hotéis com filtros
+  - Página de detalhes com tabs (Quartos, Restaurante, Lazer, Localização, **Avaliações**)
+  - Sistema de reservas online
+  - Galeria de imagens interativa
+  - **Sistema de Avaliações completo** (v2.0)
+  - **Sistema de Favoritos** (v2.0)
+  - **Perfil do Usuário** com favoritos, reservas e avaliações (v2.0)
+  
+- **Painel Administrativo**:
+  - Dashboard completo
+  - Gestão de Hotéis, Quartos, Restaurante e Lazer
+  - Sistema de Reservas (confirmação, check-in/out, cancelamento)
+  - Gestão de Utilizadores com roles
+  - UI/UX consistente com modais e transições
+  
+- **Backend**:
+  - 15+ modelos Laravel configurados
+  - Sistema de autenticação com Breeze
+  - Roles e permissões com Spatie
+  - Upload de imagens múltiplas
+  - Seeders completos para dados de teste
+  
+- **Tecnologias**:
+  - Laravel 11 + Livewire 3
+  - Alpine.js para interatividade
+  - Tailwind CSS + Dark Mode
+  - MySQL com migrações completas
 
 ## Versões e Funcionalidades
 
@@ -22,9 +49,9 @@ Okavango Book é uma plataforma similar ao Trivago, que permite aos usuários pe
 **Objetivo**: Criar uma versão funcional básica do sistema que permita aos usuários pesquisar hotéis e ver resultados.
 
 #### Funcionalidades:
-- [ ] **Autenticação básica**
-  - [ ] Cadastro de usuários
-  - [ ] Login/Logout
+- [x] **Autenticação básica**
+  - [x] Cadastro de usuários
+  - [x] Login/Logout
   - [ ] Recuperação de senha
 
 - [x] **Banco de Dados Inicial**
@@ -37,79 +64,210 @@ Okavango Book é uma plataforma similar ao Trivago, que permite aos usuários pe
 - [x] **Interface de Busca**
   - [x] Página inicial com formulário de busca
   - [x] Filtro por localidade
-  - [ ] Filtro por datas de check-in/check-out
-  - [ ] Filtro por número de hóspedes
+  - [x] Filtro por datas de check-in/check-out
+  - [x] Filtro por número de hóspedes
 
-- [ ] **Listagem de Resultados**
-  - [ ] Exibição dos hotéis disponíveis
-  - [ ] Preços base
-  - [ ] Informações básicas (nome, estrelas, localização)
-  - [ ] Ordenação por preço, classificação ou popularidade
+- [x] **Listagem de Resultados**
+  - [x] Exibição dos hotéis disponíveis
+  - [x] Preços base
+  - [x] Informações básicas (nome, estrelas, localização)
+  - [x] Ordenação por preço, classificação ou popularidade
 
-- [ ] **Página de Detalhes**
-  - [ ] Informações detalhadas do hotel
-  - [ ] Fotos principais
-  - [ ] Exibição de tipos de quarto disponíveis
-  - [ ] Comparação de preços entre provedores
-  - [ ] Links para reserva
+- [x] **Página de Detalhes**
+  - [x] Informações detalhadas do hotel
+  - [x] Fotos principais com galeria interativa
+  - [x] Exibição de tipos de quarto disponíveis
+  - [x] Integração com sistema de reservas
+  - [x] Tabs para Restaurante e Lazer
+  - [x] Localização com mapa
+
+### Versão 1.5 - Sistema Administrativo
+**Objetivo**: Implementar painel completo de administração para gestão do sistema.
+
+#### Funcionalidades:
+- [x] **Painel de Administração**
+  - [x] Dashboard com estatísticas
+  - [x] Sistema de autenticação admin
+  - [x] Roles e permissões (Admin, Hotel Manager)
+  - [x] Interface responsiva e moderna
+
+- [x] **Gestão de Hotéis**
+  - [x] CRUD completo de hotéis
+  - [x] Upload de imagens múltiplas
+  - [x] Gestão de comodidades
+  - [x] Filtros e busca avançada
+  - [x] Paginação
+
+- [x] **Gestão de Quartos**
+  - [x] CRUD de tipos de quartos
+  - [x] CRUD de quartos individuais
+  - [x] Gestão de disponibilidade
+  - [x] Precificação por tipo de quarto
+  - [x] Upload de múltiplas imagens
+  - [x] Gestão de características e comodidades
+  - [x] Criação em lote (bulk creation)
+
+- [x] **Gestão de Restaurante**
+  - [x] CRUD de itens do menu
+  - [x] Categorias (entrada, prato principal, sobremesa, bebida)
+  - [x] Atributos dietéticos (vegetariano, vegano, sem glúten, picante)
+  - [x] Gestão de preços e tempo de preparação
+  - [x] Upload de imagens
+  - [x] Interface modal consistente com outros módulos
+
+- [x] **Gestão de Instalações de Lazer**
+  - [x] CRUD de instalações (piscina, spa, ginásio, etc.)
+  - [x] Gestão de horários de funcionamento
+  - [x] Capacidade e localização
+  - [x] Precificação (por hora/diário)
+  - [x] Upload de múltiplas imagens
+  - [x] Regras de uso
+  - [x] Configurações (grátis, requer reserva)
+
+- [x] **Gestão de Reservas**
+  - [x] Listagem de todas as reservas
+  - [x] Filtros por status, hotel, data
+  - [x] Edição de reservas
+  - [x] Confirmação de reservas
+  - [x] Check-in/Check-out
+  - [x] Cancelamento de reservas
+  - [x] Gestão de pagamentos
+  - [x] Histórico de alterações
+
+- [x] **Gestão de Utilizadores**
+  - [x] Listagem de usuários
+  - [x] Atribuição de roles
+  - [x] Gestão de permissões
+  - [x] Filtros e busca
+
+- [x] **UI/UX Administrativo**
+  - [x] Sidebar com navegação
+  - [x] Modais consistentes com Alpine.js
+  - [x] Transições suaves
+  - [x] Dark mode
+  - [x] Mensagens de feedback
+  - [x] Loading states
 
 ### Versão 2.0 - Melhorias na Experiência do Usuário
 **Objetivo**: Aprimorar a experiência do usuário com mais filtros e opções de personalização.
 
 #### Funcionalidades:
-- [ ] **Filtros Avançados**
-  - [ ] Filtro por faixa de preço
-  - [ ] Filtro por classificação (estrelas)
-  - [ ] Filtro por amenidades (Wi-Fi, piscina, etc.)
-  - [ ] Filtro por avaliações dos usuários
+- [x] **Filtros Avançados**
+  - [x] Filtro por faixa de preço
+  - [x] Filtro por classificação (estrelas)
+  - [x] Filtro por amenidades (Wi-Fi, piscina, etc.)
+  - [x] Filtro por avaliações dos usuários (integrado com sistema de reviews)
 
-- [ ] **Perfil do Usuário**
-  - [ ] Histórico de buscas
-  - [ ] Hotéis favoritos
-  - [ ] Preferências de busca
+- [x] **Perfil do Usuário**
+  - [x] Histórico de reservas
+  - [x] Hotéis favoritos com sistema de favoritar/desfavoritar
+  - [x] Minhas avaliações
+  - [x] Interface com tabs organizada
 
-- [ ] **Comparação de Hotéis**
-  - [ ] Seleção de hotéis para comparação lado a lado
-  - [ ] Tabela comparativa de características
+- [x] **Sistema de Avaliações** (implementado na v2.0)
+  - [x] Usuários podem avaliar hotéis
+  - [x] Notas de 1-5 estrelas
+  - [x] Comentários e títulos
+  - [x] Upload de fotos das avaliações
+  - [x] Estatísticas e distribuição de ratings
+  - [x] Resposta do hotel às avaliações
+  - [x] Badge de estadia verificada
 
-- [ ] **Melhorias de Interface**
-  - [ ] Modo escuro/claro
-  - [ ] Responsividade para dispositivos móveis
-  - [ ] Paginação e carregamento lazy
+- [x] **Comparação de Hotéis**
+  - [x] Seleção de hotéis para comparação lado a lado
+  - [x] Tabela comparativa de características
+  - [x] Gerenciamento de sessão (até 4 hotéis)
+  - [x] Interface responsiva
 
-### Versão 3.0 - Integração e Expansão
-**Objetivo**: Integrar com APIs externas e expandir funcionalidades.
+- [x] **Melhorias de Interface**
+  - [x] Modo escuro/claro
+  - [x] Responsividade para dispositivos móveis
+  - [x] Paginação e carregamento lazy
+  - [x] Galeria de imagens interativa com Alpine.js
+  - [x] Sistema de tabs para conteúdo organizado
+  - [x] Botões de favoritar com feedback visual
+  - [x] Transições suaves com Alpine.js
+
+### Versão 3.0 - Expansão e Notificações
+**Objetivo**: Expandir funcionalidades de comunicação e engajamento.
 
 #### Funcionalidades:
-- [ ] **Integração com APIs**
-  - [ ] Booking.com
-  - [ ] Expedia
-  - [ ] Hoteis.com
-  - [ ] Outras plataformas de reserva
+- [x] **Sistema de Newsletter**
+  - [x] Formulário de inscrição no footer
+  - [x] Modelo e migration para assinantes
+  - [x] Validação de email único
+  - [x] Token de unsubscribe
+  - [x] Gestão de assinantes no admin
+  - [x] Estatísticas (total, ativos, inativos)
+  - [x] Filtros e busca
+  - [x] Exportação CSV
+  - [x] Envio de emails em massa
+  - [x] Interface de prévia de email
 
-- [ ] **Sistema de Avaliações**
-  - [ ] Usuários podem avaliar hotéis
-  - [ ] Notas e comentários
-  - [ ] Fotos de usuários
+- [x] **Sistema de Cupons e Descontos**
+  - [x] CRUD completo de cupons no admin
+  - [x] Validação de expiração e limites
+  - [x] Cupons por percentagem ou valor fixo
+  - [x] Controle de usos máximos
+  - [x] Status ativo/inativo
+  - [x] Menu no admin sidebar
+  - [x] Aplicação de cupons na reserva
+  - [x] Cálculo automático de desconto
+  - [x] Interface visual no resumo da reserva
 
-- [ ] **Alertas de Preço**
-  - [ ] Monitoramento de preços
-  - [ ] Notificações por email
-  - [ ] Notificações push
+- [x] **Alertas de Preço**
+  - [x] Modelo e migration de alertas
+  - [x] Relacionamentos (User, Hotel, RoomType)
+  - [x] Método checkPrice() para verificação
+  - [x] Notificação automática quando atingido
+  - [x] Tracking de preço atual vs alvo
+  - [x] Interface de usuário completa (/price-alerts)
+  - [x] Comando agendado (alerts:check-prices hourly)
+  - [x] CRUD de alertas para usuários
+  - [x] Toggle ativo/inativo
 
-- [ ] **Expansão para Outros Serviços**
-  - [ ] Aluguel de carros
-  - [ ] Passeios e atividades
-  - [ ] Pacotes de viagem
+- [x] **Sistema de Notificações**
+  - [x] Modelo e migration de notificações
+  - [x] Relacionamento com usuários
+  - [x] Métodos helper (markAsRead, createForUser)
+  - [x] Scope para não lidas
+  - [x] Componente NotificationBell no header
+  - [x] Dropdown com últimas 5 notificações
+  - [x] Badge de contador de não lidas
+  - [x] Marcar como lida individualmente
+  - [x] Marcar todas como lidas
+  - [x] Email para eventos importantes
+  - [x] Integração automática com eventos
+  - [x] Event/Listener system (ReservationCreated, ReservationStatusChanged)
+  - [x] Emails em fila (queued): confirmação, cancelamento, alerta de preço
+  - [x] Templates markdown responsivos
+
+- [x] **Melhorias no Admin**
+  - [x] Exportação de dados (CSV)
+  - [x] Newsletter subscribers export
+  - [x] Cupons export
+  - [x] Estatísticas em dashboards
+  - [x] Sistema de logs de atividades (ActivityLog model)
+  - [x] Log helper method
+  - [x] Dashboard Analytics (v4.0)
+  - [x] Relatórios com filtros de período
+  - [x] Top hotéis mais reservados
+  - [x] Buscas mais populares
+  - [x] Métricas de receita e ticket médio
 
 ### Versão 4.0 - Inteligência e Personalização
 **Objetivo**: Adicionar recursos avançados de IA e personalização.
 
 #### Funcionalidades:
-- [ ] **Recomendações Personalizadas**
-  - [ ] Baseadas no histórico de buscas
-  - [ ] Baseadas em preferências
-  - [ ] Hotéis semelhantes
+- [x] **Recomendações Personalizadas**
+  - [x] Sistema de histórico de buscas (SearchHistory model)
+  - [x] Sistema de preferências de usuário (UserPreference model)
+  - [x] Componente RecommendedHotels
+  - [x] Algoritmo baseado em histórico + preferências
+  - [x] Fallback para hotéis populares
+  - [x] Componente SimilarHotels
+  - [x] Algoritmo de similaridade (score-based)
+  - [x] Comparação por: localização, estrelas, comodidades, preço
 
 - [ ] **Assistente Virtual**
   - [ ] Chatbot para dúvidas
@@ -121,10 +279,18 @@ Okavango Book é uma plataforma similar ao Trivago, que permite aos usuários pe
   - [ ] Melhor momento para compra
   - [ ] Tendências de mercado
 
-- [ ] **Conteúdo Personalizado**
-  - [ ] Artigos sobre destinos
-  - [ ] Guias de viagem
-  - [ ] Dicas personalizadas
+- [x] **Conteúdo Personalizado**
+  - [x] Sistema de artigos completo (migration + model)
+  - [x] Admin CRUD de artigos (criar, editar, deletar)
+  - [x] Categorias: destinos, guias, dicas
+  - [x] Tags e localizações
+  - [x] Tempo de leitura automático
+  - [x] Contador de visualizações
+  - [x] Frontend - listagem de artigos
+  - [x] Frontend - detalhes do artigo
+  - [x] Artigos relacionados
+  - [x] Personalização baseada em preferências do usuário
+  - [x] Busca e filtros por categoria
 
 ## Fluxo de Trabalho Técnico
 
@@ -150,27 +316,38 @@ Okavango Book é uma plataforma similar ao Trivago, que permite aos usuários pe
 
 ## Checkpoints de Progresso
 
-### Checkpoint 1 - Estrutura Básica
-- [ ] Ambiente configurado
-- [ ] Modelos criados
-- [ ] Autenticação implementada
+### Checkpoint 1 - Estrutura Básica ✅
+- [x] Ambiente configurado
+- [x] Modelos criados
+- [x] Autenticação implementada
 
-### Checkpoint 2 - Funcionalidades Core
-- [ ] Sistema de busca básica
-- [ ] Listagem de resultados
-- [ ] Páginas de detalhes
+### Checkpoint 2 - Funcionalidades Core ✅
+- [x] Sistema de busca básica
+- [x] Listagem de resultados
+- [x] Páginas de detalhes
 
-### Checkpoint 3 - Interface e Experiência
-- [ ] Filtros avançados
-- [ ] Comparação de hotéis
-- [ ] Perfil de usuário
+### Checkpoint 3 - Sistema Administrativo ✅
+- [x] Painel de administração completo
+- [x] Gestão de hotéis, quartos, restaurante e lazer
+- [x] Sistema de reservas
+- [x] Gestão de utilizadores e permissões
 
-### Checkpoint 4 - Integrações
+### Checkpoint 4 - Interface e Experiência ✅
+- [x] Filtros avançados
+- [x] Comparação de hotéis
+- [x] Perfil de usuário
+- [x] Dark mode e responsividade
+- [x] Sistema de avaliações
+- [x] Sistema de favoritos
+- [x] Loading states e feedbacks visuais
+- [x] Mensagens auto-dismiss
+
+### Checkpoint 5 - Integrações ⏳
 - [ ] Conexão com APIs externas
 - [ ] Sistema de avaliações
 - [ ] Alertas de preço
 
-### Checkpoint 5 - Recursos Avançados
+### Checkpoint 6 - Recursos Avançados ⏳
 - [ ] Recomendações personalizadas
 - [ ] Assistente virtual
 - [ ] Análise preditiva

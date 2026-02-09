@@ -154,6 +154,21 @@
                 <i class="fas fa-calendar-day mr-1"></i> Hoje
             </button>
         </div>
+        
+        <div class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+            <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">Filtro de Pagamento:</p>
+            <div class="flex flex-wrap gap-2">
+                <button wire:click="$set('paymentStatus', '')" class="@if($paymentStatus === '') bg-gray-600 text-white @else bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 @endif px-3 py-1 rounded-full text-sm hover:bg-gray-500 hover:text-white transition duration-150">
+                    <i class="fas fa-wallet mr-1"></i> Todos
+                </button>
+                <button wire:click="$set('paymentStatus', 'pending')" class="@if($paymentStatus === 'pending') bg-amber-500 text-white @else bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 @endif px-3 py-1 rounded-full text-sm hover:bg-amber-400 hover:text-white transition duration-150">
+                    <i class="fas fa-hourglass-half mr-1"></i> Pendente
+                </button>
+                <button wire:click="$set('paymentStatus', 'paid')" class="@if($paymentStatus === 'paid') bg-green-600 text-white @else bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 @endif px-3 py-1 rounded-full text-sm hover:bg-green-500 hover:text-white transition duration-150">
+                    <i class="fas fa-check-circle mr-1"></i> Pago
+                </button>
+            </div>
+        </div>
     </div>
     
     <!-- Flash Message -->
@@ -183,7 +198,7 @@
 
     <!-- Reservations Table -->
     <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden">
-        <div class="relative overflow-x-auto" wire:loading.class="opacity-50">
+        <div class="overflow-x-auto" wire:loading.class="opacity-50">
             <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                 <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-300">
                     <tr>
@@ -244,9 +259,27 @@
                 </thead>
                 <tbody>
                     @forelse($reservations as $reservation)
-                        <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
+                        @php
+                            $isToday = $reservation->check_in->isToday();
+                            $isTomorrow = $reservation->check_in->isTomorrow();
+                            $rowClasses = 'bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700';
+                            if ($isToday && in_array($reservation->status, ['pending', 'confirmed'])) {
+                                $rowClasses = 'bg-amber-50 border-b border-l-4 border-l-amber-500 dark:bg-amber-900/20 dark:border-gray-700 hover:bg-amber-100 dark:hover:bg-amber-900/30';
+                            } elseif ($isTomorrow && $reservation->status === 'pending') {
+                                $rowClasses = 'bg-blue-50 border-b border-l-4 border-l-blue-500 dark:bg-blue-900/20 dark:border-gray-700 hover:bg-blue-100 dark:hover:bg-blue-900/30';
+                            }
+                        @endphp
+                        <tr class="{{ $rowClasses }}">
                             <td class="px-4 py-3 font-medium text-gray-900 dark:text-white whitespace-nowrap">
-                                {{ $reservation->id }}
+                                <div class="flex items-center">
+                                    {{ $reservation->id }}
+                                    @if($isToday && in_array($reservation->status, ['pending', 'confirmed']))
+                                        <span class="ml-2 flex h-2 w-2">
+                                            <span class="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-amber-400 opacity-75"></span>
+                                            <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                                        </span>
+                                    @endif
+                                </div>
                             </td>
                             <td class="px-4 py-3 font-medium text-gray-900 dark:text-white">
                                 <div class="flex items-center">
@@ -271,9 +304,17 @@
                             </td>
                             <td class="px-4 py-3">
                                 <div>
-                                    <p><i class="fas fa-calendar-alt text-indigo-500 mr-1"></i> {{ $reservation->check_in->format('d/m/Y') }}</p>
+                                    <p class="@if($isToday) text-amber-600 dark:text-amber-400 font-semibold @endif">
+                                        <i class="fas fa-calendar-alt @if($isToday) text-amber-500 @else text-indigo-500 @endif mr-1"></i> 
+                                        {{ $reservation->check_in->format('d/m/Y') }}
+                                        @if($isToday)
+                                            <span class="ml-1 text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full dark:bg-amber-900 dark:text-amber-300">HOJE</span>
+                                        @elseif($isTomorrow)
+                                            <span class="ml-1 text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full dark:bg-blue-900 dark:text-blue-300">Amanhã</span>
+                                        @endif
+                                    </p>
                                     <p class="text-xs text-gray-500 dark:text-gray-400"><i class="fas fa-arrow-right text-gray-400 mr-1"></i> {{ $reservation->check_out->format('d/m/Y') }}</p>
-                                    <p class="text-xs font-medium">{{ $reservation->nights }} noites</p>
+                                    <p class="text-xs font-medium text-gray-600 dark:text-gray-400"><i class="fas fa-moon mr-1"></i>{{ $reservation->nights }} {{ $reservation->nights == 1 ? 'noite' : 'noites' }}</p>
                                 </div>
                             </td>
                             <td class="px-4 py-3">
@@ -300,65 +341,112 @@
                                 </div>
                             </td>
                             <td class="px-4 py-3">
-                                @php
-                                    $statusColors = [
-                                        'pending' => 'amber',
-                                        'confirmed' => 'green',
-                                        'checked_in' => 'blue', 
-                                        'completed' => 'indigo',
-                                        'cancelled' => 'red',
-                                        'no_show' => 'gray'
-                                    ];
-                                    $color = $statusColors[$reservation->status] ?? 'gray';
-                                @endphp
-                                <span class="bg-{{ $color }}-100 text-{{ $color }}-800 text-xs font-medium px-2 py-0.5 rounded dark:bg-{{ $color }}-900 dark:text-{{ $color }}-300">
-                                    {{ __('reservations.status.' . $reservation->status) }}
-                                </span>
+                                @switch($reservation->status)
+                                    @case('pending')
+                                        <span class="inline-flex items-center bg-amber-100 text-amber-800 text-xs font-medium px-2.5 py-1 rounded-full dark:bg-amber-900 dark:text-amber-300">
+                                            <i class="fas fa-clock mr-1.5"></i>
+                                            Pendente
+                                        </span>
+                                        @break
+                                    @case('confirmed')
+                                        <span class="inline-flex items-center bg-green-100 text-green-800 text-xs font-medium px-2.5 py-1 rounded-full dark:bg-green-900 dark:text-green-300">
+                                            <i class="fas fa-check-circle mr-1.5"></i>
+                                            Confirmada
+                                        </span>
+                                        @break
+                                    @case('checked_in')
+                                        <span class="inline-flex items-center bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-1 rounded-full dark:bg-blue-900 dark:text-blue-300">
+                                            <i class="fas fa-door-open mr-1.5"></i>
+                                            Check-in
+                                        </span>
+                                        @break
+                                    @case('checked_out')
+                                    @case('completed')
+                                        <span class="inline-flex items-center bg-indigo-100 text-indigo-800 text-xs font-medium px-2.5 py-1 rounded-full dark:bg-indigo-900 dark:text-indigo-300">
+                                            <i class="fas fa-check-double mr-1.5"></i>
+                                            Concluída
+                                        </span>
+                                        @break
+                                    @case('cancelled')
+                                        <span class="inline-flex items-center bg-red-100 text-red-800 text-xs font-medium px-2.5 py-1 rounded-full dark:bg-red-900 dark:text-red-300">
+                                            <i class="fas fa-times-circle mr-1.5"></i>
+                                            Cancelada
+                                        </span>
+                                        @break
+                                    @case('no_show')
+                                        <span class="inline-flex items-center bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-1 rounded-full dark:bg-gray-700 dark:text-gray-300">
+                                            <i class="fas fa-user-slash mr-1.5"></i>
+                                            No-show
+                                        </span>
+                                        @break
+                                @endswitch
                             </td>
                             <td class="px-4 py-3">
-                                @php
-                                    $paymentStatusColors = [
-                                        'pending' => 'amber',
-                                        'paid' => 'green',
-                                        'partially_paid' => 'blue',
-                                        'refunded' => 'purple',
-                                        'failed' => 'red'
-                                    ];
-                                    $paymentColor = $paymentStatusColors[$reservation->payment_status] ?? 'gray';
-                                @endphp
-                                <span class="bg-{{ $paymentColor }}-100 text-{{ $paymentColor }}-800 text-xs font-medium px-2 py-0.5 rounded dark:bg-{{ $paymentColor }}-900 dark:text-{{ $paymentColor }}-300">
-                                    {{ __('reservations.payment_status.' . $reservation->payment_status) }}
-                                </span>
+                                @switch($reservation->payment_status)
+                                    @case('pending')
+                                        <span class="inline-flex items-center bg-amber-100 text-amber-800 text-xs font-medium px-2.5 py-1 rounded-full dark:bg-amber-900 dark:text-amber-300">
+                                            <i class="fas fa-hourglass-half mr-1.5"></i>
+                                            Pendente
+                                        </span>
+                                        @break
+                                    @case('paid')
+                                        <span class="inline-flex items-center bg-green-100 text-green-800 text-xs font-medium px-2.5 py-1 rounded-full dark:bg-green-900 dark:text-green-300">
+                                            <i class="fas fa-check-circle mr-1.5"></i>
+                                            Pago
+                                        </span>
+                                        @break
+                                    @case('partial')
+                                    @case('partially_paid')
+                                        <span class="inline-flex items-center bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-1 rounded-full dark:bg-blue-900 dark:text-blue-300">
+                                            <i class="fas fa-coins mr-1.5"></i>
+                                            Parcial
+                                        </span>
+                                        @break
+                                    @case('refunded')
+                                        <span class="inline-flex items-center bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-1 rounded-full dark:bg-purple-900 dark:text-purple-300">
+                                            <i class="fas fa-undo mr-1.5"></i>
+                                            Reembolsado
+                                        </span>
+                                        @break
+                                    @case('failed')
+                                        <span class="inline-flex items-center bg-red-100 text-red-800 text-xs font-medium px-2.5 py-1 rounded-full dark:bg-red-900 dark:text-red-300">
+                                            <i class="fas fa-exclamation-triangle mr-1.5"></i>
+                                            Falhou
+                                        </span>
+                                        @break
+                                @endswitch
                             </td>
                             <td class="px-4 py-3">
                                 <div class="flex items-center space-x-2">
+                                    <!-- Botão de Visualização Proeminente -->
+                                    <button wire:click="openViewModal({{ $reservation->id }})" class="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg dark:text-indigo-400 dark:hover:bg-indigo-900/30 transition-colors" title="Ver Detalhes">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+
                                     @if($reservation->status === 'pending')
-                                        <button wire:click="openConfirmModal({{ $reservation->id }})" class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300" title="Confirmar Reserva">
+                                        <button wire:click="openConfirmModal({{ $reservation->id }})" class="p-2 text-green-600 hover:bg-green-50 rounded-lg dark:text-green-400 dark:hover:bg-green-900/30 transition-colors" title="Confirmar Reserva">
                                             <i class="fas fa-check-circle"></i>
                                         </button>
                                     @endif
 
                                     @if($reservation->status === 'confirmed')
-                                        <button wire:click="openCheckInModal({{ $reservation->id }})" class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300" title="Check-in">
+                                        <button wire:click="openCheckInModal({{ $reservation->id }})" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg dark:text-blue-400 dark:hover:bg-blue-900/30 transition-colors" title="Check-in">
                                             <i class="fas fa-door-open"></i>
                                         </button>
                                     @endif
 
                                     @if($reservation->status === 'checked_in')
-                                        <button wire:click="openCheckOutModal({{ $reservation->id }})" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300" title="Check-out">
+                                        <button wire:click="openCheckOutModal({{ $reservation->id }})" class="p-2 text-purple-600 hover:bg-purple-50 rounded-lg dark:text-purple-400 dark:hover:bg-purple-900/30 transition-colors" title="Check-out">
                                             <i class="fas fa-door-closed"></i>
                                         </button>
                                     @endif
 
                                     <!-- Menu de Ações -->
                                     <div x-data="{ isOpen: false }" class="relative">
-                                        <button @click="isOpen = !isOpen" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                                        <button @click="isOpen = !isOpen" class="p-2 text-gray-500 hover:bg-gray-100 rounded-lg dark:text-gray-400 dark:hover:bg-gray-700 transition-colors">
                                             <i class="fas fa-ellipsis-v"></i>
                                         </button>
-                                        <div x-show="isOpen" @click.away="isOpen = false" class="absolute right-0 w-48 py-2 mt-2 bg-white rounded-md shadow-lg z-10 dark:bg-gray-700" style="display: none">
-                                            <a href="#" wire:click.prevent="openViewModal({{ $reservation->id }})" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600">
-                                                <i class="fas fa-eye mr-2"></i> Detalhes
-                                            </a>
+                                        <div x-show="isOpen" @click.away="isOpen = false" class="absolute right-0 w-48 py-2 mt-2 bg-white rounded-md shadow-xl z-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600" style="display: none">
                                             <a href="#" wire:click.prevent="openEditModal({{ $reservation->id }})" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600">
                                                 <i class="fas fa-edit mr-2"></i> Editar
                                             </a>
@@ -950,10 +1038,10 @@
                                 </div>
                             </div>
                             
-                            <!-- Detalhes Hotel e Quarto -->
+                            <!-- Detalhes da Propriedade e Quarto -->
                             <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
                                 <h4 class="text-base font-medium text-gray-900 dark:text-white mb-3 flex items-center">
-                                    <i class="fas fa-hotel text-indigo-500 mr-2"></i> Detalhes do Hotel
+                                    <i class="fas fa-hotel text-indigo-500 mr-2"></i> Detalhes da Propriedade
                                 </h4>
                                 <div class="space-y-3">
                                     <p class="font-medium text-gray-900 dark:text-white">{{ $selectedReservation->hotel->name }}</p>

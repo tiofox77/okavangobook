@@ -20,6 +20,7 @@ class HotelManagement extends Component
     // Propriedades para formulário de criação/edição
     public ?int $hotelId = null;
     public string $name = '';
+    public string $property_type = 'hotel';
     public string $description = '';
     public ?int $locationId = null;
     public ?int $userId = null;
@@ -44,10 +45,19 @@ class HotelManagement extends Component
     public bool $is_featured = false;
     public bool $is_active = true;
     
+    // Propriedades para métodos de pagamento
+    public bool $accept_transfer = true;
+    public bool $accept_tpa_onsite = true;
+    public ?string $transfer_instructions = null;
+    public ?string $bank_name = null;
+    public ?string $account_number = null;
+    public ?string $iban = null;
+    
     // Propriedades para filtro e pesquisa
     public string $search = '';
     public ?string $filterLocation = null;
     public ?string $filterRating = null;
+    public ?string $filterPropertyType = null; // Filtro por tipo de propriedade
     public ?string $filterHotel = null; // Filtro por hotel
     
     /**
@@ -71,6 +81,12 @@ class HotelManagement extends Component
         session(['hotel_filter_rating' => $value]);
     }
     
+    public function updatedFilterPropertyType($value): void
+    {
+        $this->resetPage();
+        session(['hotel_filter_property_type' => $value]);
+    }
+    
     public function updatedFilterHotel($value): void
     {
         $this->resetPage();
@@ -79,12 +95,15 @@ class HotelManagement extends Component
     
     // Estado do modal
     public bool $showModal = false;
+    public bool $showViewModal = false;
+    public ?Hotel $viewingHotel = null;
     
     // Regras de validação
     protected function rules()
     {
         return [
             'name' => 'required|string|max:255',
+            'property_type' => 'required|in:hotel,resort,hospedaria',
             'description' => 'required|string',
             'locationId' => 'required|exists:locations,id',
             'userId' => 'nullable|exists:users,id',
@@ -114,28 +133,42 @@ class HotelManagement extends Component
     private function resetForm()
     {
         $this->reset([
-            'hotelId', 'name', 'description', 'locationId', 'userId', 
+            'hotelId', 'name', 'property_type', 'description', 'locationId', 'userId', 
             'address', 'price', 'rating', 'phone', 'email', 'website', 'mapLink',
             'check_in_time', 'check_out_time', 'latitude', 'longitude', 
             'amenities', 'thumbnail', 'thumbnailUpload', 'images', 'imagesUpload',
-            'slug', 'is_featured', 'is_active'
+            'slug', 'is_featured', 'is_active',
+            'accept_transfer', 'accept_tpa_onsite', 'transfer_instructions',
+            'bank_name', 'account_number', 'iban'
         ]);
         
         // Reinicia array de comodidades
         $this->amenities = [];
+        
+        // Valores padrão
+        $this->property_type = 'hotel';
+        $this->accept_transfer = true;
+        $this->accept_tpa_onsite = true;
     }
     
     public function mount()
     {
         // Verificar se o utilizador tem permissão para aceder à gestão de hotéis
-        if (!auth()->check() || !auth()->user()->hasRole('Admin')) {
-            return redirect()->route('login');
+        if (!auth()->check()) {
+            abort(401, 'Não autenticado.');
+        }
+        
+        // Verificar se é Admin ou gestor de hotel
+        $user = auth()->user();
+        if (!$user->hasRole('Admin') && !$user->managedHotels()->exists()) {
+            abort(403, 'Não tem permissão para aceder a esta página.');
         }
         
         // Restaurar filtros da sessão
         $this->search = session('hotel_filter_search', $this->search);
         $this->filterLocation = session('hotel_filter_location', $this->filterLocation);
         $this->filterRating = session('hotel_filter_rating', $this->filterRating);
+        $this->filterPropertyType = session('hotel_filter_property_type', $this->filterPropertyType);
         $this->filterHotel = session('hotel_filter_hotel', $this->filterHotel);
     }
     
@@ -163,8 +196,15 @@ class HotelManagement extends Component
 
     public function render()
     {
+        $user = auth()->user();
+        $isAdmin = $user->hasRole('Admin');
+        
         // Obter todos os hotéis com filtragem e pesquisa
         $hotelsQuery = Hotel::query()
+            // Se não for Admin, mostrar apenas hotéis do usuário
+            ->when(!$isAdmin, function ($query) use ($user) {
+                return $query->where('user_id', $user->id);
+            })
             ->when($this->search, function ($query) {
                 return $query->where('name', 'like', '%' . $this->search . '%')
                     ->orWhere('description', 'like', '%' . $this->search . '%');
@@ -174,6 +214,9 @@ class HotelManagement extends Component
             })
             ->when($this->filterRating, function ($query) {
                 return $query->where('rating', $this->filterRating);
+            })
+            ->when($this->filterPropertyType, function ($query) {
+                return $query->where('property_type', $this->filterPropertyType);
             })
             ->when($this->filterHotel, function ($query) {
                 return $query->where('id', $this->filterHotel);
@@ -205,32 +248,51 @@ class HotelManagement extends Component
         if ($hotelId) {
             $this->hotelId = $hotelId;
             $hotel = Hotel::findOrFail($hotelId);
+            
+            // Verificar se o usuário tem permissão para editar este hotel
+            $user = auth()->user();
+            if (!$user->hasRole('Admin') && $hotel->user_id !== $user->id) {
+                session()->flash('error', 'Você não tem permissão para editar este hotel.');
+                return;
+            }
             $this->name = $hotel->name;
+            $this->property_type = $hotel->property_type ?? 'hotel';
             $this->description = $hotel->description;
             $this->locationId = $hotel->location_id;
             $this->userId = $hotel->user_id;
             $this->address = $hotel->address;
             $this->price = $hotel->price;
-            $this->rating = $hotel->rating;
+            $this->rating = $hotel->rating ? (int) $hotel->rating : null;
             $this->phone = $hotel->phone ?? $hotel->phone_number;
             $this->email = $hotel->email;
             $this->website = $hotel->website;
             $this->mapLink = $hotel->map_link;
             $this->check_in_time = $hotel->check_in_time;
             $this->check_out_time = $hotel->check_out_time;
-            $this->latitude = $hotel->latitude;
-            $this->longitude = $hotel->longitude;
-            $this->amenities = $hotel->amenities ?? [];
+            $this->latitude = $hotel->latitude ? (float) $hotel->latitude : null;
+            $this->longitude = $hotel->longitude ? (float) $hotel->longitude : null;
+            $this->amenities = is_array($hotel->amenities) ? $hotel->amenities : [];
             $this->thumbnail = $hotel->thumbnail;
-            $this->images = $hotel->images ?? [];
+            $this->images = is_array($hotel->images) ? $hotel->images : [];
             $this->slug = $hotel->slug;
             $this->is_featured = (bool) $hotel->is_featured;
             $this->is_active = (bool) $hotel->is_active;
+            
+            // Carregar métodos de pagamento
+            $this->accept_transfer = (bool) $hotel->accept_transfer;
+            $this->accept_tpa_onsite = (bool) $hotel->accept_tpa_onsite;
+            $this->transfer_instructions = $hotel->transfer_instructions;
+            $this->bank_name = $hotel->bank_name;
+            $this->account_number = $hotel->account_number;
+            $this->iban = $hotel->iban;
         } else {
             // Valores padrão para novo hotel
+            $this->property_type = 'hotel';
             $this->is_active = true;
             $this->check_in_time = '14:00';
             $this->check_out_time = '12:00';
+            $this->accept_transfer = true;
+            $this->accept_tpa_onsite = true;
         }
         
         $this->showModal = true;
@@ -239,6 +301,33 @@ class HotelManagement extends Component
     public function closeModal()
     {
         $this->showModal = false;
+    }
+    
+    /**
+     * Visualiza um hotel (somente leitura)
+     */
+    public function view(int $hotelId): void
+    {
+        $hotel = Hotel::with(['location', 'user'])->findOrFail($hotelId);
+        
+        // Verificar se o usuário tem permissão para visualizar este hotel
+        $user = auth()->user();
+        if (!$user->hasRole('Admin') && $hotel->user_id !== $user->id) {
+            session()->flash('error', 'Você não tem permissão para visualizar este hotel.');
+            return;
+        }
+        
+        $this->viewingHotel = $hotel;
+        $this->showViewModal = true;
+    }
+    
+    /**
+     * Fecha o modal de visualização
+     */
+    public function closeViewModal(): void
+    {
+        $this->showViewModal = false;
+        $this->viewingHotel = null;
     }
     
     public function save()
@@ -308,6 +397,12 @@ class HotelManagement extends Component
             'images' => $imagesArray,
             'is_featured' => $this->is_featured,
             'is_active' => $this->is_active,
+            'accept_transfer' => $this->accept_transfer,
+            'accept_tpa_onsite' => $this->accept_tpa_onsite,
+            'transfer_instructions' => $this->transfer_instructions,
+            'bank_name' => $this->bank_name,
+            'account_number' => $this->account_number,
+            'iban' => $this->iban,
             'slug' => $this->slug
         ];
         

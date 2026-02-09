@@ -11,6 +11,9 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use App\Models\Setting;
+use App\Models\Notification;
+use App\Models\UpdateHistory;
+use App\Models\User;
 use ZipArchive;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -42,6 +45,9 @@ class SystemUpdates extends Component
     public bool $isCheckingRequirements = false;
     public bool $requirementsMet = false;
 
+    // Update History
+    public array $updateHistories = [];
+
     // Confirmation modal
     public bool $showConfirmModal = false;
     public string $confirmMessage = '';
@@ -54,6 +60,7 @@ class SystemUpdates extends Component
     {
         $this->loadSettings();
         $this->getCurrentVersion();
+        $this->loadUpdateHistories();
         
         // Initialize requirements check if needed
         if (empty($this->systemRequirements)) {
@@ -68,6 +75,39 @@ class SystemUpdates extends Component
         // Ensure updateLog is properly initialized as array
         if (!is_array($this->updateLog)) {
             $this->updateLog = [];
+        }
+    }
+
+    /**
+     * Load update histories from database
+     */
+    protected function loadUpdateHistories(): void
+    {
+        try {
+            if (\Schema::hasTable('update_histories')) {
+                $this->updateHistories = UpdateHistory::orderBy('created_at', 'desc')
+                    ->take(20)
+                    ->get()
+                    ->map(function ($history) {
+                        return [
+                            'id' => $history->id,
+                            'version_from' => $history->version_from,
+                            'version_to' => $history->version_to,
+                            'status' => $history->status,
+                            'release_name' => $history->release_name,
+                            'backup_file' => $history->backup_file,
+                            'log' => $history->log,
+                            'performed_by' => $history->performer ? $history->performer->name : 'Sistema',
+                            'started_at' => $history->started_at ? $history->started_at->format('d/m/Y H:i') : null,
+                            'completed_at' => $history->completed_at ? $history->completed_at->format('d/m/Y H:i') : null,
+                            'created_at' => $history->created_at->format('d/m/Y H:i'),
+                        ];
+                    })
+                    ->toArray();
+            }
+        } catch (\Exception $e) {
+            Log::warning('Could not load update histories: ' . $e->getMessage());
+            $this->updateHistories = [];
         }
     }
 
@@ -177,6 +217,9 @@ class SystemUpdates extends Component
                 if (version_compare($this->latestVersion, $this->currentVersion, '>')) {
                     $this->updateAvailable = true;
                     session()->flash('success', "Nova versão disponível: {$this->latestVersion} (atual: {$this->currentVersion})");
+                    
+                    // Notify all admins about the new version
+                    $this->notifyAdminsAboutUpdate();
                 } else {
                     $this->updateAvailable = false;
                     session()->flash('info', "Aplicação está atualizada! Versão atual: {$this->currentVersion}");
@@ -189,6 +232,40 @@ class SystemUpdates extends Component
             session()->flash('error', 'Erro ao verificar atualizações: ' . $e->getMessage());
         } finally {
             $this->isCheckingForUpdates = false;
+        }
+    }
+
+    /**
+     * Notify all admin users about available update
+     */
+    protected function notifyAdminsAboutUpdate(): void
+    {
+        try {
+            $lastNotified = Setting::get('last_notified_update_version', '');
+            
+            // Don't notify again for the same version
+            if ($lastNotified === $this->latestVersion) {
+                return;
+            }
+
+            $admins = User::role('Admin')->get();
+            
+            foreach ($admins as $admin) {
+                Notification::createForUser(
+                    $admin->id,
+                    'system_update',
+                    'Nova Atualização Disponível',
+                    "Versão {$this->latestVersion} disponível (atual: {$this->currentVersion}). " .
+                    ($this->latestReleaseData['name'] ?? '') . ' - Acesse Atualizações do Sistema para instalar.',
+                    'fas fa-download',
+                    route('admin.updates')
+                );
+            }
+
+            Setting::set('last_notified_update_version', $this->latestVersion, 'updates', 'string', 'Última versão notificada', false);
+            $this->addToLog('Administradores notificados sobre nova versão: ' . $this->latestVersion);
+        } catch (\Exception $e) {
+            Log::warning('Failed to notify admins about update: ' . $e->getMessage());
         }
     }
 
@@ -213,13 +290,11 @@ class SystemUpdates extends Component
             
             if ($failedCount > 0) {
                 session()->flash('error', "Requisitos críticos não atendidos ({$failedCount} falhas). Verifique a aba 'Requisitos do Sistema'.");
-            } else {
-                session()->flash('warning', "Alguns requisitos geraram avisos ({$warningCount} avisos). Continuando com a atualização...");
-                // Allow update to proceed with warnings
+                return;
             }
             
-            if ($failedCount > 0) {
-                return;
+            if ($warningCount > 0) {
+                session()->flash('warning', "Alguns requisitos geraram avisos ({$warningCount} avisos). Continuando com a atualização...");
             }
         }
 
@@ -228,12 +303,34 @@ class SystemUpdates extends Component
         $this->updateLog = [];
         $this->addToLog('Iniciando processo de atualização...');
 
+        // Create update history record
+        $history = null;
         try {
-            // Step 1: Create backup if enabled
+            if (\Schema::hasTable('update_histories')) {
+                $history = UpdateHistory::create([
+                    'version_from' => $this->currentVersion,
+                    'version_to' => $this->latestVersion,
+                    'status' => 'in_progress',
+                    'release_name' => $this->latestReleaseData['name'] ?? '',
+                    'release_notes' => $this->latestReleaseData['body'] ?? '',
+                    'performed_by' => auth()->id(),
+                    'started_at' => now(),
+                ]);
+            }
+        } catch (\Exception $e) {
+            Log::warning('Could not create update history: ' . $e->getMessage());
+        }
+
+        try {
+            // Step 1: Create backup
             $this->updateProgress['criar_backup'] = 'processing';
             $this->addToLog('Criando backup...');
-            $this->createBackup();
+            $backupFile = $this->createBackup();
             $this->updateProgress['criar_backup'] = 'completed';
+            
+            if ($history) {
+                $history->update(['backup_file' => $backupFile]);
+            }
 
             // Step 2: Enable maintenance mode
             $this->updateProgress['modo_manutencao'] = 'processing';
@@ -277,6 +374,10 @@ class SystemUpdates extends Component
             $this->disableMaintenanceMode();
             $this->updateProgress['desativar_manutencao'] = 'completed';
 
+            // Step 9: Cleanup temp files
+            $this->addToLog('Limpando arquivos temporários...');
+            $this->cleanupTempFiles();
+
             $this->addToLog('Atualização concluída com sucesso!');
             $this->isUpdating = false;
             
@@ -284,14 +385,41 @@ class SystemUpdates extends Component
             $this->currentVersion = $this->latestVersion;
             $this->updateAvailable = false;
             
+            // Update history record
+            if ($history) {
+                $history->update([
+                    'status' => 'completed',
+                    'log' => collect($this->updateLog)->map(fn($l) => "[{$l['timestamp']}] {$l['message']}")->implode("\n"),
+                    'completed_at' => now(),
+                ]);
+            }
+            
+            // Reload histories
+            $this->loadUpdateHistories();
+            
+            // Notify admins about successful update
+            $this->notifyAdminsUpdateCompleted();
+            
             session()->flash('success', 'Atualização instalada com sucesso!');
             
         } catch (\Exception $e) {
             Log::error('Update failed: ' . $e->getMessage());
             $this->addToLog('Erro durante a atualização: ' . $e->getMessage());
             
+            // Update history record
+            if ($history) {
+                $history->update([
+                    'status' => 'failed',
+                    'log' => collect($this->updateLog)->map(fn($l) => "[{$l['timestamp']}] {$l['message']}")->implode("\n"),
+                    'completed_at' => now(),
+                ]);
+            }
+            
             // Try to restore from backup
             $this->restoreFromBackup();
+            
+            // Always disable maintenance mode on failure
+            $this->disableMaintenanceMode();
             
             $this->isUpdating = false;
             session()->flash('error', 'Erro durante a atualização: ' . $e->getMessage());
@@ -299,9 +427,32 @@ class SystemUpdates extends Component
     }
 
     /**
-     * Create system backup
+     * Notify admins that update was completed
      */
-    protected function createBackup(): void
+    protected function notifyAdminsUpdateCompleted(): void
+    {
+        try {
+            $admins = User::role('Admin')->get();
+            foreach ($admins as $admin) {
+                Notification::createForUser(
+                    $admin->id,
+                    'system_update',
+                    'Atualização Concluída',
+                    "O sistema foi atualizado com sucesso para a versão {$this->latestVersion}.",
+                    'fas fa-check-circle',
+                    route('admin.updates')
+                );
+            }
+        } catch (\Exception $e) {
+            Log::warning('Failed to notify admins about completed update: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Create system backup (files + database)
+     * @return string Path to the backup file
+     */
+    protected function createBackup(): string
     {
         $this->addToLog('Criando backup do sistema...');
 
@@ -312,21 +463,20 @@ class SystemUpdates extends Component
             }
 
             $timestamp = date('Y-m-d_H-i-s');
-            $backupFile = $backupDir . "/backup_{$timestamp}.zip";
+            $backupFile = $backupDir . DIRECTORY_SEPARATOR . "backup_{$timestamp}.zip";
 
             $zip = new ZipArchive();
             if ($zip->open($backupFile, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== TRUE) {
                 throw new \Exception('Não foi possível criar arquivo de backup');
             }
 
-            // Backup important directories
+            // Backup important directories (excluding public to save space)
             $directoriesToBackup = [
                 'app',
                 'config', 
                 'database',
                 'resources',
                 'routes',
-                'public',
             ];
 
             foreach ($directoriesToBackup as $dir) {
@@ -340,6 +490,7 @@ class SystemUpdates extends Component
                 'composer.lock',
                 'package.json',
                 'version.txt',
+                'artisan',
             ];
 
             foreach ($filesToBackup as $file) {
@@ -349,14 +500,105 @@ class SystemUpdates extends Component
                 }
             }
 
+            // Backup database
+            $this->addToLog('Exportando base de dados...');
+            $dbDump = $this->createDatabaseDump($backupDir, $timestamp);
+            if ($dbDump && file_exists($dbDump)) {
+                $zip->addFile($dbDump, 'database_backup.sql');
+                $this->addToLog('Base de dados exportada com sucesso');
+            }
+
             $zip->close();
+            
+            // Remove temp SQL file
+            if (isset($dbDump) && $dbDump && file_exists($dbDump)) {
+                @unlink($dbDump);
+            }
 
             Setting::set('last_backup_file', $backupFile, 'backup', 'string', 'Último arquivo de backup', false);
             Setting::set('last_backup_date', now()->toDateTimeString(), 'backup', 'string', 'Data do último backup', false);
 
-            $this->addToLog("Backup criado: " . basename($backupFile));
+            $this->addToLog("Backup criado: " . basename($backupFile) . ' (' . $this->formatBytes(filesize($backupFile)) . ')');
+            
+            return $backupFile;
         } catch (\Exception $e) {
             throw new \Exception('Erro ao criar backup: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Create database dump
+     */
+    protected function createDatabaseDump(string $backupDir, string $timestamp): ?string
+    {
+        try {
+            $dbConnection = config('database.default');
+            $dbConfig = config("database.connections.{$dbConnection}");
+            
+            if ($dbConfig['driver'] !== 'mysql') {
+                $this->addToLog('Backup de BD: Driver não é MySQL, pulando dump SQL');
+                return null;
+            }
+            
+            $dumpFile = $backupDir . DIRECTORY_SEPARATOR . "db_dump_{$timestamp}.sql";
+            
+            $host = $dbConfig['host'] ?? '127.0.0.1';
+            $port = $dbConfig['port'] ?? '3306';
+            $database = $dbConfig['database'];
+            $username = $dbConfig['username'];
+            $password = $dbConfig['password'] ?? '';
+            
+            // Try mysqldump
+            $passwordArg = !empty($password) ? "-p\"{$password}\"" : '';
+            $command = "mysqldump -h {$host} -P {$port} -u {$username} {$passwordArg} {$database} > \"{$dumpFile}\" 2>&1";
+            
+            exec($command, $output, $returnCode);
+            
+            if ($returnCode === 0 && file_exists($dumpFile) && filesize($dumpFile) > 0) {
+                return $dumpFile;
+            }
+            
+            // Fallback: Use Laravel's DB facade for a basic dump
+            $this->addToLog('mysqldump não disponível, usando fallback PHP para backup de BD...');
+            $tables = DB::select('SHOW TABLES');
+            $sqlDump = "-- OkavangoBook Database Backup\n-- Date: " . date('Y-m-d H:i:s') . "\n-- Database: {$database}\n\nSET FOREIGN_KEY_CHECKS=0;\n\n";
+            
+            foreach ($tables as $table) {
+                $tableName = array_values((array)$table)[0];
+                
+                // Get CREATE TABLE statement
+                $createTable = DB::select("SHOW CREATE TABLE `{$tableName}`");
+                if (!empty($createTable)) {
+                    $createSql = $createTable[0]->{'Create Table'} ?? '';
+                    $sqlDump .= "DROP TABLE IF EXISTS `{$tableName}`;\n{$createSql};\n\n";
+                }
+                
+                // Get data (limit to prevent memory issues)
+                $rows = DB::table($tableName)->limit(50000)->get();
+                if ($rows->count() > 0) {
+                    foreach ($rows->chunk(100) as $chunk) {
+                        $values = [];
+                        foreach ($chunk as $row) {
+                            $rowValues = array_map(function ($val) {
+                                if (is_null($val)) return 'NULL';
+                                return "'" . addslashes((string)$val) . "'";
+                            }, (array)$row);
+                            $values[] = '(' . implode(', ', $rowValues) . ')';
+                        }
+                        $columns = implode('`, `', array_keys((array)$chunk->first()));
+                        $sqlDump .= "INSERT INTO `{$tableName}` (`{$columns}`) VALUES\n" . implode(",\n", $values) . ";\n\n";
+                    }
+                }
+            }
+            
+            $sqlDump .= "SET FOREIGN_KEY_CHECKS=1;\n";
+            file_put_contents($dumpFile, $sqlDump);
+            
+            return $dumpFile;
+        } catch (\Exception $e) {
+            Log::warning('Database dump failed: ' . $e->getMessage());
+            $this->addToLog('Aviso: Não foi possível fazer backup da base de dados - ' . $e->getMessage());
+            return null;
         }
     }
 
@@ -375,10 +617,16 @@ class SystemUpdates extends Component
         );
 
         foreach ($iterator as $file) {
+            $subPath = $iterator->getSubPathName();
+            // Skip common large/unnecessary directories
+            if (str_contains($subPath, 'node_modules') || str_contains($subPath, '.git')) {
+                continue;
+            }
+            
             if ($file->isDir()) {
-                $zip->addEmptyDir($zipPath . '/' . $iterator->getSubPathName());
+                $zip->addEmptyDir($zipPath . '/' . $subPath);
             } elseif ($file->isFile()) {
-                $zip->addFile($file->getRealPath(), $zipPath . '/' . $iterator->getSubPathName());
+                $zip->addFile($file->getRealPath(), $zipPath . '/' . $subPath);
             }
         }
     }
@@ -391,30 +639,31 @@ class SystemUpdates extends Component
         $this->addToLog('Baixando atualização do GitHub...');
 
         try {
-            // Use public download URL from releases
             $downloadUrl = $this->latestReleaseData['download_url'] ?? '';
             
             if (empty($downloadUrl)) {
                 throw new \Exception('URL de download não encontrada');
             }
 
-            $updateFile = storage_path('app/updates/update_' . time() . '.zip');
-            
-            // Create updates directory if it doesn't exist
-            if (!is_dir(dirname($updateFile))) {
-                mkdir(dirname($updateFile), 0755, true);
+            $updateDir = storage_path('app' . DIRECTORY_SEPARATOR . 'updates');
+            if (!is_dir($updateDir)) {
+                mkdir($updateDir, 0755, true);
             }
 
-            // Download the zip file
-            $response = Http::timeout(300)->get($downloadUrl);
+            $updateFile = $updateDir . DIRECTORY_SEPARATOR . 'update_' . time() . '.zip';
+
+            $response = Http::withHeaders([
+                'Accept' => 'application/vnd.github.v3+json',
+                'User-Agent' => 'OkavangoBook-Updater',
+            ])->timeout(300)->get($downloadUrl);
             
             if (!$response->successful()) {
-                throw new \Exception('Falha ao baixar atualização');
+                throw new \Exception('Falha ao baixar atualização (HTTP ' . $response->status() . ')');
             }
 
             file_put_contents($updateFile, $response->body());
             
-            $this->addToLog('Atualização baixada: ' . basename($updateFile));
+            $this->addToLog('Atualização baixada: ' . basename($updateFile) . ' (' . $this->formatBytes(filesize($updateFile)) . ')');
             
             return $updateFile;
         } catch (\Exception $e) {
@@ -430,9 +679,8 @@ class SystemUpdates extends Component
         $this->addToLog('Extraindo arquivos de atualização...');
 
         try {
-            $extractDir = storage_path('app/updates/extracted');
+            $extractDir = storage_path('app' . DIRECTORY_SEPARATOR . 'updates' . DIRECTORY_SEPARATOR . 'extracted');
             
-            // Clean extraction directory
             if (is_dir($extractDir)) {
                 $this->deleteDirectory($extractDir);
             }
@@ -445,6 +693,9 @@ class SystemUpdates extends Component
 
             $zip->extractTo($extractDir);
             $zip->close();
+
+            // Remove the downloaded zip to save space
+            @unlink($updateFile);
 
             $this->addToLog('Arquivos extraídos com sucesso');
         } catch (\Exception $e) {
@@ -460,33 +711,38 @@ class SystemUpdates extends Component
         $this->addToLog('Instalando atualização...');
 
         try {
-            $extractDir = storage_path('app/updates/extracted');
+            $extractDir = storage_path('app' . DIRECTORY_SEPARATOR . 'updates' . DIRECTORY_SEPARATOR . 'extracted');
             
-            // Find the extracted repository folder
-            $dirs = array_diff(scandir($extractDir), array('.', '..'));
-            $repoDir = $extractDir . '/' . reset($dirs);
+            // Find the extracted repository folder (GitHub zips have a top-level folder)
+            $dirs = array_diff(scandir($extractDir), ['.', '..']);
+            $repoDir = $extractDir . DIRECTORY_SEPARATOR . reset($dirs);
 
             if (!is_dir($repoDir)) {
                 throw new \Exception('Diretório de atualização não encontrado');
             }
 
-            // Copy files to application root
+            // Copy files to application root, excluding sensitive paths
             $this->copyDirectory($repoDir, base_path(), [
                 'storage',
                 'node_modules',
                 'vendor',
                 '.git',
                 '.env',
-                'bootstrap/cache',
+                'bootstrap' . DIRECTORY_SEPARATOR . 'cache',
             ]);
 
-            // Update composer dependencies if composer.json changed
-            if (file_exists($repoDir . '/composer.json')) {
+            // Update composer dependencies (Windows-compatible)
+            if (file_exists($repoDir . DIRECTORY_SEPARATOR . 'composer.json')) {
                 $this->addToLog('Atualizando dependências do Composer...');
-                exec('cd ' . base_path() . ' && composer install --no-dev --optimize-autoloader', $output, $returnCode);
+                $composerCmd = 'composer install --no-dev --optimize-autoloader --working-dir="' . base_path() . '"';
+                
+                exec($composerCmd . ' 2>&1', $output, $returnCode);
                 
                 if ($returnCode !== 0) {
                     Log::warning('Composer install returned non-zero exit code', ['output' => $output]);
+                    $this->addToLog('Aviso: Composer retornou código ' . $returnCode);
+                } else {
+                    $this->addToLog('Dependências do Composer atualizadas');
                 }
             }
 
@@ -514,9 +770,8 @@ class SystemUpdates extends Component
             $relativePath = $iterator->getSubPathName();
             $skip = false;
 
-            // Check if path should be excluded
             foreach ($exclude as $excludePattern) {
-                if (strpos($relativePath, $excludePattern) === 0) {
+                if (str_starts_with($relativePath, $excludePattern)) {
                     $skip = true;
                     break;
                 }
@@ -526,7 +781,7 @@ class SystemUpdates extends Component
                 continue;
             }
 
-            $destPath = $destination . DIRECTORY_SEPARATOR . $iterator->getSubPathName();
+            $destPath = $destination . DIRECTORY_SEPARATOR . $relativePath;
 
             if ($item->isDir()) {
                 if (!is_dir($destPath)) {
@@ -570,13 +825,42 @@ class SystemUpdates extends Component
     }
 
     /**
-     * Update version file
+     * Finalize update - update version file
      */
-    protected function updateVersion(): void
+    protected function finalizeUpdate(): void
     {
         $versionFile = base_path('version.txt');
         file_put_contents($versionFile, $this->latestVersion);
         $this->addToLog('Versão atualizada para ' . $this->latestVersion);
+        
+        // Store update timestamp
+        Setting::set('last_update_date', now()->toDateTimeString(), 'updates', 'string', 'Data da última atualização', false);
+        Setting::set('last_update_version', $this->latestVersion, 'updates', 'string', 'Última versão instalada', false);
+    }
+
+    /**
+     * Clean up temporary files after update
+     */
+    protected function cleanupTempFiles(): void
+    {
+        try {
+            $extractDir = storage_path('app' . DIRECTORY_SEPARATOR . 'updates' . DIRECTORY_SEPARATOR . 'extracted');
+            if (is_dir($extractDir)) {
+                $this->deleteDirectory($extractDir);
+            }
+            
+            // Clean old update zips
+            $updatesDir = storage_path('app' . DIRECTORY_SEPARATOR . 'updates');
+            if (is_dir($updatesDir)) {
+                foreach (glob($updatesDir . DIRECTORY_SEPARATOR . 'update_*.zip') as $file) {
+                    @unlink($file);
+                }
+            }
+            
+            $this->addToLog('Arquivos temporários limpos');
+        } catch (\Exception $e) {
+            Log::warning('Cleanup failed: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -585,8 +869,8 @@ class SystemUpdates extends Component
     protected function enableMaintenanceMode(): void
     {
         try {
-            Artisan::call('down');
-            $this->addToLog('Modo de manutenção ativado');
+            Artisan::call('down', ['--secret' => 'okavango-update']);
+            $this->addToLog('Modo de manutenção ativado (bypass: /okavango-update)');
         } catch (\Exception $e) {
             Log::error('Failed to enable maintenance mode: ' . $e->getMessage());
         }
@@ -620,11 +904,98 @@ class SystemUpdates extends Component
                 return;
             }
 
-            // Implementation would go here for backup restoration
-            $this->addToLog('Restauração do backup não implementada nesta versão');
+            $zip = new ZipArchive();
+            if ($zip->open($lastBackupFile) !== TRUE) {
+                throw new \Exception('Não foi possível abrir o arquivo de backup');
+            }
+
+            $tempRestoreDir = storage_path('app' . DIRECTORY_SEPARATOR . 'restore_temp');
+            if (is_dir($tempRestoreDir)) {
+                $this->deleteDirectory($tempRestoreDir);
+            }
+            mkdir($tempRestoreDir, 0755, true);
+
+            $zip->extractTo($tempRestoreDir);
+            $zip->close();
+
+            // Restore directories
+            $dirsToRestore = ['app', 'config', 'database', 'resources', 'routes'];
+            foreach ($dirsToRestore as $dir) {
+                $sourceDir = $tempRestoreDir . DIRECTORY_SEPARATOR . $dir;
+                $destDir = base_path($dir);
+                
+                if (is_dir($sourceDir)) {
+                    $this->copyDirectory($sourceDir, $destDir);
+                    $this->addToLog("Restaurado: {$dir}");
+                }
+            }
+
+            // Restore individual files
+            $filesToRestore = ['composer.json', 'composer.lock', 'package.json', 'version.txt'];
+            foreach ($filesToRestore as $file) {
+                $sourceFile = $tempRestoreDir . DIRECTORY_SEPARATOR . $file;
+                if (file_exists($sourceFile)) {
+                    copy($sourceFile, base_path($file));
+                    $this->addToLog("Restaurado: {$file}");
+                }
+            }
+
+            // Restore database if dump exists
+            $dbDump = $tempRestoreDir . DIRECTORY_SEPARATOR . 'database_backup.sql';
+            if (file_exists($dbDump)) {
+                $this->restoreDatabase($dbDump);
+            }
+
+            // Cleanup temp restore directory
+            $this->deleteDirectory($tempRestoreDir);
+
+            // Re-read version
+            $this->getCurrentVersion();
+            
+            $this->addToLog('Restauração do backup concluída com sucesso');
+            
         } catch (\Exception $e) {
             Log::error('Backup restoration failed: ' . $e->getMessage());
             $this->addToLog('Erro ao restaurar do backup: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Restore database from SQL dump
+     */
+    protected function restoreDatabase(string $dumpFile): void
+    {
+        try {
+            $dbConfig = config('database.connections.' . config('database.default'));
+            
+            if ($dbConfig['driver'] !== 'mysql') {
+                $this->addToLog('Restauração de BD: Driver não é MySQL, pulando');
+                return;
+            }
+
+            $host = $dbConfig['host'] ?? '127.0.0.1';
+            $port = $dbConfig['port'] ?? '3306';
+            $database = $dbConfig['database'];
+            $username = $dbConfig['username'];
+            $password = $dbConfig['password'] ?? '';
+            
+            $passwordArg = !empty($password) ? "-p\"{$password}\"" : '';
+            $command = "mysql -h {$host} -P {$port} -u {$username} {$passwordArg} {$database} < \"{$dumpFile}\" 2>&1";
+            
+            exec($command, $output, $returnCode);
+            
+            if ($returnCode === 0) {
+                $this->addToLog('Base de dados restaurada com sucesso');
+            } else {
+                // Fallback: try reading and executing SQL via PHP
+                $this->addToLog('mysql CLI falhou, tentando restauração via PHP...');
+                $sql = file_get_contents($dumpFile);
+                DB::unprepared($sql);
+                $this->addToLog('Base de dados restaurada via PHP');
+            }
+        } catch (\Exception $e) {
+            Log::error('Database restore failed: ' . $e->getMessage());
+            $this->addToLog('Aviso: Não foi possível restaurar a base de dados - ' . $e->getMessage());
         }
     }
 
@@ -913,25 +1284,5 @@ class SystemUpdates extends Component
     {
         return view('livewire.admin.system-updates')
             ->layout('layouts.admin');
-    }
-
-    /**
-     * Finalize update process
-     */
-    protected function finalizeUpdate(): void
-    {
-        // Clear caches
-        Artisan::call('cache:clear');
-        Artisan::call('config:clear');
-        Artisan::call('view:clear');
-        Artisan::call('route:clear');
-        
-        // Update version file if it exists
-        $versionFile = base_path('version.txt');
-        if (file_exists($versionFile)) {
-            file_put_contents($versionFile, $this->latestVersion);
-        }
-        
-        Log::info('Update finalization completed');
     }
 }

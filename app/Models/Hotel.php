@@ -20,6 +20,7 @@ class Hotel extends Model
      */
     protected $fillable = [
         'name',
+        'property_type',
         'description',
         'address',
         'location_id',
@@ -40,7 +41,15 @@ class Hotel extends Model
         'reviews_count',
         'is_featured',
         'is_active',
-        'slug'
+        'slug',
+        'featured_image',
+        'policies',
+        'accept_transfer',
+        'accept_tpa_onsite',
+        'transfer_instructions',
+        'bank_name',
+        'account_number',
+        'iban',
     ];
     
     /**
@@ -59,6 +68,8 @@ class Hotel extends Model
         'reviews_count' => 'integer',
         'is_featured' => 'boolean',
         'is_active' => 'boolean',
+        'accept_transfer' => 'boolean',
+        'accept_tpa_onsite' => 'boolean',
     ];
     
     /**
@@ -84,11 +95,19 @@ class Hotel extends Model
     }
     
     /**
-     * Obter a localização a que este hotel pertence.
+     * Obter a localização associada ao hotel
      */
     public function location(): BelongsTo
     {
         return $this->belongsTo(Location::class);
+    }
+    
+    /**
+     * Obter o usuário responsável pelo hotel
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
     
     /**
@@ -123,6 +142,46 @@ class Hotel extends Model
     public function prices(): HasMany
     {
         return $this->hasMany(Price::class);
+    }
+    
+    /**
+     * Obter todos os itens do restaurante deste hotel.
+     */
+    public function restaurantItems(): HasMany
+    {
+        return $this->hasMany(HotelRestaurantItem::class)->orderBy('display_order');
+    }
+    
+    /**
+     * Obter todas as instalações de lazer deste hotel.
+     */
+    public function leisureFacilities(): HasMany
+    {
+        return $this->hasMany(HotelLeisureFacility::class)->orderBy('display_order');
+    }
+    
+    /**
+     * Obter todas as avaliações deste hotel.
+     */
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+    
+    /**
+     * Obter avaliações aprovadas deste hotel.
+     */
+    public function approvedReviews(): HasMany
+    {
+        return $this->hasMany(Review::class)->where('is_approved', true)->orderBy('created_at', 'desc');
+    }
+    
+    /**
+     * Utilizadores que favoritaram este hotel.
+     */
+    public function favoritedBy()
+    {
+        return $this->belongsToMany(User::class, 'favorites')->withTimestamps();
     }
     
     /**

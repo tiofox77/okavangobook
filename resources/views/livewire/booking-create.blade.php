@@ -53,7 +53,7 @@
                                     Check-in
                                 </label>
                                 <input type="date" 
-                                       wire:model.blur="check_in" 
+                                       wire:model.live="check_in" 
                                        class="block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                                        min="{{ date('Y-m-d') }}">
                                 @if($errors->has('check_in'))
@@ -68,7 +68,7 @@
                                     Check-out
                                 </label>
                                 <input type="date" 
-                                       wire:model.blur="check_out" 
+                                       wire:model.live="check_out" 
                                        class="block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                                        min="{{ $check_in ?: date('Y-m-d') }}">
                                 @if($errors->has('check_out'))
@@ -82,10 +82,16 @@
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 <i class="fas fa-users text-purple-500 mr-1"></i>
                                 Número de Hóspedes
+                                @if($selectedRoomType)
+                                    <span class="text-xs text-gray-500">(Máx: {{ $selectedRoomType->capacity }})</span>
+                                @endif
                             </label>
                             <select wire:model.live="guests" 
                                     class="block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                                @for($i = 1; $i <= 10; $i++)
+                                @php
+                                    $maxGuests = $selectedRoomType ? $selectedRoomType->capacity : 10;
+                                @endphp
+                                @for($i = 1; $i <= $maxGuests; $i++)
                                     <option value="{{ $i }}">{{ $i }} {{ $i === 1 ? 'Hóspede' : 'Hóspedes' }}</option>
                                 @endfor
                             </select>
@@ -136,45 +142,38 @@
                         @endif
                         
                         <!-- Método de Pagamento -->
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                <i class="fas fa-credit-card text-green-500 mr-1"></i>
-                                Método de Pagamento
-                            </label>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                @php
-                                    $paymentMethods = [
-                                        'cash' => ['name' => 'Dinheiro', 'icon' => 'fas fa-money-bill-wave', 'color' => 'green'],
-                                        'card' => ['name' => 'Cartão', 'icon' => 'fas fa-credit-card', 'color' => 'blue'],
-                                        'transfer' => ['name' => 'Transferência', 'icon' => 'fas fa-exchange-alt', 'color' => 'purple'],
-                                        'mobile_money' => ['name' => 'Mobile Money', 'icon' => 'fas fa-mobile-alt', 'color' => 'orange'],
-                                    ];
-                                @endphp
-                                
-                                @foreach($paymentMethods as $method => $details)
-                                    <div class="relative">
-                                        <input type="radio" 
-                                               wire:model.live="payment_method" 
-                                               value="{{ $method }}" 
-                                               id="payment_{{ $method }}" 
-                                               class="sr-only">
-                                        <label for="payment_{{ $method }}" 
-                                               class="block p-3 border rounded-lg cursor-pointer transition-all duration-200 hover:border-{{ $details['color'] }}-300 hover:shadow-sm {{ $payment_method === $method ? 'border-' . $details['color'] . '-500 bg-' . $details['color'] . '-50 dark:bg-' . $details['color'] . '-900/20' : 'border-gray-200 dark:border-gray-600' }}">
-                                            <div class="flex items-center justify-between">
-                                                <div class="flex items-center">
-                                                    <i class="{{ $details['icon'] }} text-{{ $details['color'] }}-500 mr-2"></i>
-                                                    <span class="font-medium text-gray-900 dark:text-white">
-                                                        {{ $details['name'] }}
-                                                    </span>
-                                                </div>
-                                                @if($payment_method === $method)
-                                                    <i class="fas fa-check-circle text-{{ $details['color'] }}-500"></i>
-                                                @endif
-                                            </div>
-                                        </label>
-                                    </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Método de Pagamento</label>
+                            <select wire:model="payment_method" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                @foreach($availablePaymentMethods as $method)
+                                    <option value="{{ $method['value'] }}">{{ $method['label'] }}</option>
                                 @endforeach
-                            </div>
+                            </select>
+                            
+                            @if($payment_method === 'transfer' && $selectedHotel && $selectedHotel->transfer_instructions)
+                                <div class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                                    <p class="text-sm font-medium text-blue-900 mb-2">Instruções de Transferência:</p>
+                                    <p class="text-sm text-blue-800">{{ $selectedHotel->transfer_instructions }}</p>
+                                    @if($selectedHotel->bank_name)
+                                        <p class="text-sm text-blue-800 mt-2">
+                                            <strong>Banco:</strong> {{ $selectedHotel->bank_name }}<br>
+                                            <strong>Conta:</strong> {{ $selectedHotel->account_number }}
+                                            @if($selectedHotel->iban)
+                                                <br><strong>IBAN:</strong> {{ $selectedHotel->iban }}
+                                            @endif
+                                        </p>
+                                    @endif
+                                </div>
+                            @endif
+                            
+                            @if($payment_method === 'tpa_onsite')
+                                <div class="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                                    <p class="text-sm text-green-800">
+                                        <i class="fas fa-credit-card mr-2"></i>
+                                        Você poderá pagar com cartão diretamente no hotel na chegada.
+                                    </p>
+                                </div>
+                            @endif
                         </div>
                         
                         <!-- Pedidos Especiais -->
@@ -193,12 +192,42 @@
                         </div>
                         
                         @if(!$isLoggedIn)
-                            <!-- Dados do Hóspede (para não logados) -->
-                            <div class="border-t pt-6">
+                            <!-- Opção: Login ou Continuar como Guest -->
+                            <div class="border-t pt-6 mb-6">
                                 <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
-                                    <i class="fas fa-user text-blue-500 mr-2"></i>
-                                    Dados do Hóspede
+                                    <i class="fas fa-user-circle text-blue-500 mr-2"></i>
+                                    Como deseja continuar?
                                 </h3>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                                    <a href="{{ route('login') }}" 
+                                       class="flex items-center justify-center p-4 border-2 border-blue-500 bg-blue-50 dark:bg-blue-900/20 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors">
+                                        <i class="fas fa-sign-in-alt text-blue-600 mr-3 text-xl"></i>
+                                        <div class="text-left">
+                                            <div class="font-semibold text-gray-900 dark:text-white">Fazer Login</div>
+                                            <div class="text-xs text-gray-600 dark:text-gray-400">Já tem conta? Entre aqui</div>
+                                        </div>
+                                    </a>
+                                    
+                                    <button type="button" 
+                                            wire:click="$set('continueAsGuest', true)"
+                                            class="flex items-center justify-center p-4 border-2 border-gray-300 dark:border-gray-600 rounded-lg hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors {{ isset($continueAsGuest) && $continueAsGuest ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : '' }}">
+                                        <i class="fas fa-user-plus text-gray-600 mr-3 text-xl"></i>
+                                        <div class="text-left">
+                                            <div class="font-semibold text-gray-900 dark:text-white">Continuar como Visitante</div>
+                                            <div class="text-xs text-gray-600 dark:text-gray-400">Sem necessidade de conta</div>
+                                        </div>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            @if(isset($continueAsGuest) && $continueAsGuest)
+                                <!-- Dados do Hóspede (para não logados) -->
+                                <div class="border-t pt-6">
+                                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
+                                        <i class="fas fa-user text-blue-500 mr-2"></i>
+                                        Dados do Hóspede
+                                    </h3>
                                 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
@@ -241,6 +270,7 @@
                                     </div>
                                 </div>
                             </div>
+                            @endif
                         @endif
                         
                         <!-- Botão Avançar -->
@@ -349,7 +379,12 @@
                             <div class="text-sm text-gray-600 dark:text-gray-400 space-y-1">
                                 <div class="flex justify-between">
                                     <span>Capacidade:</span>
-                                    <span>{{ $selectedRoomType->capacity }} pessoas</span>
+                                    <span class="{{ $guests > $selectedRoomType->capacity ? 'text-red-600 font-bold' : '' }}">
+                                        {{ $selectedRoomType->capacity }} pessoas
+                                        @if($guests > $selectedRoomType->capacity)
+                                            <i class="fas fa-exclamation-triangle ml-1"></i>
+                                        @endif
+                                    </span>
                                 </div>
                                 <div class="flex justify-between">
                                     <span>Preço/noite:</span>
@@ -393,19 +428,80 @@
                         </div>
                     @endif
                     
-                    <!-- Total -->
-                    @if($total_price > 0)
-                        <div class="mb-4">
-                            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-4 rounded-lg">
-                                <div class="flex justify-between items-center">
-                                    <span class="text-lg font-semibold text-gray-900 dark:text-white">Total:</span>
-                                    <span class="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                                        {{ number_format($total_price, 0, ',', '.') }} Kz
-                                    </span>
+                    <!-- Cupom de Desconto -->
+                    <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Cupom de Desconto
+                        </label>
+                        
+                        @if(session('coupon_success'))
+                            <div class="mb-2 p-2 bg-green-100 text-green-700 text-sm rounded">
+                                {{ session('coupon_success') }}
+                            </div>
+                        @endif
+                        
+                        @if(session('coupon_error'))
+                            <div class="mb-2 p-2 bg-red-100 text-red-700 text-sm rounded">
+                                {{ session('coupon_error') }}
+                            </div>
+                        @endif
+                        
+                        @if($appliedCoupon)
+                            <div class="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg mb-3">
+                                <div class="flex items-center">
+                                    <i class="fas fa-ticket-alt text-green-600 mr-2"></i>
+                                    <div>
+                                        <p class="font-mono font-bold text-green-700">{{ $appliedCoupon->code }}</p>
+                                        <p class="text-xs text-green-600">{{ $appliedCoupon->description }}</p>
+                                    </div>
+                                </div>
+                                <button wire:click="removeCoupon" class="text-red-600 hover:text-red-800">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="space-y-2 mb-3">
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-600 dark:text-gray-400">Subtotal:</span>
+                                    <span class="text-gray-900 dark:text-white">{{ number_format($total_price, 2, ',', '.') }} Kz</span>
+                                </div>
+                                <div class="flex justify-between text-sm text-green-600">
+                                    <span>Desconto ({{ $appliedCoupon->type == 'percentage' ? $appliedCoupon->value . '%' : 'Fixo' }}):</span>
+                                    <span>- {{ number_format($discount, 2, ',', '.') }} Kz</span>
                                 </div>
                             </div>
+                        @else
+                            <div class="flex gap-2 mb-3">
+                                <input 
+                                    wire:model="couponCode" 
+                                    type="text" 
+                                    placeholder="Código do cupom" 
+                                    class="flex-1 px-3 py-2 border rounded-lg text-sm uppercase"
+                                >
+                                <button 
+                                    wire:click="applyCoupon" 
+                                    class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm transition"
+                                >
+                                    Aplicar
+                                </button>
+                            </div>
+                        @endif
+                    </div>
+
+                    <!-- Total -->
+                    <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-lg font-semibold text-gray-900 dark:text-white">Total</span>
+                            <span class="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                                {{ number_format($appliedCoupon ? $finalPrice : $total_price, 2, ',', '.') }} Kz
+                            </span>
                         </div>
-                    @endif
+                        @if($appliedCoupon)
+                            <p class="text-xs text-green-600 text-right">
+                                Você economizou {{ number_format($discount, 2, ',', '.') }} Kz!
+                            </p>
+                        @endif
+                    </div>
                     
                     <!-- Método de Pagamento -->
                     @if($payment_method)

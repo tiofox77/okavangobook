@@ -76,6 +76,8 @@ class RoomManagement extends Component
      * Controle do modal
      */
     public bool $showModal = false;
+    public bool $showViewModal = false;
+    public ?RoomType $viewingRoom = null;
     
     /**
      * Propriedades protegidas para armazenar dados
@@ -185,6 +187,16 @@ class RoomManagement extends Component
      */
     public function mount(): void
     {
+        // Verificar se o utilizador tem permissão
+        if (!auth()->check()) {
+            abort(401, 'Não autenticado.');
+        }
+        
+        $user = auth()->user();
+        if (!$user->hasRole('Admin') && !$user->managedHotels()->exists()) {
+            abort(403, 'Não tem permissão para aceder a esta página.');
+        }
+        
         // Carregar hotéis para o select
         $this->loadHotels();
         
@@ -200,9 +212,15 @@ class RoomManagement extends Component
      */
     private function loadHotels(): void
     {
-        $this->hotels = Hotel::select('id', 'name')
-            ->orderBy('name')
-            ->get();
+        $user = auth()->user();
+        $query = Hotel::select('id', 'name');
+        
+        // Se não for Admin, mostrar apenas hotéis do usuário
+        if (!$user->hasRole('Admin')) {
+            $query->where('user_id', $user->id);
+        }
+        
+        $this->hotels = $query->orderBy('name')->get();
     }
     
     /**
@@ -263,6 +281,24 @@ class RoomManagement extends Component
         $this->showModal = false;
         $this->resetErrorBag();
         $this->resetValidation();
+    }
+    
+    /**
+     * Visualiza um tipo de quarto (somente leitura)
+     */
+    public function view(int $roomId): void
+    {
+        $this->viewingRoom = RoomType::with('hotel')->findOrFail($roomId);
+        $this->showViewModal = true;
+    }
+    
+    /**
+     * Fecha o modal de visualização
+     */
+    public function closeViewModal(): void
+    {
+        $this->showViewModal = false;
+        $this->viewingRoom = null;
     }
     
     /**
@@ -476,14 +512,22 @@ class RoomManagement extends Component
     {
         $this->loadHotels();
         
+        $user = auth()->user();
+        $isAdmin = $user->hasRole('Admin');
+        
         $rooms = RoomType::with(['hotel:id,name'])
+            // Se não for Admin, mostrar apenas quartos dos hotéis do usuário
+            ->when(!$isAdmin, function (Builder $query) use ($user) {
+                $query->whereHas('hotel', function ($q) use ($user) {
+                    $q->where('user_id', $user->id);
+                });
+            })
             ->when($this->hotel_id, function (Builder $query, $hotelId) {
                 $query->where('hotel_id', $hotelId);
             })
             ->when($this->search, function (Builder $query, $search) {
                 $query->where(function (Builder $query) use ($search) {
                     $query->where('name', 'like', "%{$search}%")
-                        ->orWhere('number', 'like', "%{$search}%")
                         ->orWhere('description', 'like', "%{$search}%")
                         ->orWhereHas('hotel', function (Builder $query) use ($search) {
                             $query->where('name', 'like', "%{$search}%");

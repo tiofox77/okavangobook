@@ -119,14 +119,39 @@
                         <!-- Logo Upload -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Logo da Aplicação</label>
+                            
+                            <!-- Imagem atual -->
+                            @if($currentAppLogo && !$appLogo)
+                                <div class="mb-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center space-x-3">
+                                            <img src="{{ Storage::url($currentAppLogo) }}" alt="Logo Atual" class="h-16 w-auto rounded shadow-sm">
+                                            <div>
+                                                <p class="text-xs text-gray-600 font-medium">Imagem atual</p>
+                                                <p class="text-xs text-gray-400">{{ basename($currentAppLogo) }}</p>
+                                            </div>
+                                        </div>
+                                        <button type="button" wire:click="removeAppLogo" 
+                                                wire:confirm="Tem certeza que deseja remover o logo?"
+                                                class="text-red-600 hover:text-red-800 px-3 py-1 rounded hover:bg-red-50 transition-colors">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            @endif
+                            
+                            <!-- Upload de nova imagem -->
                             <div class="flex items-center space-x-4">
                                 <input type="file" wire:model="appLogo" accept="image/*" 
                                        class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                             </div>
                             @error('appLogo') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                            
+                            <!-- Preview da nova imagem -->
                             @if($appLogo)
-                                <div class="mt-2">
-                                    <img src="{{ $appLogo->temporaryUrl() }}" alt="Preview" class="h-16 w-auto rounded">
+                                <div class="mt-3 p-3 bg-green-50 rounded-lg border border-green-200">
+                                    <p class="text-xs text-green-700 font-medium mb-2"><i class="fas fa-info-circle mr-1"></i> Nova imagem (pré-visualização)</p>
+                                    <img src="{{ $appLogo->temporaryUrl() }}" alt="Preview" class="h-16 w-auto rounded shadow-sm">
                                 </div>
                             @endif
                         </div>
@@ -134,14 +159,39 @@
                         <!-- Favicon Upload -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Favicon</label>
+                            
+                            <!-- Imagem atual -->
+                            @if($currentAppFavicon && !$appFavicon)
+                                <div class="mb-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center space-x-3">
+                                            <img src="{{ Storage::url($currentAppFavicon) }}" alt="Favicon Atual" class="h-8 w-8 rounded shadow-sm">
+                                            <div>
+                                                <p class="text-xs text-gray-600 font-medium">Imagem atual</p>
+                                                <p class="text-xs text-gray-400">{{ basename($currentAppFavicon) }}</p>
+                                            </div>
+                                        </div>
+                                        <button type="button" wire:click="removeAppFavicon" 
+                                                wire:confirm="Tem certeza que deseja remover o favicon?"
+                                                class="text-red-600 hover:text-red-800 px-3 py-1 rounded hover:bg-red-50 transition-colors">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            @endif
+                            
+                            <!-- Upload de nova imagem -->
                             <div class="flex items-center space-x-4">
                                 <input type="file" wire:model="appFavicon" accept="image/*" 
                                        class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                             </div>
                             @error('appFavicon') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                            
+                            <!-- Preview da nova imagem -->
                             @if($appFavicon)
-                                <div class="mt-2">
-                                    <img src="{{ $appFavicon->temporaryUrl() }}" alt="Preview" class="h-8 w-8 rounded">
+                                <div class="mt-3 p-3 bg-green-50 rounded-lg border border-green-200">
+                                    <p class="text-xs text-green-700 font-medium mb-2"><i class="fas fa-info-circle mr-1"></i> Nova imagem (pré-visualização)</p>
+                                    <img src="{{ $appFavicon->temporaryUrl() }}" alt="Preview" class="h-8 w-8 rounded shadow-sm">
                                 </div>
                             @endif
                         </div>
@@ -149,14 +199,79 @@
                         <!-- Hero Background Upload -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Imagem de Fundo Hero</label>
+                            
+                            <!-- Imagem atual -->
+                            @if($currentHeroBackground && !$heroBackground)
+                                <div class="mb-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center space-x-3">
+                                            <img src="{{ Storage::url($currentHeroBackground) }}" alt="Fundo Hero Atual" class="h-24 w-auto rounded shadow-sm">
+                                            <div>
+                                                <p class="text-xs text-gray-600 font-medium">Imagem atual</p>
+                                                <p class="text-xs text-gray-400">{{ basename($currentHeroBackground) }}</p>
+                                            </div>
+                                        </div>
+                                        <button type="button" wire:click="removeHeroBackground" 
+                                                wire:confirm="Tem certeza que deseja remover a imagem de fundo?"
+                                                class="text-red-600 hover:text-red-800 px-3 py-1 rounded hover:bg-red-50 transition-colors">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            @endif
+                            
+                            <!-- Upload de nova imagem -->
                             <div class="flex items-center space-x-4">
                                 <input type="file" wire:model="heroBackground" accept="image/*" 
                                        class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                             </div>
                             @error('heroBackground') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                            
+                            <!-- Preview da nova imagem -->
                             @if($heroBackground)
-                                <div class="mt-2">
-                                    <img src="{{ $heroBackground->temporaryUrl() }}" alt="Preview" class="h-24 w-auto rounded">
+                                <div class="mt-3 p-3 bg-green-50 rounded-lg border border-green-200">
+                                    <p class="text-xs text-green-700 font-medium mb-2"><i class="fas fa-info-circle mr-1"></i> Nova imagem (pré-visualização)</p>
+                                    <img src="{{ $heroBackground->temporaryUrl() }}" alt="Preview" class="h-24 w-auto rounded shadow-sm">
+                                </div>
+                            @endif
+                        </div>
+
+                        <!-- Offers Background Upload -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Imagem de Fundo Ofertas Especiais</label>
+                            
+                            <!-- Imagem atual -->
+                            @if($currentOffersBackground && !$offersBackground)
+                                <div class="mb-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center space-x-3">
+                                            <img src="{{ Storage::url($currentOffersBackground) }}" alt="Fundo Ofertas Atual" class="h-24 w-auto rounded shadow-sm">
+                                            <div>
+                                                <p class="text-xs text-gray-600 font-medium">Imagem atual</p>
+                                                <p class="text-xs text-gray-400">{{ basename($currentOffersBackground) }}</p>
+                                            </div>
+                                        </div>
+                                        <button type="button" wire:click="removeOffersBackground" 
+                                                wire:confirm="Tem certeza que deseja remover a imagem de fundo de ofertas?"
+                                                class="text-red-600 hover:text-red-800 px-3 py-1 rounded hover:bg-red-50 transition-colors">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            @endif
+                            
+                            <!-- Upload de nova imagem -->
+                            <div class="flex items-center space-x-4">
+                                <input type="file" wire:model="offersBackground" accept="image/*" 
+                                       class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                            </div>
+                            @error('offersBackground') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                            
+                            <!-- Preview da nova imagem -->
+                            @if($offersBackground)
+                                <div class="mt-3 p-3 bg-green-50 rounded-lg border border-green-200">
+                                    <p class="text-xs text-green-700 font-medium mb-2"><i class="fas fa-info-circle mr-1"></i> Nova imagem (pré-visualização)</p>
+                                    <img src="{{ $offersBackground->temporaryUrl() }}" alt="Preview" class="h-24 w-auto rounded shadow-sm">
                                 </div>
                             @endif
                         </div>

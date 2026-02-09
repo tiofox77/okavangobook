@@ -72,6 +72,11 @@ class ReservationManagement extends Component
      */
     public function mount(): void
     {
+        // Verificar autenticação
+        if (!auth()->check()) {
+            abort(401, 'Não autenticado.');
+        }
+        
         $this->availableRooms = collect();
     }
     
@@ -401,7 +406,16 @@ class ReservationManagement extends Component
      */
     public function render(): View
     {
+        $user = auth()->user();
+        $isAdmin = $user->hasRole('Admin');
+        
         $query = Reservation::with(['user', 'hotel', 'roomType', 'room'])
+            // Se não for Admin, mostrar apenas reservas dos hotéis do usuário
+            ->when(!$isAdmin, function ($q) use ($user) {
+                $q->whereHas('hotel', function ($hq) use ($user) {
+                    $hq->where('user_id', $user->id);
+                });
+            })
             ->when($this->search, function ($q) {
                 return $q->where(function ($sq) {
                     $sq->where('confirmation_code', 'like', '%' . $this->search . '%')
@@ -444,16 +458,27 @@ class ReservationManagement extends Component
             })
             ->orderBy($this->sortField, $this->sortDirection);
         
-        // Estatísticas
+        // Estatísticas (filtradas por hotel se não for Admin)
+        $statsQuery = Reservation::query();
+        if (!$isAdmin) {
+            $statsQuery->whereHas('hotel', function ($hq) use ($user) {
+                $hq->where('user_id', $user->id);
+            });
+        }
+        
         $stats = [
-            'total' => Reservation::count(),
-            'confirmed' => Reservation::where('status', Reservation::STATUS_CONFIRMED)->count(),
-            'checked_in' => Reservation::where('status', Reservation::STATUS_CHECKED_IN)->count(),
-            'today' => Reservation::where('check_in', Carbon::today())->count(),
+            'total' => (clone $statsQuery)->count(),
+            'confirmed' => (clone $statsQuery)->where('status', Reservation::STATUS_CONFIRMED)->count(),
+            'checked_in' => (clone $statsQuery)->where('status', Reservation::STATUS_CHECKED_IN)->count(),
+            'today' => (clone $statsQuery)->where('check_in', Carbon::today())->count(),
         ];
         
-        // Hotels para o filtro
-        $hotels = Hotel::orderBy('name')->get();
+        // Hotels para o filtro (apenas do gestor se não for Admin)
+        $hotelsQuery = Hotel::orderBy('name');
+        if (!$isAdmin) {
+            $hotelsQuery->where('user_id', $user->id);
+        }
+        $hotels = $hotelsQuery->get();
         
         return view('livewire.admin.reservation-management', [
             'reservations' => $query->paginate($this->perPage),

@@ -3,7 +3,7 @@
     <!-- Hero Section simplificada com imagem de fundo garantida -->
     <div class="relative h-screen overflow-hidden">
         <!-- Imagem de fundo garantida e simples -->
-        <img src="https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1500&q=80" 
+        <img src="{{ $heroBackground ? Storage::url($heroBackground) : 'https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1500&q=80' }}" 
             alt="Angola Landscape" 
             class="absolute inset-0 w-full h-full object-cover">
         
@@ -45,13 +45,146 @@
             
             <!-- Scroll indicator -->
             <div class="absolute bottom-8 left-0 right-0 flex justify-center animate-bounce">
-                <a href="#destinations" class="text-white opacity-80 hover:opacity-100 transition-opacity">
+                <a href="#nearby-hotels" class="text-white opacity-80 hover:opacity-100 transition-opacity">
                     <i class="fas fa-chevron-down text-2xl"></i>
                 </a>
             </div>
         </div>
     </div>
+    
+    <!-- Hotéis Perto de Ti - Seção com Geolocalização -->
+    <section id="nearby-hotels" class="py-16 bg-gradient-to-b from-white to-gray-50 dark:from-gray-800 dark:to-gray-900" x-data="{ locationLoading: true }">
+        <div class="container mx-auto px-4">
+            <!-- Cabeçalho da seção -->
+            <div class="text-center mb-12 relative">
+                <div class="inline-block px-4 py-1 bg-blue-50 dark:bg-blue-900/30 rounded-full text-primary dark:text-blue-300 font-medium text-sm mb-3">
+                    <span class="mr-2">📍</span>Personalizado para si<span class="ml-2">📍</span>
+                </div>
+                <h2 class="text-4xl md:text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-600 dark:from-blue-400 dark:to-blue-300">
+                    Hotéis Perto de Ti
+                </h2>
+                <p class="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+                    Descubra acomodações próximas à sua localização atual
+                </p>
+            </div>
 
+            <!-- Loading state -->
+            <div wire:loading.class.remove="hidden" class="hidden text-center py-12">
+                <div class="inline-block">
+                    <i class="fas fa-spinner fa-spin text-4xl text-primary mb-4"></i>
+                    <p class="text-gray-600 dark:text-gray-300">A procurar hotéis próximos...</p>
+                </div>
+            </div>
+
+            <!-- Alerta de permissão negada -->
+            @if($locationPermissionDenied)
+                <div class="max-w-2xl mx-auto mb-8 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+                    <div class="flex items-start">
+                        <i class="fas fa-info-circle text-yellow-600 dark:text-yellow-400 text-xl mr-3 mt-1"></i>
+                        <div>
+                            <h3 class="font-semibold text-yellow-800 dark:text-yellow-300 mb-1">Localização não disponível</h3>
+                            <p class="text-sm text-yellow-700 dark:text-yellow-400">
+                                Ative a localização para ver hotéis próximos a si. Entretanto, mostramos os nossos hotéis em destaque.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            <!-- Grid de hotéis próximos -->
+            @if(count($nearbyHotels) > 0)
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" wire:loading.remove>
+                    @foreach($nearbyHotels as $hotel)
+                        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+                            <!-- Imagem do hotel -->
+                            <div class="relative h-48 overflow-hidden">
+                                <img src="{{ $hotel['image'] }}" 
+                                     alt="{{ $hotel['name'] }}" 
+                                     class="w-full h-full object-cover transform hover:scale-110 transition-transform duration-500"
+                                     loading="lazy">
+                                
+                                <!-- Badge de distância (se disponível) -->
+                                @if(isset($hotel['distance']))
+                                    <div class="absolute top-3 right-3 bg-primary text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg">
+                                        <i class="fas fa-map-marker-alt mr-1"></i>{{ $hotel['distance'] }} km
+                                    </div>
+                                @endif
+                                
+                                <!-- Badge de destaque -->
+                                @if(!isset($hotel['distance']))
+                                    <div class="absolute top-3 right-3 bg-amber-500 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg">
+                                        <i class="fas fa-star mr-1"></i>Destaque
+                                    </div>
+                                @endif
+                            </div>
+                            
+                            <!-- Conteúdo do card -->
+                            <div class="p-5">
+                                <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-2 line-clamp-1">
+                                    {{ $hotel['name'] }}
+                                </h3>
+                                
+                                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-3">
+                                    <i class="fas fa-map-marker-alt mr-2 text-primary"></i>
+                                    <span class="line-clamp-1">{{ $hotel['location'] }}, {{ $hotel['province'] }}</span>
+                                </div>
+                                
+                                <!-- Rating -->
+                                <div class="flex items-center mb-3">
+                                    <div class="flex text-yellow-400 mr-2">
+                                        @for($i = 0; $i < floor($hotel['rating']); $i++)
+                                            <i class="fas fa-star text-sm"></i>
+                                        @endfor
+                                        @if($hotel['rating'] - floor($hotel['rating']) >= 0.5)
+                                            <i class="fas fa-star-half-alt text-sm"></i>
+                                        @endif
+                                    </div>
+                                    <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                        {{ number_format($hotel['rating'], 1) }}
+                                    </span>
+                                    <span class="text-sm text-gray-500 dark:text-gray-400 ml-1">
+                                        ({{ $hotel['reviews'] }} avaliações)
+                                    </span>
+                                </div>
+                                
+                                <!-- Preço e botão -->
+                                <div class="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
+                                    <div>
+                                        <span class="text-sm text-gray-500 dark:text-gray-400">A partir de</span>
+                                        <div class="text-2xl font-bold text-primary dark:text-blue-400">
+                                            {{ number_format($hotel['price'], 0, ',', '.') }} Kz
+                                        </div>
+                                    </div>
+                                    <a href="{{ route('hotel.details', $hotel['slug']) }}" 
+                                       class="bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors duration-300 flex items-center">
+                                        Ver <i class="fas fa-arrow-right ml-2"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <!-- Estado vazio - Aguardando geolocalização -->
+                <div class="text-center py-12" wire:loading.remove x-show="!@js($locationPermissionDenied)">
+                    <div class="max-w-md mx-auto">
+                        <i class="fas fa-map-marked-alt text-6xl text-gray-300 dark:text-gray-600 mb-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                            Permita o acesso à localização
+                        </h3>
+                        <p class="text-gray-600 dark:text-gray-400 mb-4">
+                            Para mostrar hotéis próximos a si, precisamos da sua permissão para aceder à sua localização.
+                        </p>
+                        <button onclick="requestGeolocation()" 
+                                class="bg-primary hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-300">
+                            <i class="fas fa-map-marker-alt mr-2"></i>Ativar Localização
+                        </button>
+                    </div>
+                </div>
+            @endif
+        </div>
+    </section>
+    
     <!-- Destinos Populares com design imersivo 2025 -->
     <section id="destinations" class="py-24 relative overflow-hidden bg-white dark:bg-gray-900">
         <!-- Fundo com imagem real de Angola -->
@@ -144,21 +277,24 @@
                     </div>
                     
                     <div class="relative overflow-hidden h-72">
-                        <!-- Usando o ImageHelper com lazy loading e fallback melhorado -->
+                        <!-- Imagem da província -->
                         <img 
-                            src="{{ \App\Helpers\ImageHelper::getValidImage($destination['image'], 'location') }}" 
+                            src="{{ str_starts_with($destination['image'], 'http') ? $destination['image'] : asset('storage/' . $destination['image']) }}" 
                             alt="{{ $destination['name'] }}" 
                             class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                            loading="lazy"
-                            onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1562182384-08115de5ee97?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';"
+                            onerror="this.onerror=null; this.src='{{ asset('storage/locations/placeholder.svg') }}';"
                         >
-                        <!-- Gradiente avançado para melhor legibilidade -->
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+                        <!-- Gradiente permanente leve para legibilidade do texto -->
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
                         
-                        <!-- Título flutuante no hover -->
-                        <div class="absolute inset-x-0 bottom-0 p-5 translate-y-full group-hover:translate-y-0 transition-transform duration-500">
-                            <h3 class="text-2xl font-bold text-white mb-2 drop-shadow-md">{{ $destination['name'] }}</h3>
-                            <p class="text-white/90 line-clamp-2 text-sm max-w-md">{{ $destination['description'] }}</p>
+                        <!-- Gradiente adicional no hover para efeito mais escuro -->
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+                        
+                        <!-- Título sempre visível em branco sobre a imagem -->
+                        <div class="absolute inset-x-0 bottom-0 p-5">
+                            <h3 class="text-2xl font-bold text-white mb-2 drop-shadow-lg">{{ $destination['name'] }}</h3>
+                            <!-- Descrição que aparece apenas no hover -->
+                            <p class="text-white/90 line-clamp-2 text-sm max-w-md max-h-0 opacity-0 group-hover:max-h-20 group-hover:opacity-100 transition-all duration-500 overflow-hidden">{{ $destination['description'] }}</p>
                         </div>
                     </div>
                     
@@ -269,13 +405,287 @@
             </div>
         </div>
     </section>
+    
+    <!-- Seção: Explore por Tipo de Propriedade -->
+    <section class="py-20" style="background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-14">
+                <span class="inline-block px-5 py-2 rounded-full text-sm font-semibold mb-4" style="background: #eef2ff; color: #4f46e5;">
+                    Para Todos os Gostos
+                </span>
+                <h2 class="text-3xl md:text-4xl font-bold mb-4" style="color: #1e293b;">
+                    Encontre a Estadia Perfeita
+                </h2>
+                <p class="max-w-2xl mx-auto text-lg" style="color: #64748b;">
+                    De hotéis urbanos a resorts de luxo e hospedarias acolhedoras
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Card: Hotéis -->
+                <a href="{{ route('search.results', ['property_types' => ['hotel']]) }}" 
+                   class="group relative rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2" style="min-height: 320px;">
+                    <div class="absolute inset-0" style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%);"></div>
+                    <!-- Decorative circles -->
+                    <div class="absolute top-0 right-0 w-40 h-40 rounded-full" style="background: rgba(255,255,255,0.1); transform: translate(30%, -30%);"></div>
+                    <div class="absolute bottom-0 left-0 w-32 h-32 rounded-full" style="background: rgba(255,255,255,0.08); transform: translate(-20%, 20%);"></div>
+                    
+                    <div class="relative h-full flex flex-col justify-between p-8 z-10">
+                        <div class="flex items-start justify-between">
+                            <div class="w-14 h-14 rounded-2xl flex items-center justify-center" style="background: rgba(255,255,255,0.2);">
+                                <i class="fas fa-hotel text-2xl" style="color: #ffffff;"></i>
+                            </div>
+                            <span class="px-3 py-1 rounded-full text-xs font-bold" style="background: rgba(255,255,255,0.25); color: #ffffff;">
+                                {{ \App\Models\Hotel::where('property_type', 'hotel')->where('is_active', true)->count() }}+ opções
+                            </span>
+                        </div>
+                        
+                        <div class="mt-auto">
+                            <h3 class="text-2xl font-bold mb-2" style="color: #ffffff;">Hotéis Urbanos</h3>
+                            <p class="text-base mb-5" style="color: rgba(255,255,255,0.85);">
+                                Conforto e praticidade no coração das cidades
+                            </p>
+                            <div class="inline-flex items-center px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 group-hover:shadow-lg" style="background: #ffffff; color: #1e40af;">
+                                <span>Explorar Hotéis</span>
+                                <i class="fas fa-arrow-right ml-2 transition-transform duration-300 group-hover:translate-x-1"></i>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+                
+                <!-- Card: Resorts -->
+                <a href="{{ route('search.results', ['property_types' => ['resort']]) }}" 
+                   class="group relative rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2" style="min-height: 320px;">
+                    <div class="absolute inset-0" style="background: linear-gradient(135deg, #c2410c 0%, #ea580c 40%, #f59e0b 100%);"></div>
+                    <!-- Decorative circles -->
+                    <div class="absolute top-0 right-0 w-40 h-40 rounded-full" style="background: rgba(255,255,255,0.1); transform: translate(30%, -30%);"></div>
+                    <div class="absolute bottom-0 left-0 w-32 h-32 rounded-full" style="background: rgba(255,255,255,0.08); transform: translate(-20%, 20%);"></div>
+                    
+                    <div class="relative h-full flex flex-col justify-between p-8 z-10">
+                        <div class="flex items-start justify-between">
+                            <div class="w-14 h-14 rounded-2xl flex items-center justify-center" style="background: rgba(255,255,255,0.2);">
+                                <i class="fas fa-umbrella-beach text-2xl" style="color: #ffffff;"></i>
+                            </div>
+                            <span class="px-4 py-1.5 rounded-full text-xs font-bold flex items-center" style="background: #ffffff; color: #c2410c;">
+                                <i class="fas fa-crown mr-1.5"></i> PREMIUM
+                            </span>
+                        </div>
+                        
+                        <div class="mt-auto">
+                            <h3 class="text-2xl font-bold mb-2" style="color: #ffffff;">Resorts de Luxo</h3>
+                            <p class="text-base mb-5" style="color: rgba(255,255,255,0.85);">
+                                Experiências premium à beira-mar e nas montanhas
+                            </p>
+                            <div class="inline-flex items-center px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 group-hover:shadow-lg" style="background: #ffffff; color: #c2410c;">
+                                <span>Descobrir Resorts</span>
+                                <i class="fas fa-arrow-right ml-2 transition-transform duration-300 group-hover:translate-x-1"></i>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+                
+                <!-- Card: Hospedarias -->
+                <a href="{{ route('search.results', ['property_types' => ['hospedaria']]) }}" 
+                   class="group relative rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2" style="min-height: 320px;">
+                    <div class="absolute inset-0" style="background: linear-gradient(135deg, #0f766e 0%, #14b8a6 50%, #2dd4bf 100%);"></div>
+                    <!-- Decorative circles -->
+                    <div class="absolute top-0 right-0 w-40 h-40 rounded-full" style="background: rgba(255,255,255,0.1); transform: translate(30%, -30%);"></div>
+                    <div class="absolute bottom-0 left-0 w-32 h-32 rounded-full" style="background: rgba(255,255,255,0.08); transform: translate(-20%, 20%);"></div>
+                    
+                    <div class="relative h-full flex flex-col justify-between p-8 z-10">
+                        <div class="flex items-start justify-between">
+                            <div class="w-14 h-14 rounded-2xl flex items-center justify-center" style="background: rgba(255,255,255,0.2);">
+                                <i class="fas fa-home text-2xl" style="color: #ffffff;"></i>
+                            </div>
+                            <span class="px-4 py-1.5 rounded-full text-xs font-bold flex items-center" style="background: #ffffff; color: #0f766e;">
+                                <i class="fas fa-heart mr-1.5"></i> AUTÊNTICO
+                            </span>
+                        </div>
+                        
+                        <div class="mt-auto">
+                            <h3 class="text-2xl font-bold mb-2" style="color: #ffffff;">Hospedarias Locais</h3>
+                            <p class="text-base mb-5" style="color: rgba(255,255,255,0.85);">
+                                Acolhimento familiar e experiências autênticas
+                            </p>
+                            <div class="inline-flex items-center px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 group-hover:shadow-lg" style="background: #ffffff; color: #0f766e;">
+                                <span>Ver Hospedarias</span>
+                                <i class="fas fa-arrow-right ml-2 transition-transform duration-300 group-hover:translate-x-1"></i>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Resorts em Destaque -->
+    @if(count($featuredResorts) > 0)
+    <section class="py-20" style="background: linear-gradient(135deg, #fff7ed 0%, #fef3c7 50%, #fffbeb 100%);">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row md:items-end md:justify-between mb-10">
+                <div>
+                    <span class="inline-flex items-center px-4 py-1.5 rounded-full text-sm font-semibold mb-3" style="background: linear-gradient(135deg, #ea580c, #f59e0b); color: #ffffff;">
+                        <i class="fas fa-crown mr-2"></i> Experiências Premium
+                    </span>
+                    <h2 class="text-3xl md:text-4xl font-bold" style="color: #1e293b;">
+                        Resorts em <span style="color: #ea580c;">Destaque</span>
+                    </h2>
+                    <p class="mt-2" style="color: #64748b;">Luxo e conforto em locais paradisíacos de Angola</p>
+                </div>
+                <a href="{{ route('search.results', ['property_types' => ['resort']]) }}" 
+                   class="mt-4 md:mt-0 inline-flex items-center px-6 py-3 rounded-full font-semibold text-sm hover:shadow-lg transition-all duration-300 hover:scale-105" style="background: linear-gradient(135deg, #ea580c, #f59e0b); color: #ffffff;">
+                    Ver Todos os Resorts
+                    <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                @foreach($featuredResorts as $index => $resort)
+                @php
+                    $resortGradients = [
+                        'linear-gradient(135deg, #c2410c 0%, #ea580c 100%)',
+                        'linear-gradient(135deg, #b45309 0%, #d97706 100%)',
+                        'linear-gradient(135deg, #9a3412 0%, #c2410c 100%)',
+                        'linear-gradient(135deg, #92400e 0%, #b45309 100%)',
+                    ];
+                @endphp
+                <a href="{{ route('hotel.details', $resort['id']) }}" 
+                   class="group rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2" style="background: #ffffff;">
+                    <!-- Image area with gradient fallback -->
+                    <div class="relative h-48 overflow-hidden">
+                        <div class="absolute inset-0" style="background: {{ $resortGradients[$index % 4] }};"></div>
+                        <img src="{{ $resort['image'] }}" 
+                             alt="{{ $resort['name'] }}" 
+                             class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                             loading="lazy"
+                             onerror="this.style.display='none';">
+                        <!-- Overlay -->
+                        <div class="absolute inset-0" style="background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.1) 50%, transparent 100%);"></div>
+                        
+                        <!-- Badge -->
+                        <div class="absolute top-3 right-3 z-10">
+                            <span class="px-3 py-1 rounded-full text-xs font-bold shadow-md" style="background: linear-gradient(135deg, #f59e0b, #ea580c); color: #ffffff;">
+                                <i class="fas fa-crown mr-1"></i>Resort
+                            </span>
+                        </div>
+                        
+                        <!-- Name over image -->
+                        <div class="absolute bottom-3 left-4 right-4 z-10">
+                            <h3 class="text-lg font-bold truncate" style="color: #ffffff;">{{ $resort['name'] }}</h3>
+                            <p class="text-sm flex items-center" style="color: rgba(255,255,255,0.9);">
+                                <i class="fas fa-map-marker-alt mr-1.5" style="color: #fbbf24;"></i>
+                                {{ $resort['location'] }}
+                            </p>
+                        </div>
+                    </div>
+                    <!-- Info area -->
+                    <div class="p-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-1.5">
+                                <i class="fas fa-star" style="color: #f59e0b;"></i>
+                                <span class="font-bold" style="color: #1e293b;">{{ number_format($resort['rating'], 1) }}</span>
+                                <span class="text-sm" style="color: #94a3b8;">({{ $resort['reviews'] }})</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-xs block" style="color: #94a3b8;">desde</span>
+                                <span class="text-lg font-bold" style="color: #ea580c;">AKZ {{ number_format($resort['price'], 0, ',', '.') }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+                @endforeach
+            </div>
+        </div>
+    </section>
+    @endif
+
+    <!-- Hospedarias em Destaque -->
+    @if(count($featuredHospedarias) > 0)
+    <section class="py-20" style="background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 50%, #f0fdfa 100%);">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row md:items-end md:justify-between mb-10">
+                <div>
+                    <span class="inline-flex items-center px-4 py-1.5 rounded-full text-sm font-semibold mb-3" style="background: linear-gradient(135deg, #0f766e, #14b8a6); color: #ffffff;">
+                        <i class="fas fa-heart mr-2"></i> Experiências Autênticas
+                    </span>
+                    <h2 class="text-3xl md:text-4xl font-bold" style="color: #1e293b;">
+                        Hospedarias <span style="color: #0f766e;">Acolhedoras</span>
+                    </h2>
+                    <p class="mt-2" style="color: #64748b;">Conforto familiar e preços acessíveis em toda Angola</p>
+                </div>
+                <a href="{{ route('search.results', ['property_types' => ['hospedaria']]) }}" 
+                   class="mt-4 md:mt-0 inline-flex items-center px-6 py-3 rounded-full font-semibold text-sm hover:shadow-lg transition-all duration-300 hover:scale-105" style="background: linear-gradient(135deg, #0f766e, #14b8a6); color: #ffffff;">
+                    Ver Todas as Hospedarias
+                    <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                @foreach($featuredHospedarias as $index => $hospedaria)
+                @php
+                    $hospGradients = [
+                        'linear-gradient(135deg, #0f766e 0%, #14b8a6 100%)',
+                        'linear-gradient(135deg, #065f46 0%, #059669 100%)',
+                        'linear-gradient(135deg, #115e59 0%, #0d9488 100%)',
+                        'linear-gradient(135deg, #064e3b 0%, #047857 100%)',
+                    ];
+                @endphp
+                <a href="{{ route('hotel.details', $hospedaria['id']) }}" 
+                   class="group rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2" style="background: #ffffff;">
+                    <!-- Image area with gradient fallback -->
+                    <div class="relative h-48 overflow-hidden">
+                        <div class="absolute inset-0" style="background: {{ $hospGradients[$index % 4] }};"></div>
+                        <img src="{{ $hospedaria['image'] }}" 
+                             alt="{{ $hospedaria['name'] }}" 
+                             class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                             loading="lazy"
+                             onerror="this.style.display='none';">
+                        <!-- Overlay -->
+                        <div class="absolute inset-0" style="background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.1) 50%, transparent 100%);"></div>
+                        
+                        <!-- Badge -->
+                        <div class="absolute top-3 right-3 z-10">
+                            <span class="px-3 py-1 rounded-full text-xs font-bold shadow-md" style="background: linear-gradient(135deg, #0f766e, #14b8a6); color: #ffffff;">
+                                <i class="fas fa-heart mr-1"></i>Hospedaria
+                            </span>
+                        </div>
+                        
+                        <!-- Name over image -->
+                        <div class="absolute bottom-3 left-4 right-4 z-10">
+                            <h3 class="text-lg font-bold truncate" style="color: #ffffff;">{{ $hospedaria['name'] }}</h3>
+                            <p class="text-sm flex items-center" style="color: rgba(255,255,255,0.9);">
+                                <i class="fas fa-map-marker-alt mr-1.5" style="color: #5eead4;"></i>
+                                {{ $hospedaria['location'] }}
+                            </p>
+                        </div>
+                    </div>
+                    <!-- Info area -->
+                    <div class="p-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-1.5">
+                                <i class="fas fa-star" style="color: #14b8a6;"></i>
+                                <span class="font-bold" style="color: #1e293b;">{{ number_format($hospedaria['rating'], 1) }}</span>
+                                <span class="text-sm" style="color: #94a3b8;">({{ $hospedaria['reviews'] }})</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-xs block" style="color: #94a3b8;">desde</span>
+                                <span class="text-lg font-bold" style="color: #0f766e;">AKZ {{ number_format($hospedaria['price'], 0, ',', '.') }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+                @endforeach
+            </div>
+        </div>
+    </section>
+    @endif
 
     <!-- Ofertas Especiais - Design Imersivo 2025 -->
     <section class="py-24 relative overflow-hidden">
         <!-- Background imersivo para ofertas especiais -->
         <div class="absolute inset-0 z-0">
             <!-- Imagem de fundo que representa Angola do Unsplash -->
-            <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?ixlib=rb-4.0.3&auto=format&fit=crop&w=1500&q=80" 
+            <img src="{{ $offersBackground ? Storage::url($offersBackground) : 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?ixlib=rb-4.0.3&auto=format&fit=crop&w=1500&q=80' }}" 
                  alt="Angola Landscape" 
                  class="w-full h-full object-cover scale-105 animate-slow-zoom"
                  loading="lazy">
@@ -526,3 +936,67 @@
     
 
 </div>
+
+@push('scripts')
+<script>
+    document.addEventListener('livewire:initialized', () => {
+        // Função para solicitar geolocalização do usuário
+        function requestGeolocation() {
+            if ("geolocation" in navigator) {
+                console.log('Solicitando geolocalização...');
+                
+                navigator.geolocation.getCurrentPosition(
+                    // Sucesso
+                    function(position) {
+                        const latitude = position.coords.latitude;
+                        const longitude = position.coords.longitude;
+                        
+                        console.log('Localização obtida:', latitude, longitude);
+                        
+                        // Chamar método Livewire para carregar hotéis próximos
+                        Livewire.find('{{ $_instance->getId() }}').call('setUserLocation', latitude, longitude);
+                    },
+                    // Erro
+                    function(error) {
+                        console.error('Erro ao obter localização:', error);
+                        
+                        // Notificar o Livewire que a permissão foi negada
+                        Livewire.find('{{ $_instance->getId() }}').call('locationDenied');
+                        
+                        // Mostrar mensagem ao usuário
+                        let errorMessage = 'Não foi possível obter sua localização.';
+                        
+                        switch(error.code) {
+                            case error.PERMISSION_DENIED:
+                                errorMessage = 'Permissão de localização negada. Ative nas configurações do navegador.';
+                                break;
+                            case error.POSITION_UNAVAILABLE:
+                                errorMessage = 'Informação de localização indisponível.';
+                                break;
+                            case error.TIMEOUT:
+                                errorMessage = 'Tempo esgotado ao obter localização.';
+                                break;
+                        }
+                        
+                        console.log(errorMessage);
+                    },
+                    // Opções
+                    {
+                        enableHighAccuracy: false,
+                        timeout: 10000,
+                        maximumAge: 300000 // Cache por 5 minutos
+                    }
+                );
+            } else {
+                console.error('Geolocalização não suportada pelo navegador');
+                Livewire.find('{{ $_instance->getId() }}').call('locationDenied');
+            }
+        }
+        
+        // Solicitar geolocalização automaticamente após Livewire estar pronto
+        setTimeout(function() {
+            requestGeolocation();
+        }, 1000);
+    });
+</script>
+@endpush

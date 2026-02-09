@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire;
 
+use App\Models\Coupon;
 use App\Models\Hotel;
 use App\Models\Location;
 use App\Models\Reservation;
@@ -28,7 +29,9 @@ class BookingCreate extends Component
     public string $check_out = '';
     public int $guests = 1;
     public ?float $total_price = null;
-    public string $payment_method = 'cash';
+    public ?float $price_per_night = null; // Preço por noite recebido da URL
+    public string $payment_method = '';
+    public array $availablePaymentMethods = [];
     public ?string $special_requests = null;
     
     // Dados do utilizador (para não logados)
@@ -47,12 +50,31 @@ class BookingCreate extends Component
     public string $currentStep = 'details';
     public bool $isLoggedIn = false;
     public bool $agreedToTerms = false;
+    public bool $continueAsGuest = false;
+    
+    // Cupom de desconto
+    public string $couponCode = '';
+    public ?object $appliedCoupon = null;
+    public ?float $discount = null;
+    public ?float $finalPrice = null;
+    
+    /**
+     * Observer para recarregar métodos de pagamento quando hotel muda
+     */
+    public function updatedHotelId($value)
+    {
+        $this->loadHotelData();
+    }
     
     /**
      * Regras de validação
      */
     protected function rules(): array
     {
+        // Obter apenas os valores dos métodos disponíveis
+        $availableMethods = array_column($this->availablePaymentMethods, 'value');
+        $allowedMethods = !empty($availableMethods) ? implode(',', $availableMethods) : 'cash';
+        
         $rules = [
             'hotel_id' => ['required', 'integer', 'exists:hotels,id'],
             'room_type_id' => ['required', 'integer', 'exists:room_types,id'],
@@ -60,7 +82,7 @@ class BookingCreate extends Component
             'check_in' => ['required', 'date', 'after_or_equal:today'],
             'check_out' => ['required', 'date', 'after:check_in'],
             'guests' => ['required', 'integer', 'min:1'],
-            'payment_method' => ['required', 'string', 'in:cash,card,transfer,mobile_money'],
+            'payment_method' => ['required', 'string', 'in:' . $allowedMethods],
             'special_requests' => ['nullable', 'string', 'max:500'],
             'agreedToTerms' => ['required', 'accepted'],
         ];
@@ -85,12 +107,17 @@ class BookingCreate extends Component
         
         // Receber parâmetros da URL com casting correto
         $this->hotel_id = request()->get('hotel_id') ? (int) request()->get('hotel_id') : null;
-        $this->room_type_id = request()->get('room_id') ? (int) request()->get('room_id') : null; // Na verdade é room_type_id
+        $this->room_type_id = request()->get('room_type_id') 
+            ? (int) request()->get('room_type_id') 
+            : (request()->get('room_id') ? (int) request()->get('room_id') : null);
         $this->check_in = request()->get('check_in', '');
         $this->check_out = request()->get('check_out', '');
         $this->guests = (int) request()->get('guests', 1);
-        $this->nights = (int) request()->get('nights', 1);
-        $this->total_price = (float) request()->get('total', 0);
+        
+        // Receber preço por noite da URL (se disponível)
+        $this->price_per_night = request()->get('price_per_night') 
+            ? (float) request()->get('price_per_night') 
+            : null;
         
         // Carregar dados se foram fornecidos
         if ($this->hotel_id) {
@@ -100,6 +127,75 @@ class BookingCreate extends Component
         if ($this->room_type_id) {
             $this->loadRoomTypeData();
         }
+        
+        // Garantir que noites e preço sejam calculados no início
+        if (!empty($this->check_in) && !empty($this->check_out)) {
+            $this->calculateNights();
+            $this->calculateTotalPrice();
+        }
+    }
+    
+    /**
+     * Atualizar noites quando check_in mudar
+     */
+    public function updatedCheckIn()
+    {
+        $this->calculateNights();
+        $this->calculateTotalPrice();
+    }
+    
+    /**
+     * Atualizar noites quando check_out mudar
+     */
+    public function updatedCheckOut()
+    {
+        $this->calculateNights();
+        $this->calculateTotalPrice();
+    }
+    
+    /**
+     * Validar capacidade quando guests mudar
+     */
+    public function updatedGuests()
+    {
+        if ($this->selectedRoomType && $this->guests > $this->selectedRoomType->capacity) {
+            // Reverter para a capacidade máxima
+            $this->guests = $this->selectedRoomType->capacity;
+            
+            // Enviar notificação para o frontend
+            $this->dispatch('show-toast', [
+                'type' => 'error',
+                'message' => "A capacidade máxima deste quarto é de {$this->selectedRoomType->capacity} pessoas."
+            ]);
+        }
+    }
+    
+    /**
+     * Calcular número de noites
+     */
+    private function calculateNights(): void
+    {
+        if (!empty($this->check_in) && !empty($this->check_out)) {
+            try {
+                $checkIn = Carbon::parse($this->check_in);
+                $checkOut = Carbon::parse($this->check_out);
+                $this->nights = max(1, $checkOut->diffInDays($checkIn));
+            } catch (\Exception $e) {
+                $this->nights = 1;
+            }
+        }
+    }
+    
+    /**
+     * Calcular preço total baseado nas noites
+     */
+    private function calculateTotalPrice(): void
+    {
+        if ($this->nights > 0) {
+            // Usar preço por noite da URL se disponível, senão usar base_price do room type
+            $pricePerNight = $this->price_per_night ?? ($this->selectedRoomType->base_price ?? 0);
+            $this->total_price = $pricePerNight * $this->nights;
+        }
     }
     
     /**
@@ -107,7 +203,31 @@ class BookingCreate extends Component
      */
     private function loadHotelData(): void
     {
-        $this->selectedHotel = Hotel::find($this->hotel_id);
+        if ($this->hotel_id) {
+            $this->selectedHotel = Hotel::find($this->hotel_id);
+            $this->loadAvailablePaymentMethods();
+        }
+    }
+    
+    private function loadAvailablePaymentMethods()
+    {
+        $this->availablePaymentMethods = [];
+        
+        if ($this->selectedHotel) {
+            $this->availablePaymentMethods[] = ['value' => 'cash', 'label' => 'Dinheiro (Cash)'];
+            
+            if ($this->selectedHotel->accept_transfer) {
+                $this->availablePaymentMethods[] = ['value' => 'transfer', 'label' => 'Transferência Bancária'];
+            }
+            
+            if ($this->selectedHotel->accept_tpa_onsite) {
+                $this->availablePaymentMethods[] = ['value' => 'tpa_onsite', 'label' => 'TPA no Local (Cartão na Chegada)'];
+            }
+            
+            if (empty($this->payment_method) && !empty($this->availablePaymentMethods)) {
+                $this->payment_method = $this->availablePaymentMethods[0]['value'];
+            }
+        }
     }
     
     /**
@@ -117,6 +237,14 @@ class BookingCreate extends Component
     {
         $this->selectedRoomType = RoomType::find($this->room_type_id);
         $this->loadAvailableRooms();
+        
+        // Sempre recalcular noites e preço após carregar room type
+        if (!empty($this->check_in) && !empty($this->check_out)) {
+            $this->calculateNights();
+        }
+        
+        // Calcular preço baseado nas noites
+        $this->calculateTotalPrice();
     }
     
     /**
@@ -242,7 +370,57 @@ class BookingCreate extends Component
     }
     
     /**
-     * Render do componente
+     * Aplicar cupom de desconto
+     */
+    public function applyCoupon()
+    {
+        if (empty($this->couponCode)) {
+            session()->flash('coupon_error', 'Por favor, insira um código de cupom.');
+            return;
+        }
+
+        $coupon = Coupon::where('code', strtoupper($this->couponCode))->active()->first();
+
+        if (!$coupon) {
+            session()->flash('coupon_error', 'Cupom inválido ou expirado.');
+            $this->appliedCoupon = null;
+            $this->discount = null;
+            return;
+        }
+
+        if (!$coupon->isValid($this->total_price)) {
+            if ($coupon->min_amount && $this->total_price < $coupon->min_amount) {
+                session()->flash('coupon_error', 'Valor mínimo de reserva: ' . number_format($coupon->min_amount, 2) . ' Kz');
+            } else {
+                session()->flash('coupon_error', 'Cupom não disponível.');
+            }
+            $this->appliedCoupon = null;
+            $this->discount = null;
+            return;
+        }
+
+        $this->appliedCoupon = $coupon;
+        $this->discount = $coupon->calculateDiscount($this->total_price);
+        $this->finalPrice = $this->total_price - $this->discount;
+        
+        session()->flash('coupon_success', 'Cupom aplicado com sucesso!');
+        session()->forget('coupon_error');
+    }
+
+    /**
+     * Remover cupom aplicado
+     */
+    public function removeCoupon()
+    {
+        $this->couponCode = '';
+        $this->appliedCoupon = null;
+        $this->discount = null;
+        $this->finalPrice = null;
+        session()->forget(['coupon_success', 'coupon_error']);
+    }
+
+    /**
+     * Renderizar componente
      */
     public function render(): View
     {

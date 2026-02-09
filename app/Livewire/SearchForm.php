@@ -3,12 +3,14 @@
 namespace App\Livewire;
 
 use App\Models\Location;
+use App\Models\Hotel;
 use App\Models\Search;
 use Livewire\Component;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\DB;
 
 class SearchForm extends Component
 {
@@ -46,15 +48,20 @@ class SearchForm extends Component
     }
     
     /**
-     * Carrega as províncias disponíveis do banco de dados
+     * Carrega as províncias disponíveis do banco de dados com contagem de hotéis
      */
     private function loadProvinces()
     {
-        // Obter todas as províncias distintas das localizações
-        $provinces = Location::select('province')
-                      ->distinct()
-                      ->orderBy('province')
-                      ->pluck('province')
+        // Obter todas as províncias com contagem de hotéis ativos
+        $provinces = Location::select('locations.province', DB::raw('COUNT(DISTINCT hotels.id) as hotels_count'))
+                      ->join('hotels', 'locations.id', '=', 'hotels.location_id')
+                      ->where('hotels.is_active', true)
+                      ->groupBy('locations.province')
+                      ->orderBy('locations.province')
+                      ->get()
+                      ->mapWithKeys(function($item) {
+                          return [$item->province => $item->hotels_count];
+                      })
                       ->toArray();
         
         $this->provinces = $provinces;
@@ -125,7 +132,7 @@ class SearchForm extends Component
         $this->locationSuggestions = [];
     }
     
-    // Método para buscar sugestões de localização baseadas no input
+    // Método para buscar sugestões de localização e hotéis baseadas no input
     public function updatedLocation()
     {
         if (empty($this->location)) {
@@ -133,29 +140,64 @@ class SearchForm extends Component
             return;
         }
         
-        $query = Location::query();
+        $suggestions = [];
+        $searchTerm = $this->location;
         
-        // Filtrar por província se tiver sido selecionada
+        // 1. Buscar localizações (cidades/municípios)
+        $locationsQuery = Location::query();
+        
         if (!empty($this->selectedProvince)) {
-            $query->where('province', 'like', "%{$this->selectedProvince}%");
+            $locationsQuery->where('province', $this->selectedProvince);
         }
         
-        // Filtrar pelo texto digitado no campo de localização
-        $query->where(function($q) {
-            $q->where('name', 'like', "%{$this->location}%")
-              ->orWhere('province', 'like', "%{$this->location}%");
+        $locationsQuery->where(function($q) use ($searchTerm) {
+            $q->where('name', 'like', "%{$searchTerm}%")
+              ->orWhere('province', 'like', "%{$searchTerm}%");
         });
         
-        $this->locationSuggestions = $query->take(5)
+        $locations = $locationsQuery->take(3)
             ->get()
             ->map(function($location) {
                 return [
                     'id' => $location->id,
                     'name' => $location->name,
                     'province' => $location->province,
+                    'type' => 'location',
+                    'icon' => 'fa-map-marker-alt',
                 ];
-            })
-            ->toArray();
+            });
+        
+        $suggestions = array_merge($suggestions, $locations->toArray());
+        
+        // 2. Buscar hotéis específicos
+        $hotelsQuery = Hotel::with('location')
+            ->where('is_active', true)
+            ->where('name', 'like', "%{$searchTerm}%");
+        
+        if (!empty($this->selectedProvince)) {
+            $hotelsQuery->whereHas('location', function($q) {
+                $q->where('province', $this->selectedProvince);
+            });
+        }
+        
+        $hotels = $hotelsQuery->take(3)
+            ->get()
+            ->map(function($hotel) {
+                return [
+                    'id' => $hotel->location_id,
+                    'hotel_id' => $hotel->id,
+                    'name' => $hotel->name,
+                    'province' => $hotel->location ? $hotel->location->province : '',
+                    'location_name' => $hotel->location ? $hotel->location->name : '',
+                    'type' => 'hotel',
+                    'icon' => 'fa-hotel',
+                ];
+            });
+        
+        $suggestions = array_merge($suggestions, $hotels->toArray());
+        
+        // Limitar a 6 sugestões no total
+        $this->locationSuggestions = array_slice($suggestions, 0, 6);
     }
     
     // Quando a província selecionada for alterada

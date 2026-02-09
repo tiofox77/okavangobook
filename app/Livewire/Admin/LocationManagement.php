@@ -30,12 +30,15 @@ class LocationManagement extends Component
     // Filtros e pesquisa
     public string $search = '';
     public ?string $featuredFilter = null;
+    public ?string $provinceFilter = null;
     
     // Modo de visualização (list ou grid)
     public string $viewMode = 'list';
     
     // Estado do modal
     public bool $showModal = false;
+    public bool $showViewModal = false;
+    public ?Location $viewingLocation = null;
     
     // Regras de validação
     protected function rules(): array
@@ -82,6 +85,9 @@ class LocationManagement extends Component
             })
             ->when($this->featuredFilter !== null, function ($query) {
                 return $query->where('is_featured', $this->featuredFilter === '1');
+            })
+            ->when($this->provinceFilter, function ($query) {
+                return $query->where('province', $this->provinceFilter);
             });
             
         $locations = $locationsQuery->paginate(10);
@@ -115,6 +121,24 @@ class LocationManagement extends Component
     public function closeModal(): void
     {
         $this->showModal = false;
+    }
+    
+    /**
+     * Visualiza uma localização (somente leitura)
+     */
+    public function view(int $locationId): void
+    {
+        $this->viewingLocation = Location::withCount('hotels')->findOrFail($locationId);
+        $this->showViewModal = true;
+    }
+    
+    /**
+     * Fecha o modal de visualização
+     */
+    public function closeViewModal(): void
+    {
+        $this->showViewModal = false;
+        $this->viewingLocation = null;
     }
     
     public function save(): void

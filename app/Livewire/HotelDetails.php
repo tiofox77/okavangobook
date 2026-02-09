@@ -11,6 +11,7 @@ class HotelDetails extends Component
 {
     public $hotelId;
     public $hotel;
+    public $propertyType = 'hotel';
     public $checkIn;
     public $checkOut;
     public $guests;
@@ -18,7 +19,8 @@ class HotelDetails extends Component
     public $nights;
     public $roomTypes = [];
     public $selectedRoomId = null;
-    public $activeTab = 'info'; // Tabs: info, rooms, location, reviews
+    public $activeTab = 'info'; // Tabs: info, rooms, restaurant, leisure, location, reviews
+    public $isFavorited = false;
     
     protected $queryString = [
         'checkIn' => ['except' => '', 'as' => 'check_in'],
@@ -50,8 +52,22 @@ class HotelDetails extends Component
             'roomTypes' => function($query) {
                 // Carregar todos os preços sem filtrar por datas
                 $query->with('prices');
+            },
+            'restaurantItems' => function($query) {
+                $query->where('is_available', true)->orderBy('category')->orderBy('display_order');
+            },
+            'leisureFacilities' => function($query) {
+                $query->where('is_available', true)->orderBy('display_order');
             }
         ])->findOrFail($this->hotelId);
+        
+        // Carregar tipo de propriedade
+        $this->propertyType = $this->hotel->property_type ?? 'hotel';
+        
+        // Verificar se o hotel está nos favoritos do usuário
+        if (auth()->check()) {
+            $this->isFavorited = auth()->user()->favoriteHotels()->where('hotel_id', $this->hotelId)->exists();
+        }
         
         // Calcular o número de noites
         $checkInDate = Carbon::parse($this->checkIn);
@@ -104,8 +120,8 @@ class HotelDetails extends Component
                 'beds' => $roomType->beds,
                 'bed_type' => $roomType->bed_type,
                 'size' => $roomType->size,
-                'amenities' => $roomType->amenities,
-                'images' => $roomType->images,
+                'amenities' => is_string($roomType->amenities) ? json_decode($roomType->amenities, true) : $roomType->amenities,
+                'images' => is_string($roomType->images) ? json_decode($roomType->images, true) : $roomType->images,
                 'is_available' => $roomType->is_available,
                 'base_price' => $roomType->base_price,
                 'has_prices' => count($roomType->prices) > 0,
@@ -130,29 +146,33 @@ class HotelDetails extends Component
     }
     
     /**
-     * Inicia processo de reserva direta pelo preço base do quarto
+     * Inicia processo de reserva através do sistema interno
      *
-     * @param string $roomId ID do quarto a ser reservado
+     * @param string $roomId ID do tipo de quarto a ser reservado
      * @return void
      */
-    public function bookRoomBasic($roomId)
+    public function bookRoom($roomId)
     {
         // Encontrar o quarto na lista de quartos carregados
         $roomIndex = array_search($roomId, array_column($this->roomTypes, 'id'));
         
         if ($roomIndex !== false) {
             $room = $this->roomTypes[$roomIndex];
-            $totalPrice = $room['base_price'] * $this->nights;
+            
+            // Passar preço por noite ao invés de total
+            // Usar lowest_price se disponível, senão base_price
+            $pricePerNight = isset($room['lowest_price']) && $room['lowest_price'] > 0
+                ? $room['lowest_price'] / $this->nights  // lowest_price já é o total, dividir por noites
+                : $room['base_price'];
             
             // Redirecionar para página de reserva com dados necessários
             return redirect()->route('booking.create', [
                 'hotel_id' => $this->hotelId,
-                'room_id' => $roomId,
+                'room_type_id' => $roomId,
                 'check_in' => $this->checkIn,
                 'check_out' => $this->checkOut,
                 'guests' => $this->guests,
-                'nights' => $this->nights,
-                'total' => $totalPrice
+                'price_per_night' => $pricePerNight
             ]);
         }
     }
@@ -174,6 +194,44 @@ class HotelDetails extends Component
     public function formatPrice($price)
     {
         return number_format($price, 0, ',', '.');
+    }
+    
+    public function toggleFavorite()
+    {
+        if (!auth()->check()) {
+            return redirect()->route('login');
+        }
+        
+        $user = auth()->user();
+        
+        if ($this->isFavorited) {
+            $user->favoriteHotels()->detach($this->hotelId);
+            $this->isFavorited = false;
+            session()->flash('message', 'Hotel removido dos favoritos!');
+        } else {
+            $user->favoriteHotels()->attach($this->hotelId);
+            $this->isFavorited = true;
+            session()->flash('message', 'Hotel adicionado aos favoritos!');
+        }
+    }
+    
+    public function addToCompare()
+    {
+        $compareList = session('compare_hotels', []);
+        
+        if (in_array($this->hotelId, $compareList)) {
+            session()->flash('message', 'Este hotel já está na lista de comparação!');
+            return;
+        }
+        
+        if (count($compareList) >= 4) {
+            session()->flash('error', 'Você pode comparar no máximo 4 hotéis. Remova alguns antes de adicionar mais.');
+            return;
+        }
+        
+        $compareList[] = $this->hotelId;
+        session(['compare_hotels' => $compareList]);
+        session()->flash('message', 'Hotel adicionado à comparação! (' . count($compareList) . '/4)');
     }
     
     public function render()

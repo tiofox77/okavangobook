@@ -3,16 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ config('app.name', 'Okavango Book') }} - @yield('title', 'Encontre as melhores acomodações em Angola')</title>
+    <title>{{ \App\Models\Setting::get('app_name', config('app.name', 'Okavango Book')) }} - @yield('title', 'Encontre as melhores acomodações em Angola')</title>
     
     <!-- Favicon -->
     <link rel="icon" href="{{ asset('favicon.ico') }}">
     
-    <!-- Tailwind CSS via CDN -->
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Tailwind CSS local -->
+    <link href="{{ asset('assets/css/tailwind.min.css') }}" rel="stylesheet">
     
-    <!-- Font Awesome para ícones -->
+    <!-- Font Awesome via CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Toastr CSS local -->
+    <link rel="stylesheet" href="{{ asset('assets/css/toastr.min.css') }}">
     
     <!-- Google Fonts - Roboto e Montserrat -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -87,6 +90,46 @@
             console.log('Livewire v3 carregado com sucesso');
             
             // Regra importante: Com Livewire v3, usamos dispatch em vez de emit para eventos
+        });
+    </script>
+    
+    <!-- jQuery local -->
+    <script src="{{ asset('assets/js/jquery.min.js') }}"></script>
+    
+    <!-- Toastr JS local -->
+    <script src="{{ asset('assets/js/toastr.min.js') }}"></script>
+    
+    <!-- Configuração do Toastr -->
+    <script>
+        toastr.options = {
+            "closeButton": true,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "timeOut": "5000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        };
+        
+        // Listener Livewire para mostrar notificações
+        document.addEventListener('livewire:initialized', () => {
+            Livewire.on('show-toast', (event) => {
+                const data = event[0] || event;
+                const type = data.type || 'info';
+                const message = data.message || 'Notificação';
+                
+                if (type === 'success') {
+                    toastr.success(message);
+                } else if (type === 'error') {
+                    toastr.error(message);
+                } else if (type === 'warning') {
+                    toastr.warning(message);
+                } else {
+                    toastr.info(message);
+                }
+            });
         });
     </script>
     

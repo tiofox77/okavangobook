@@ -98,7 +98,7 @@
             x-transition:leave-end="opacity-0"
             class="fixed inset-0 bg-gray-900 bg-opacity-75 backdrop-blur-sm transition-opacity dark:bg-opacity-90" 
             aria-hidden="true"
-            @click="open = false"></div>
+            @click="$wire.set('showModal', false)"></div>
 
         <!-- Centralizador de conteúdo -->
         <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
@@ -120,7 +120,7 @@
                     <i class="fas {{ $hotelId ? 'fa-edit' : 'fa-plus-circle' }} mr-2"></i>
                     {{ $hotelId ? 'Editar Hotel' : 'Adicionar Novo Hotel' }}
                 </h3>
-                <button @click="open = false" type="button" class="text-white hover:text-gray-200 focus:outline-none transition-colors duration-200">
+                <button @click="$wire.set('showModal', false)" type="button" class="text-white hover:text-gray-200 focus:outline-none transition-colors duration-200">
                     <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
@@ -161,10 +161,10 @@
                         
                         <!-- Aba de Informações Básicas -->
                         <div x-show="activeTab === 'basic'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
-                            <!-- Nome do Hotel -->
+                            <!-- Nome da Propriedade -->
                             <div class="mb-4">
                                 <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center">
-                                    <i class="fas fa-hotel text-blue-500 mr-2"></i> Nome do Hotel
+                                    <i class="fas fa-hotel text-blue-500 mr-2"></i> Nome da Propriedade
                                 </label>
                                 <div class="mt-1 relative rounded-md shadow-sm">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -176,10 +176,30 @@
                                 @error('name') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                             </div>
                             
-                            <!-- Gestor do Hotel -->
+                            <!-- Tipo de Propriedade -->
+                            <div class="sm:col-span-2">
+                                <label for="property_type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                    <i class="fas fa-hotel text-blue-500 mr-1"></i>
+                                    Tipo de Propriedade
+                                </label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-building text-gray-400"></i>
+                                    </div>
+                                    <select wire:model="property_type" id="property_type" 
+                                        class="pl-10 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md">
+                                        <option value="hotel">🏨 Hotel</option>
+                                        <option value="resort">🏖️ Resort</option>
+                                        <option value="hospedaria">🏠 Hospedaria</option>
+                                    </select>
+                                </div>
+                                @error('property_type') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                            </div>
+                            
+                            <!-- Gestor da Propriedade -->
                             <div class="mb-4">
                                 <label for="userId" class="block text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center">
-                                    <i class="fas fa-user-tie text-purple-500 mr-2"></i> Gestor do Hotel
+                                    <i class="fas fa-user-tie text-purple-500 mr-2"></i> Gestor da Propriedade
                                 </label>
                                 <div class="mt-1 relative rounded-md shadow-sm">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -575,7 +595,7 @@
                                     <p class="mt-1 text-xs text-green-500 dark:text-green-400" x-text="coordsMessage"></p>
                                 </div>
                                 <div class="mt-2 text-xs text-blue-600 dark:text-blue-400">
-                                    <p class="flex items-center mb-1"><i class="fas fa-info-circle mr-1"></i> As coordenadas GPS ajudam os hóspedes a localizar o hotel com precisão.</p>
+                                    <p class="flex items-center mb-1"><i class="fas fa-info-circle mr-1"></i> As coordenadas GPS ajudam os hóspedes a localizar a propriedade com precisão.</p>
                                     <p class="flex items-center"><i class="fas fa-exclamation-triangle text-amber-500 mr-1"></i> Para links encurtados (goo.gl), abra o link no navegador e copie o URL completo da barra de endereços.</p>
                                 </div>
                             </div>
@@ -599,16 +619,16 @@
                                 @error('thumbnail') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                             </div>
 
-                            <!-- Status do Hotel -->
+                            <!-- Status da Propriedade -->
                             <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600 mb-6">
                                 <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center">
-                                    <i class="fas fa-toggle-on text-green-500 mr-2"></i> Status do Hotel
+                                    <i class="fas fa-toggle-on text-green-500 mr-2"></i> Status da Propriedade
                                 </h4>
                                 <div class="space-y-4">
                                     <div class="flex items-center justify-between">
                                         <label for="is_featured" class="flex items-center cursor-pointer">
                                             <i class="fas fa-star text-yellow-500 mr-2"></i>
-                                            <span class="text-sm text-gray-700 dark:text-gray-300">Hotel em Destaque</span>
+                                            <span class="text-sm text-gray-700 dark:text-gray-300">Propriedade em Destaque</span>
                                             <p class="text-xs text-gray-500 dark:text-gray-400 ml-2">(Aparecerá na página inicial)</p>
                                         </label>
                                         <div class="relative inline-block w-12 align-middle select-none transition duration-200 ease-in">
@@ -623,7 +643,7 @@
                                     <div class="flex items-center justify-between">
                                         <label for="is_active" class="flex items-center cursor-pointer">
                                             <i class="fas fa-check-circle text-green-500 mr-2"></i>
-                                            <span class="text-sm text-gray-700 dark:text-gray-300">Hotel Ativo</span>
+                                            <span class="text-sm text-gray-700 dark:text-gray-300">Propriedade Ativa</span>
                                             <p class="text-xs text-gray-500 dark:text-gray-400 ml-2">(Visível para reservas)</p>
                                         </label>
                                         <div class="relative inline-block w-12 align-middle select-none transition duration-200 ease-in">
@@ -637,10 +657,108 @@
                                 </div>
                             </div>
 
+                            <!-- Métodos de Pagamento -->
+                            <div class="mb-6 p-6 rounded-lg border-2 border-blue-200 dark:border-blue-700 bg-blue-50 dark:bg-blue-900/20">
+                                <h4 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4 flex items-center">
+                                    <i class="fas fa-credit-card text-blue-600 dark:text-blue-400 mr-2"></i>
+                                    Métodos de Pagamento
+                                </h4>
+                                <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Configure os métodos de pagamento aceitos por este hotel. O pagamento em <strong>DINHEIRO</strong> está sempre disponível.</p>
+                                
+                                <div class="space-y-4">
+                                    <!-- TPA (Cartão no Local) -->
+                                    <div class="p-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+                                        <div class="flex items-center justify-between mb-3">
+                                            <label for="accept_tpa_onsite" class="flex items-center cursor-pointer">
+                                                <i class="fas fa-credit-card text-purple-500 mr-2"></i>
+                                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">TPA - Pagamento por Cartão no Local</span>
+                                            </label>
+                                            <div class="relative inline-block w-12 align-middle select-none transition duration-200 ease-in">
+                                                <input type="checkbox" wire:model="accept_tpa_onsite" id="accept_tpa_onsite" 
+                                                    class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white dark:bg-gray-300 border-4 appearance-none cursor-pointer focus:outline-none focus:ring-0"/>
+                                                <label for="accept_tpa_onsite" 
+                                                    class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 dark:bg-gray-600 cursor-pointer"></label>
+                                            </div>
+                                        </div>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">Permite que hóspedes paguem com cartão de crédito/débito na receção do hotel</p>
+                                        @error('accept_tpa_onsite') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                                    </div>
+                                    
+                                    <!-- Transferência Bancária -->
+                                    <div class="p-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+                                        <div class="flex items-center justify-between mb-3">
+                                            <label for="accept_transfer" class="flex items-center cursor-pointer">
+                                                <i class="fas fa-university text-green-500 mr-2"></i>
+                                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Transferência Bancária</span>
+                                            </label>
+                                            <div class="relative inline-block w-12 align-middle select-none transition duration-200 ease-in">
+                                                <input type="checkbox" wire:model="accept_transfer" id="accept_transfer" 
+                                                    class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white dark:bg-gray-300 border-4 appearance-none cursor-pointer focus:outline-none focus:ring-0"/>
+                                                <label for="accept_transfer" 
+                                                    class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 dark:bg-gray-600 cursor-pointer"></label>
+                                            </div>
+                                        </div>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">Permite que hóspedes façam transferência bancária direta</p>
+                                        
+                                        <!-- Campos de dados bancários (visíveis apenas se transferência ativada) -->
+                                        @if($accept_transfer)
+                                        <div class="mt-4 space-y-3 p-3 bg-gray-50 dark:bg-gray-900 rounded-md">
+                                            <div>
+                                                <label for="bank_name" class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                                    <i class="fas fa-building text-gray-400 mr-1"></i> Nome do Banco
+                                                </label>
+                                                <input type="text" wire:model="bank_name" id="bank_name" placeholder="Ex: Banco BAI"
+                                                    class="focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md">
+                                                @error('bank_name') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                                            </div>
+                                            
+                                            <div>
+                                                <label for="account_number" class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                                    <i class="fas fa-hashtag text-gray-400 mr-1"></i> Número da Conta
+                                                </label>
+                                                <input type="text" wire:model="account_number" id="account_number" placeholder="Ex: 123456789"
+                                                    class="focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md">
+                                                @error('account_number') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                                            </div>
+                                            
+                                            <div>
+                                                <label for="iban" class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                                    <i class="fas fa-barcode text-gray-400 mr-1"></i> IBAN
+                                                </label>
+                                                <input type="text" wire:model="iban" id="iban" placeholder="Ex: AO06123456789012345678901"
+                                                    class="focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md">
+                                                @error('iban') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                                            </div>
+                                            
+                                            <div>
+                                                <label for="transfer_instructions" class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                                    <i class="fas fa-info-circle text-gray-400 mr-1"></i> Instruções Adicionais
+                                                </label>
+                                                <textarea wire:model="transfer_instructions" id="transfer_instructions" rows="3"
+                                                    placeholder="Ex: Após fazer a transferência, envie o comprovativo para email@hotel.com"
+                                                    class="focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md"></textarea>
+                                                @error('transfer_instructions') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                                            </div>
+                                        </div>
+                                        @endif
+                                        
+                                        @error('accept_transfer') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                                    </div>
+                                    
+                                    <!-- Informação sobre Dinheiro -->
+                                    <div class="p-3 rounded-lg border border-green-200 dark:border-green-700 bg-green-50 dark:bg-green-900/20">
+                                        <div class="flex items-center">
+                                            <i class="fas fa-money-bill-wave text-green-600 dark:text-green-400 mr-2"></i>
+                                            <span class="text-xs text-green-700 dark:text-green-300 font-medium">DINHEIRO - Sempre disponível por padrão</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- Amenidades -->
                             <div class="mb-6">
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center mb-3">
-                                    <i class="fas fa-concierge-bell text-amber-500 mr-2"></i> Comodidades do Hotel
+                                    <i class="fas fa-concierge-bell text-amber-500 mr-2"></i> Comodidades da Propriedade
                                 </label>
                                 
                                 @if(isset($hotelAmenities) && count($hotelAmenities) > 0)
@@ -672,7 +790,7 @@
                                 @else
                                     <div class="p-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-center">
                                         <p class="text-gray-500 dark:text-gray-400">
-                                            <i class="fas fa-info-circle mr-2"></i> Não há comodidades de hotel disponíveis.
+                                            <i class="fas fa-info-circle mr-2"></i> Não há comodidades disponíveis.
                                             Adicione-as através da gestão de comodidades.
                                         </p>
                                     </div>
@@ -739,7 +857,7 @@
                         </style>
                 </div>
                 <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 flex flex-col sm:flex-row justify-end gap-2">
-                    <button type="button" @click="open = false" class="w-full sm:w-auto inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-700 text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:text-sm">
+                    <button type="button" @click="$wire.set('showModal', false)" class="w-full sm:w-auto inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-700 text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:text-sm">
                         Cancelar
                     </button>
                     <button type="submit" class="w-full sm:w-auto inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:text-sm">

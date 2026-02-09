@@ -12,7 +12,11 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
+        // Verificar alertas de preço a cada hora
+        $schedule->command('alerts:check-prices')->hourly();
+        
+        // Verificar atualizações do sistema duas vezes por dia
+        $schedule->command('system:check-updates')->twiceDaily(8, 20);
     }
 
     /**

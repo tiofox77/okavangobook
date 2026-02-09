@@ -12,19 +12,28 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <!-- Seletor de Províncias -->
             <div>
-                <label for="province" class="block text-gray-700 font-medium mb-2">Província</label>
+                <label for="province" class="block text-gray-700 font-medium mb-2">
+                    Província
+                    @if(!empty($selectedProvince))
+                        <span class="ml-2 text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
+                            <i class="fas fa-check-circle mr-1"></i>Filtro ativo
+                        </span>
+                    @endif
+                </label>
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <i class="fas fa-map text-gray-400"></i>
                     </div>
                     <select 
                         id="province" 
-                        wire:model="selectedProvince"
+                        wire:model.live="selectedProvince"
                         class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent appearance-none"
                     >
                         <option value="" selected class="font-bold">Todas as províncias</option>
-                        @foreach($provinces as $province)
-                            <option value="{{ $province }}">{{ ucfirst($province) }}</option>
+                        @foreach($provinces as $provinceName => $hotelCount)
+                            <option value="{{ $provinceName }}">
+                                {{ ucfirst($provinceName) }} ({{ $hotelCount }} {{ $hotelCount == 1 ? 'hotel' : 'hotéis' }})
+                            </option>
                         @endforeach
                     </select>
                     <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
@@ -35,7 +44,14 @@
             
             <!-- Campo de localização com sugestões -->
             <div class="relative">
-                <label for="location" class="block text-gray-700 font-medium mb-2">Destino específico (opcional)</label>
+                <label for="location" class="block text-gray-700 font-medium mb-2">
+                    Destino específico (opcional)
+                    @if(!empty($location) && !empty($locationId))
+                        <span class="ml-2 text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
+                            <i class="fas fa-map-pin mr-1"></i>Selecionado
+                        </span>
+                    @endif
+                </label>
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <i class="fas fa-map-marker-alt text-gray-400"></i>
@@ -43,7 +59,7 @@
                     <input 
                         type="text" 
                         id="location" 
-                        wire:model.debounce.300ms="location" 
+                        wire:model.live.debounce.300ms="location" 
                         placeholder="Hotel ou localidade específica" 
                         class="w-full pl-10 pr-4 py-3 border @error('location') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                         autocomplete="off"
@@ -52,17 +68,33 @@
                 
                 <!-- Sugestões de localização -->
                 @if(!empty($location) && count($locationSuggestions) > 0)
-                    <div class="absolute z-10 w-full bg-white mt-1 border border-gray-300 rounded-lg shadow-lg">
+                    <div class="absolute z-10 w-full bg-white mt-1 border border-gray-300 rounded-lg shadow-lg max-h-64 overflow-y-auto">
                         @foreach($locationSuggestions as $suggestion)
                             <div 
-                                class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                class="px-4 py-3 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors"
                                 wire:click="selectLocation('{{ $suggestion['name'] }}', {{ $suggestion['id'] }})"
                             >
-                                <i class="fas fa-map-marker-alt text-gray-400 mr-2"></i> 
-                                <span class="font-medium">{{ $suggestion['name'] }}</span>
-                                @if(isset($suggestion['province']))
-                                    <span class="text-gray-500 text-sm ml-1">{{ $suggestion['province'] }}</span>
-                                @endif
+                                <div class="flex items-center">
+                                    @if($suggestion['type'] === 'hotel')
+                                        <i class="fas fa-hotel text-primary mr-3 text-lg"></i>
+                                        <div class="flex-1">
+                                            <span class="font-semibold text-gray-800">{{ $suggestion['name'] }}</span>
+                                            @if(isset($suggestion['location_name']))
+                                                <span class="text-gray-500 text-sm block">{{ $suggestion['location_name'] }}, {{ $suggestion['province'] }}</span>
+                                            @endif
+                                        </div>
+                                        <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">Hotel</span>
+                                    @else
+                                        <i class="fas fa-map-marker-alt text-orange-500 mr-3 text-lg"></i>
+                                        <div class="flex-1">
+                                            <span class="font-semibold text-gray-800">{{ $suggestion['name'] }}</span>
+                                            @if(isset($suggestion['province']))
+                                                <span class="text-gray-500 text-sm block">{{ $suggestion['province'] }}</span>
+                                            @endif
+                                        </div>
+                                        <span class="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full">Cidade</span>
+                                    @endif
+                                </div>
                             </div>
                         @endforeach
                     </div>

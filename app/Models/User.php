@@ -53,4 +53,54 @@ class User extends Authenticatable
     {
         return $this->hasMany(Hotel::class, 'user_id');
     }
+    
+    /**
+     * Reservas feitas por este utilizador.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function reservations()
+    {
+        return $this->hasMany(Reservation::class, 'user_id');
+    }
+    
+    /**
+     * Avaliações escritas por este utilizador.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+    
+    /**
+     * Hotéis favoritos deste utilizador.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function favorites()
+    {
+        return $this->hasMany(Favorite::class);
+    }
+    
+    /**
+     * Hotéis favoritos (através de BelongsToMany).
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function favoriteHotels()
+    {
+        return $this->belongsToMany(Hotel::class, 'favorites')->withTimestamps();
+    }
+
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
+
+    public function unreadNotifications()
+    {
+        return $this->notifications()->unread();
+    }
 }

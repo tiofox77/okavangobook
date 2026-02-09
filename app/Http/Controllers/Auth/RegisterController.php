@@ -28,7 +28,7 @@ class RegisterController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/home';
+    protected $redirectTo = '/dashboard';
 
     /**
      * Create a new controller instance.
@@ -51,7 +51,18 @@ class RegisterController extends Controller
         return Validator::make($data, [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'password' => [
+                'required', 
+                'string', 
+                'min:8', 
+                'confirmed',
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/'
+            ],
+            'terms' => ['required', 'accepted'],
+        ], [
+            'password.regex' => 'A senha deve conter pelo menos uma letra minúscula, uma maiúscula e um número.',
+            'terms.required' => 'Deve aceitar os termos de serviço para continuar.',
+            'terms.accepted' => 'Deve aceitar os termos de serviço para continuar.',
         ]);
     }
 
@@ -63,10 +74,15 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        return User::create([
+        $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
         ]);
+
+        // Atribuir automaticamente o role "User" para novos registos
+        $user->assignRole('User');
+
+        return $user;
     }
 }

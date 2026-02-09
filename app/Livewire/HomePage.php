@@ -6,6 +6,7 @@ use App\Models\Hotel;
 use App\Models\Location;
 use App\Models\Price;
 use App\Models\RoomType;
+use App\Models\Setting;
 use Carbon\Carbon;
 use Livewire\Component;
 
@@ -14,6 +15,15 @@ class HomePage extends Component
     public $popularDestinations = [];
     public $specialOffers = [];
     public $featuredHotels = [];
+    public $nearbyHotels = [];
+    public $featuredResorts = [];
+    public $featuredHospedarias = [];
+    public $propertyTypeImages = [];
+    public $heroBackground;
+    public $offersBackground;
+    public $userLatitude = null;
+    public $userLongitude = null;
+    public $locationPermissionDenied = false;
     
     // Método para formatar preços em kwanzas angolanos
     public function formatPrice($price)
@@ -46,33 +56,12 @@ class HomePage extends Component
             ->get();
             
         $this->popularDestinations = $locations->map(function($location) {
-            // Verifica se a imagem está vazia ou é inválida
-            $image = $location->image;
-            if (empty($image) || !filter_var($image, FILTER_VALIDATE_URL)) {
-                // Define uma imagem padrão baseada no nome da localização
-                $locationName = strtolower($location->name);
-                if (strpos($locationName, 'luanda') !== false) {
-                    $image = 'https://images.unsplash.com/photo-1489392191049-fc10c97e64b6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1500&q=80';
-                } elseif (strpos($locationName, 'benguela') !== false) {
-                    $image = 'https://images.unsplash.com/photo-1596306499317-8490982dfe4f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1500&q=80';
-                } elseif (strpos($locationName, 'lubango') !== false) {
-                    $image = 'https://images.unsplash.com/photo-1579005318686-5a86bbb3b2db?ixlib=rb-4.0.3&auto=format&fit=crop&w=1500&q=80';
-                } elseif (strpos($locationName, 'namibe') !== false) {
-                    $image = 'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1500&q=80';
-                } elseif (strpos($locationName, 'huambo') !== false) {
-                    $image = 'https://images.unsplash.com/photo-1497271679421-ce9c3d6a31da?ixlib=rb-4.0.3&auto=format&fit=crop&w=1500&q=80';
-                } else {
-                    // Imagem padrão para outras localizações
-                    $image = 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1500&q=80';
-                }
-            }
-            
             return [
                 'id' => $location->id,
                 'name' => $location->name,
                 'description' => $location->description,
                 'hotels_count' => $location->hotels_count ?? rand(5, 20),
-                'image' => $image,
+                'image' => $location->image,
                 'slug' => $location->slug
             ];
         })->toArray();
@@ -209,10 +198,237 @@ class HomePage extends Component
         $this->specialOffers = $offers;
     }
     
+    /**
+     * Buscar hotéis próximos baseado em coordenadas do usuário
+     * Usa fórmula de Haversine para calcular distância
+     */
+    public function loadNearbyHotels($latitude, $longitude, $radiusKm = 50)
+    {
+        $this->userLatitude = $latitude;
+        $this->userLongitude = $longitude;
+        
+        // Fórmula de Haversine para calcular distância
+        // Buscar hotéis ativos com coordenadas válidas
+        $hotels = Hotel::where('is_active', true)
+            ->whereNotNull('latitude')
+            ->whereNotNull('longitude')
+            ->with('location')
+            ->get()
+            ->map(function($hotel) use ($latitude, $longitude) {
+                $distance = $this->calculateDistance(
+                    $latitude, 
+                    $longitude, 
+                    (float) $hotel->latitude, 
+                    (float) $hotel->longitude
+                );
+                
+                $hotel->distance = $distance;
+                return $hotel;
+            })
+            ->filter(function($hotel) use ($radiusKm) {
+                return $hotel->distance <= $radiusKm;
+            })
+            ->sortBy('distance')
+            ->take(6)
+            ->map(function($hotel) {
+                return [
+                    'id' => $hotel->id,
+                    'name' => $hotel->name,
+                    'location' => $hotel->location ? $hotel->location->name : 'Angola',
+                    'province' => $hotel->location ? $hotel->location->province : '',
+                    'image' => $hotel->thumbnail ?? 'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+                    'rating' => $hotel->rating ?? rand(40, 50) / 10,
+                    'reviews' => $hotel->reviews_count ?? rand(10, 100),
+                    'price' => $hotel->min_price ?? rand(15000, 35000),
+                    'distance' => round($hotel->distance, 1),
+                    'slug' => $hotel->slug ?? \Illuminate\Support\Str::slug($hotel->name),
+                ];
+            })
+            ->values()
+            ->toArray();
+        
+        $this->nearbyHotels = $hotels;
+    }
+    
+    /**
+     * Calcular distância entre dois pontos usando fórmula de Haversine
+     * Retorna distância em quilômetros
+     */
+    private function calculateDistance($lat1, $lon1, $lat2, $lon2)
+    {
+        $earthRadius = 6371; // Raio da Terra em km
+        
+        $dLat = deg2rad($lat2 - $lat1);
+        $dLon = deg2rad($lon2 - $lon1);
+        
+        $a = sin($dLat/2) * sin($dLat/2) +
+             cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
+             sin($dLon/2) * sin($dLon/2);
+        
+        $c = 2 * atan2(sqrt($a), sqrt(1-$a));
+        $distance = $earthRadius * $c;
+        
+        return $distance;
+    }
+    
+    /**
+     * Método chamado pelo JavaScript quando obtém coordenadas
+     */
+    public function setUserLocation($latitude, $longitude)
+    {
+        $this->loadNearbyHotels($latitude, $longitude);
+    }
+    
+    /**
+     * Método chamado quando usuário nega permissão de localização
+     */
+    public function locationDenied()
+    {
+        $this->locationPermissionDenied = true;
+        // Carregar hotéis em destaque como fallback
+        $this->nearbyHotels = Hotel::where('is_active', true)
+            ->where('is_featured', true)
+            ->with('location')
+            ->take(6)
+            ->get()
+            ->map(function($hotel) {
+                return [
+                    'id' => $hotel->id,
+                    'name' => $hotel->name,
+                    'location' => $hotel->location ? $hotel->location->name : 'Angola',
+                    'province' => $hotel->location ? $hotel->location->province : '',
+                    'image' => $hotel->thumbnail ?? 'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+                    'rating' => $hotel->rating ?? rand(40, 50) / 10,
+                    'reviews' => $hotel->reviews_count ?? rand(10, 100),
+                    'price' => $hotel->min_price ?? rand(15000, 35000),
+                    'slug' => $hotel->slug ?? \Illuminate\Support\Str::slug($hotel->name),
+                ];
+            })
+            ->toArray();
+    }
+    
+    /**
+     * Carregar Resorts em destaque
+     */
+    public function loadFeaturedResorts()
+    {
+        $defaultImage = 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
+        
+        $this->featuredResorts = Hotel::where('property_type', 'resort')
+            ->where('is_active', true)
+            ->with('location')
+            ->take(4)
+            ->get()
+            ->map(function($hotel) use ($defaultImage) {
+                // Normalizar imagem
+                $image = $hotel->thumbnail ?? $hotel->featured_image ?? null;
+                if ($image) {
+                    if (str_starts_with($image, 'http')) {
+                        $imageUrl = $image;
+                    } else {
+                        $imageUrl = asset('storage/' . $image);
+                    }
+                } else {
+                    $imageUrl = $defaultImage;
+                }
+                
+                return [
+                    'id' => $hotel->id,
+                    'name' => $hotel->name,
+                    'location' => $hotel->location ? $hotel->location->name : 'Angola',
+                    'province' => $hotel->location ? $hotel->location->province : '',
+                    'image' => $imageUrl,
+                    'rating' => $hotel->rating ?? 4.5,
+                    'stars' => $hotel->stars ?? 5,
+                    'reviews' => $hotel->reviews_count ?? rand(20, 150),
+                    'price' => $hotel->min_price ?? rand(25000, 50000),
+                    'slug' => $hotel->slug ?? \Illuminate\Support\Str::slug($hotel->name),
+                    'description' => \Illuminate\Support\Str::limit($hotel->description, 100),
+                ];
+            })
+            ->toArray();
+    }
+    
+    /**
+     * Carregar Hospedarias em destaque
+     */
+    public function loadFeaturedHospedarias()
+    {
+        $defaultImage = 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
+        
+        $this->featuredHospedarias = Hotel::where('property_type', 'hospedaria')
+            ->where('is_active', true)
+            ->with('location')
+            ->take(4)
+            ->get()
+            ->map(function($hotel) use ($defaultImage) {
+                // Normalizar imagem
+                $image = $hotel->thumbnail ?? $hotel->featured_image ?? null;
+                if ($image) {
+                    if (str_starts_with($image, 'http')) {
+                        $imageUrl = $image;
+                    } else {
+                        $imageUrl = asset('storage/' . $image);
+                    }
+                } else {
+                    $imageUrl = $defaultImage;
+                }
+                
+                return [
+                    'id' => $hotel->id,
+                    'name' => $hotel->name,
+                    'location' => $hotel->location ? $hotel->location->name : 'Angola',
+                    'province' => $hotel->location ? $hotel->location->province : '',
+                    'image' => $imageUrl,
+                    'rating' => $hotel->rating ?? 4.2,
+                    'stars' => $hotel->stars ?? 3,
+                    'reviews' => $hotel->reviews_count ?? rand(10, 80),
+                    'price' => $hotel->min_price ?? rand(8000, 20000),
+                    'slug' => $hotel->slug ?? \Illuminate\Support\Str::slug($hotel->name),
+                    'description' => \Illuminate\Support\Str::limit($hotel->description, 100),
+                ];
+            })
+            ->toArray();
+    }
+    
+    /**
+     * Carregar imagens representativas para cada tipo de propriedade
+     */
+    public function loadPropertyTypeImages()
+    {
+        $types = ['hotel', 'resort', 'hospedaria'];
+        
+        foreach ($types as $type) {
+            $hotel = Hotel::where('property_type', $type)
+                ->where('is_active', true)
+                ->whereNotNull('thumbnail')
+                ->first();
+            
+            if ($hotel && $hotel->thumbnail) {
+                $this->propertyTypeImages[$type] = $hotel->thumbnail;
+            } else {
+                // Fallback - tentar pegar de featured_image
+                $hotel = Hotel::where('property_type', $type)
+                    ->where('is_active', true)
+                    ->whereNotNull('featured_image')
+                    ->first();
+                
+                $this->propertyTypeImages[$type] = $hotel ? $hotel->featured_image : null;
+            }
+        }
+    }
+    
     public function mount()
     {
         $this->loadPopularDestinations();
         $this->loadSpecialOffers();
+        $this->loadFeaturedResorts();
+        $this->loadFeaturedHospedarias();
+        $this->loadPropertyTypeImages();
+        
+        // Carregar imagens de fundo das configurações
+        $this->heroBackground = Setting::get('hero_background');
+        $this->offersBackground = Setting::get('offers_background');
     }
     
     public function render()

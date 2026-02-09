@@ -373,7 +373,15 @@ class IndividualRoomManagement extends Component
      */
     public function getHotelsProperty(): Collection
     {
-        return Hotel::select('id', 'name')->orderBy('name')->get();
+        $user = auth()->user();
+        $query = Hotel::select('id', 'name');
+        
+        // Se não for Admin, mostrar apenas hotéis do usuário
+        if (!$user->hasRole('Admin')) {
+            $query->where('user_id', $user->id);
+        }
+        
+        return $query->orderBy('name')->get();
     }
     
     /**
@@ -428,7 +436,16 @@ class IndividualRoomManagement extends Component
      */
     public function getRoomsProperty()
     {
+        $user = auth()->user();
+        $isAdmin = $user->hasRole('Admin');
+        
         $query = Room::with(['hotel:id,name', 'roomType:id,name,base_price'])
+                    // Se não for Admin, mostrar apenas quartos dos hotéis do usuário
+                    ->when(!$isAdmin, function (Builder $query) use ($user) {
+                        $query->whereHas('hotel', function ($q) use ($user) {
+                            $q->where('user_id', $user->id);
+                        });
+                    })
                     ->when($this->search, function (Builder $query, string $search) {
                         $query->where(function (Builder $q) use ($search) {
                             $q->where('room_number', 'like', "%{$search}%")

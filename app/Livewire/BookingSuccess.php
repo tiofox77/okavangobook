@@ -14,11 +14,17 @@ class BookingSuccess extends Component
     
     /**
      * Inicializar componente
+     * 
+     * @param Reservation|int $booking Objeto da reserva ou ID da reserva
      */
-    public function mount(int $booking): void
+    public function mount(Reservation|int $booking): void
     {
-        $this->booking = Reservation::with(['hotel', 'roomType', 'user'])
-            ->findOrFail($booking);
+        if ($booking instanceof Reservation) {
+            $this->booking = $booking->load(['hotel', 'roomType', 'user']);
+        } else {
+            $this->booking = Reservation::with(['hotel', 'roomType', 'user'])
+                ->findOrFail($booking);
+        }
     }
     
     /**

@@ -47,23 +47,29 @@
                 </ul>
             </div>
             
-            <!-- Coluna 4: Contacto -->
+            <!-- Coluna 4: Newsletter -->
             <div>
-                <h3 class="text-lg font-semibold mb-4">Contacto</h3>
-                <ul class="space-y-2">
-                    <li class="flex items-start">
-                        <i class="fas fa-map-marker-alt mt-1 mr-2"></i>
-                        <span>Rua Major Kanhangulo, Luanda, Angola</span>
-                    </li>
-                    <li class="flex items-start">
-                        <i class="fas fa-phone-alt mt-1 mr-2"></i>
-                        <span>+244 923 456 789</span>
-                    </li>
-                    <li class="flex items-start">
-                        <i class="fas fa-envelope mt-1 mr-2"></i>
-                        <span>info@okavangobook.co.ao</span>
-                    </li>
-                </ul>
+                <h3 class="text-lg font-semibold mb-4">Newsletter</h3>
+                <p class="text-gray-300 mb-4 text-sm">Receba ofertas exclusivas e novidades diretamente no seu email.</p>
+                @livewire('newsletter-subscribe')
+            </div>
+        </div>
+        
+        <!-- Informações de Contacto -->
+        <div class="mt-8 pt-8 border-t border-gray-700">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-gray-300 text-sm">
+                <div class="flex items-center">
+                    <i class="fas fa-map-marker-alt mr-2 text-blue-400"></i>
+                    Luanda, Angola
+                </div>
+                <div class="flex items-center">
+                    <i class="fas fa-phone mr-2 text-blue-400"></i>
+                    +244 123 456 789
+                </div>
+                <div class="flex items-center">
+                    <i class="fas fa-envelope mr-2 text-blue-400"></i>
+                    info@okavangobook.com
+                </div>
             </div>
         </div>
         

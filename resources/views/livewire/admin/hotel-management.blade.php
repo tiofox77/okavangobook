@@ -3,7 +3,7 @@
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
             <span class="inline-flex items-center">
                 <i class="fas fa-hotel mr-2 text-blue-600"></i>
-                Gestão de Hotéis
+                Gestão de Propriedades
             </span>
         </h1>
         
@@ -11,7 +11,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
-            Adicionar Hotel
+            Adicionar Propriedade
         </button>
     </div>
 
@@ -52,27 +52,33 @@
                         </select>
                     </div>
                     
-                    <!-- Filtro de Classificação -->
+                    <!-- Filtro de Tipo de Propriedade -->
                     <div>
-                        <label for="filterRating" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Classificação</label>
-                        <select id="filterRating" wire:model.live="filterRating" class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                            <option value="">Todas Classificações</option>
-                            <option value="5">5 estrelas</option>
-                            <option value="4">4 estrelas</option>
-                            <option value="3">3 estrelas</option>
-                            <option value="2">2 estrelas</option>
-                            <option value="1">1 estrela</option>
+                        <label for="filterPropertyType" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            <i class="fas fa-building text-blue-500 mr-1"></i>
+                            Tipo de Propriedade
+                        </label>
+                        <select id="filterPropertyType" wire:model.live="filterPropertyType" class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                            <option value="">Todos os Tipos</option>
+                            <option value="hotel">🏨 Hotel</option>
+                            <option value="resort">🏖️ Resort</option>
+                            <option value="hospedaria">🏠 Hospedaria</option>
                         </select>
                     </div>
                     
-                    <!-- Filtro por Hotel -->
+                    <!-- Filtro de Classificação -->
                     <div>
-                        <label for="filterHotel" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Hotel Específico</label>
-                        <select id="filterHotel" wire:model.live="filterHotel" class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                            <option value="">Todos os Hotéis</option>
-                            @foreach($hotelList as $hotel)
-                                <option value="{{ $hotel->id }}">{{ $hotel->name }}</option>
-                            @endforeach
+                        <label for="filterRating" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            <i class="fas fa-star text-yellow-500 mr-1"></i>
+                            Classificação
+                        </label>
+                        <select id="filterRating" wire:model.live="filterRating" class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                            <option value="">Todas Classificações</option>
+                            <option value="5">⭐⭐⭐⭐⭐ 5 estrelas</option>
+                            <option value="4">⭐⭐⭐⭐ 4 estrelas</option>
+                            <option value="3">⭐⭐⭐ 3 estrelas</option>
+                            <option value="2">⭐⭐ 2 estrelas</option>
+                            <option value="1">⭐ 1 estrela</option>
                         </select>
                     </div>
                 </div>
@@ -85,6 +91,7 @@
                         <thead class="bg-gray-50 dark:bg-gray-700">
                             <tr>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Nome</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Tipo</th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Localização</th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Preço</th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Classificação</th>
@@ -108,7 +115,22 @@
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
+                                        @if($hotel->property_type === 'resort')
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gradient-to-r from-orange-100 to-red-100 text-orange-800 dark:from-orange-900 dark:to-red-900 dark:text-orange-200">
+                                                <i class="fas fa-umbrella-beach mr-1"></i> Resort
+                                            </span>
+                                        @elseif($hotel->property_type === 'hospedaria')
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200">
+                                                <i class="fas fa-home mr-1"></i> Hospedaria
+                                            </span>
+                                        @else
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                                <i class="fas fa-hotel mr-1"></i> Hotel
+                                            </span>
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300">
                                             {{ $hotel->location->name ?? 'N/A' }}
                                         </span>
                                     </td>
@@ -127,12 +149,19 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <div class="flex justify-end space-x-2">
-                                            <button wire:click="openModal({{ $hotel->id }})" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors duration-150">
+                                            <a href="{{ route('hotel.details', $hotel->id) }}" target="_blank" class="text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-300 transition-colors duration-150" title="Ver na Página Pública">
+                                                <i class="fas fa-external-link-alt"></i>
+                                            </a>
+                                            <button wire:click="view({{ $hotel->id }})" class="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300 transition-colors duration-150" title="Visualizar">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button wire:click="openModal({{ $hotel->id }})" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors duration-150" title="Editar">
                                                 <i class="fas fa-edit"></i>
                                             </button>
                                             <button 
                                                 @click="confirmingDeletion = true; hotelIdToDelete = {{ $hotel->id }}" 
-                                                class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors duration-150">
+                                                class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors duration-150"
+                                                title="Excluir">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </div>
@@ -145,15 +174,15 @@
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                                             </svg>
-                                            <p class="text-lg font-medium">Nenhum hotel encontrado</p>
+                                            <p class="text-lg font-medium">Nenhuma propriedade encontrada</p>
                                             @if($search || $filterLocation || $filterRating)
                                                 <p class="text-sm text-gray-500 mt-2">Tente ajustar os filtros ou</p>
                                                 <button wire:click="openModal" class="mt-4 px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                                    Adicionar Novo Hotel
+                                                    Adicionar Nova Propriedade
                                                 </button>
                                             @else
                                                 <button wire:click="openModal" class="mt-4 px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                                    Adicionar Primeiro Hotel
+                                                    Adicionar Primeira Propriedade
                                                 </button>
                                             @endif
                                         </div>
@@ -174,6 +203,9 @@
             @if ($showModal)
                 @include('livewire.admin.partials.hotel-form-modal')
             @endif
+            
+            <!-- Modal de visualização -->
+            @include('livewire.admin.partials.hotel-view-modal')
             
             <!-- Modal de Confirmação de Exclusão -->
             <div x-show="confirmingDeletion" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">

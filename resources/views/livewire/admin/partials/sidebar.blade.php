@@ -1,4 +1,4 @@
-<div id="sidebar" class="sidebar bg-gray-800 text-white h-screen overflow-y-auto fixed top-0 left-0 z-30 transition-all duration-300 shadow-xl">
+<div id="sidebar" class="sidebar bg-gray-800 text-white h-screen fixed top-0 left-0 z-30 transition-all duration-300 shadow-xl flex flex-col">
     <div class="p-4 flex justify-between items-center border-b border-gray-700">
         <div class="flex items-center space-x-2">
             <div class="flex-shrink-0 w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center rotate-12 transform transition-all duration-300 hover:rotate-0">
@@ -6,7 +6,7 @@
                     <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
                 </svg>
             </div>
-            <h1 class="text-xl font-bold sidebar-title transition-opacity duration-300">Okavango Admin</h1>
+            <h1 class="text-xl font-bold sidebar-title transition-opacity duration-300">{{ \App\Models\Setting::get('app_name', 'Okavango Book') }} Admin</h1>
         </div>
         <button id="sidebar-toggle" class="text-gray-300 hover:text-white transition-colors duration-200 p-1 rounded-md hover:bg-gray-700">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -16,7 +16,7 @@
     </div>
     
     <!-- Links do menu -->
-    <nav class="mt-4 px-2">
+    <nav class="flex-1 overflow-y-auto mt-4 px-2 pb-20">
         <a href="{{ route('admin.dashboard') }}" class="menu-item flex items-center py-3 px-3 rounded-lg mb-1 {{ request()->routeIs('admin.dashboard') ? 'active bg-gray-700' : '' }} tooltip">
             <div class="icon-container bg-blue-500 bg-opacity-20 text-blue-400">
                 <i class="fas fa-tachometer-alt"></i>
@@ -25,12 +25,36 @@
             <span class="tooltip-text">Dashboard</span>
         </a>
         
+        <a href="{{ route('admin.analytics') }}" class="menu-item flex items-center py-3 px-3 rounded-lg mb-1 {{ request()->routeIs('admin.analytics') ? 'active bg-gray-700' : '' }} tooltip">
+            <div class="icon-container bg-indigo-500 bg-opacity-20 text-indigo-400">
+                <i class="fas fa-chart-bar"></i>
+            </div>
+            <span class="sidebar-link-text transition-opacity duration-300">Analytics</span>
+            <span class="tooltip-text">Relatórios e Analytics</span>
+        </a>
+        
+        <a href="{{ route('admin.articles') }}" class="menu-item flex items-center py-3 px-3 rounded-lg mb-1 {{ request()->routeIs('admin.articles') ? 'active bg-gray-700' : '' }} tooltip">
+            <div class="icon-container bg-purple-500 bg-opacity-20 text-purple-400">
+                <i class="fas fa-newspaper"></i>
+            </div>
+            <span class="sidebar-link-text transition-opacity duration-300">Artigos/Blog</span>
+            <span class="tooltip-text">Gerir Conteúdo</span>
+        </a>
+        
+        <a href="{{ route('admin.reports.reservations') }}" class="menu-item flex items-center py-3 px-3 rounded-lg mb-1 {{ request()->routeIs('admin.reports.reservations') ? 'active bg-gray-700' : '' }} tooltip">
+            <div class="icon-container bg-teal-500 bg-opacity-20 text-teal-400">
+                <i class="fas fa-file-invoice-dollar"></i>
+            </div>
+            <span class="sidebar-link-text transition-opacity duration-300">Relatórios</span>
+            <span class="tooltip-text">Relatórios de Reservas</span>
+        </a>
+        
         <a href="{{ route('admin.hotels') }}" class="menu-item flex items-center py-3 px-3 rounded-lg mb-1 {{ request()->routeIs('admin.hotels') ? 'active bg-gray-700' : '' }} tooltip">
             <div class="icon-container bg-amber-500 bg-opacity-20 text-amber-400">
                 <i class="fas fa-hotel"></i>
             </div>
-            <span class="sidebar-link-text transition-opacity duration-300">Hotéis</span>
-            <span class="tooltip-text">Gerir Hotéis</span>
+            <span class="sidebar-link-text transition-opacity duration-300">Propriedades</span>
+            <span class="tooltip-text">Gerir Propriedades</span>
         </a>
         
         <!-- Menu para Quartos -->
@@ -60,6 +84,24 @@
             <span class="tooltip-text">Gerir Comodidades</span>
         </a>
         
+        <!-- Menu para Restaurante -->
+        <a href="{{ route('admin.restaurant') }}" class="menu-item flex items-center py-3 px-3 rounded-lg mb-1 {{ request()->routeIs('admin.restaurant') ? 'active bg-gray-700' : '' }} tooltip">
+            <div class="icon-container bg-orange-500 bg-opacity-20 text-orange-400">
+                <i class="fas fa-utensils"></i>
+            </div>
+            <span class="sidebar-link-text transition-opacity duration-300">Restaurante</span>
+            <span class="tooltip-text">Gerir Menu do Restaurante</span>
+        </a>
+        
+        <!-- Menu para Instalações de Lazer -->
+        <a href="{{ route('admin.leisure') }}" class="menu-item flex items-center py-3 px-3 rounded-lg mb-1 {{ request()->routeIs('admin.leisure') ? 'active bg-gray-700' : '' }} tooltip">
+            <div class="icon-container bg-cyan-500 bg-opacity-20 text-cyan-400">
+                <i class="fas fa-swimming-pool"></i>
+            </div>
+            <span class="sidebar-link-text transition-opacity duration-300">Lazer</span>
+            <span class="tooltip-text">Gerir Instalações de Lazer</span>
+        </a>
+        
         <a href="{{ route('admin.locations') }}" class="menu-item flex items-center py-3 px-3 rounded-lg mb-1 {{ request()->routeIs('admin.locations') ? 'active bg-gray-700' : '' }} tooltip">
             <div class="icon-container bg-purple-500 bg-opacity-20 text-purple-400">
                 <i class="fas fa-map-marker-alt"></i>
@@ -75,6 +117,32 @@
             </div>
             <span class="sidebar-link-text transition-opacity duration-300">Reservas</span>
             <span class="tooltip-text">Gerir Reservas</span>
+        </a>
+        
+        <!-- Menu para Cupons -->
+        <a href="{{ route('admin.coupons') }}" class="menu-item flex items-center py-3 px-3 rounded-lg mb-1 {{ request()->routeIs('admin.coupons') ? 'active bg-gray-700' : '' }} tooltip">
+            <div class="icon-container bg-pink-500 bg-opacity-20 text-pink-400">
+                <i class="fas fa-ticket-alt"></i>
+            </div>
+            <span class="sidebar-link-text transition-opacity duration-300">Cupons</span>
+            <span class="tooltip-text">Gerir Cupons de Desconto</span>
+        </a>
+        
+        <!-- Menu para Newsletter -->
+        <a href="{{ route('admin.newsletter') }}" class="menu-item flex items-center py-3 px-3 rounded-lg mb-1 {{ request()->routeIs('admin.newsletter') ? 'active bg-gray-700' : '' }} tooltip">
+            <div class="icon-container bg-green-500 bg-opacity-20 text-green-400">
+                <i class="fas fa-envelope"></i>
+            </div>
+            <span class="sidebar-link-text transition-opacity duration-300">Newsletter</span>
+            <span class="tooltip-text">Gerir Newsletter</span>
+        </a>
+        
+        <a href="{{ route('admin.newsletter.send') }}" class="menu-item flex items-center py-3 px-3 rounded-lg mb-1 {{ request()->routeIs('admin.newsletter.send') ? 'active bg-gray-700' : '' }} tooltip">
+            <div class="icon-container bg-blue-500 bg-opacity-20 text-blue-400">
+                <i class="fas fa-paper-plane"></i>
+            </div>
+            <span class="sidebar-link-text transition-opacity duration-300">Enviar Email</span>
+            <span class="tooltip-text">Enviar Newsletter</span>
         </a>
         
         <a href="{{ route('admin.users') }}" class="menu-item flex items-center py-3 px-3 rounded-lg mb-1 {{ request()->routeIs('admin.users') ? 'active bg-gray-700' : '' }} tooltip">

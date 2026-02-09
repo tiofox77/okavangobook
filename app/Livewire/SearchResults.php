@@ -57,18 +57,35 @@ class SearchResults extends Component
         'viewMode' => ['except' => 'grid', 'as' => 'view'],
     ];
     
-    public function mount($location = null, $location_id = null, $province = null, $provinces = [], $check_in = null, $check_out = null, $guests = 2, $rooms = 1, $all_hotels = false, $per_page = 10)
+    public function mount($location = null, $location_id = null, $province = null, $provinces = [], $property_types = [], $check_in = null, $check_out = null, $guests = 2, $rooms = 1, $all_hotels = false, $per_page = 10)
     {
-        $this->location = $location;
-        $this->locationId = $location_id;
-        $this->province = $province;
-        $this->selectedProvinces = $provinces;
-        $this->checkIn = $check_in ?? Carbon::now()->format('Y-m-d');
-        $this->checkOut = $check_out ?? Carbon::now()->addDay()->format('Y-m-d');
-        $this->guests = $guests;
-        $this->rooms = $rooms;
-        $this->allHotels = $all_hotels;
-        $this->perPage = $per_page;
+        // Ler parâmetros da request (para quando vem da homepage ou navbar)
+        $this->location = request()->input('location', $location);
+        $this->locationId = request()->input('location_id', $location_id);
+        
+        // Province pode vir como string única ou array
+        $requestProvince = request()->input('province', $province);
+        $requestProvinces = request()->input('provinces', $provinces);
+        
+        // Se veio province como string, adiciona ao array de províncias selecionadas
+        if (!empty($requestProvince) && is_string($requestProvince)) {
+            $this->selectedProvinces = [$requestProvince];
+            $this->province = $requestProvince;
+        } else {
+            $this->selectedProvinces = is_array($requestProvinces) ? $requestProvinces : [];
+            $this->province = $province;
+        }
+        
+        // Ler property_types da request (para links do navbar)
+        $requestPropertyTypes = request()->input('property_types', []);
+        $this->propertyTypes = !empty($requestPropertyTypes) ? $requestPropertyTypes : $property_types;
+        
+        $this->checkIn = request()->input('check_in', $check_in) ?? Carbon::now()->format('Y-m-d');
+        $this->checkOut = request()->input('check_out', $check_out) ?? Carbon::now()->addDay()->format('Y-m-d');
+        $this->guests = request()->input('guests', $guests) ?? 2;
+        $this->rooms = request()->input('rooms', $rooms) ?? 1;
+        $this->allHotels = request()->input('all_hotels', $all_hotels) ?? false;
+        $this->perPage = request()->input('per_page', $per_page) ?? 10;
         
         // Se temos apenas o slug da localização, buscar o ID
         if ($this->location && !$this->locationId) {
@@ -85,32 +102,43 @@ class SearchResults extends Component
         $this->loadPopularDestinations();
     }
     
-    // Carregar províncias disponíveis
+    // Carregar províncias disponíveis (considera filtros ativos)
     protected function loadProvinces()
     {
         // Buscar todas as províncias que possuem hotéis
         $this->provinces = Location::select('province')->distinct()->whereNotNull('province')->orderBy('province')->get();
         
-        // Contar hotéis por província
-        $provinceCounts = Hotel::join('locations', 'hotels.location_id', '=', 'locations.id')
+        // Query base para contar hotéis por província
+        $query = Hotel::join('locations', 'hotels.location_id', '=', 'locations.id')
             ->selectRaw('locations.province, count(*) as total')
-            ->whereNotNull('locations.province')
-            ->groupBy('locations.province')
+            ->whereNotNull('locations.province');
+        
+        // Aplicar filtro de tipo de propriedade se ativo
+        if (!empty($this->propertyTypes)) {
+            $query->whereIn('hotels.property_type', $this->propertyTypes);
+        }
+        
+        $this->provinceCounts = $query->groupBy('locations.province')
             ->get()
             ->pluck('total', 'province')
             ->toArray();
-            
-        $this->provinceCounts = $provinceCounts;
     }
     
-    // Carregar destinos populares
+    // Carregar destinos populares (considera filtros ativos)
     protected function loadPopularDestinations()
     {
-        // Buscar destinos com mais hotéis
-        $this->popularDestinations = Location::withCount('hotels')
-            ->orderBy('hotels_count', 'desc')
-            ->take(5)
-            ->get();
+        // Query para destinos com contagem filtrada
+        $propertyTypes = $this->propertyTypes;
+        
+        $this->popularDestinations = Location::withCount(['hotels' => function($query) use ($propertyTypes) {
+            if (!empty($propertyTypes)) {
+                $query->whereIn('property_type', $propertyTypes);
+            }
+        }])
+        ->having('hotels_count', '>', 0)
+        ->orderBy('hotels_count', 'desc')
+        ->take(5)
+        ->get();
     }
     
     // Método para formatar preços
@@ -227,16 +255,24 @@ class SearchResults extends Component
         $this->resetPage();
     }
     
-    // Método para aplicar filtro de tipo de propriedade (desativado - coluna não existe)
-    // public function togglePropertyTypeFilter($type)
-    // {
-    //     if (in_array($type, $this->propertyTypes)) {
-    //         $this->propertyTypes = array_diff($this->propertyTypes, [$type]);
-    //     } else {
-    //         $this->propertyTypes[] = $type;
-    //     }
-    //     $this->resetPage();
-    // }
+    // Método para aplicar filtro de tipo de propriedade
+    public function togglePropertyType($type)
+    {
+        if (in_array($type, $this->propertyTypes)) {
+            $this->propertyTypes = array_diff($this->propertyTypes, [$type]);
+        } else {
+            $this->propertyTypes[] = $type;
+        }
+        
+        // Re-indexar array para garantir índices sequenciais
+        $this->propertyTypes = array_values($this->propertyTypes);
+        
+        // Recarregar contadores de províncias e destinos
+        $this->loadProvinces();
+        $this->loadPopularDestinations();
+        
+        $this->resetPage();
+    }
     
     // Método para aplicar filtro de estrelas
     public function toggleStarFilter($star)
@@ -361,10 +397,9 @@ class SearchResults extends Component
         }
         
         // ====== FILTROS DE TIPO DE PROPRIEDADE ======
-        // Desativado - coluna não existe
-        // if (!empty($this->propertyTypes)) {
-        //     $query->whereIn('property_type', $this->propertyTypes);
-        // }
+        if (!empty($this->propertyTypes)) {
+            $query->whereIn('property_type', $this->propertyTypes);
+        }
         
         // ====== FILTROS DE PREÇO ======
         // Usamos apenas where para permitir hotéis que tenham pelo menos um tipo de quarto que atenda ao critério
@@ -521,8 +556,23 @@ class SearchResults extends Component
             $amenityCounts[$amenity] = Hotel::whereJsonContains('amenities', $amenity)->count();
         }
         
-        // Contar hotéis por tipo de propriedade - desativado (coluna não existe)
-        $propertyTypeCounts = [];
+        // Contar hotéis por tipo de propriedade (considera filtros ativos)
+        $selectedProvinces = $this->selectedProvinces;
+        
+        $propertyTypeCounts = [
+            'hotel' => Hotel::where('property_type', 'hotel')
+                ->when(!empty($selectedProvinces), function($q) use ($selectedProvinces) {
+                    $q->whereHas('location', fn($loc) => $loc->whereIn('province', $selectedProvinces));
+                })->count(),
+            'resort' => Hotel::where('property_type', 'resort')
+                ->when(!empty($selectedProvinces), function($q) use ($selectedProvinces) {
+                    $q->whereHas('location', fn($loc) => $loc->whereIn('province', $selectedProvinces));
+                })->count(),
+            'hospedaria' => Hotel::where('property_type', 'hospedaria')
+                ->when(!empty($selectedProvinces), function($q) use ($selectedProvinces) {
+                    $q->whereHas('location', fn($loc) => $loc->whereIn('province', $selectedProvinces));
+                })->count(),
+        ];
         
         return view('livewire.search-results', [
             'searchResults' => $this->getSearchResults(),
@@ -532,6 +582,7 @@ class SearchResults extends Component
             'starCounts' => $starCounts,
             'ratingCounts' => $ratingCounts,
             'amenityCounts' => $amenityCounts,
+            'propertyTypeCounts' => $propertyTypeCounts,
         ])->layout('layouts.app', ['slot' => 'content']);
     }
 }

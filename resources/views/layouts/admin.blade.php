@@ -3,25 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ config('app.name', 'Okavango Book') }} - Painel Administrativo - @yield('title', 'Dashboard')</title>
+    <title>{{ \App\Models\Setting::get('app_name', config('app.name', 'Okavango Book')) }} - Painel Administrativo - @yield('title', 'Dashboard')</title>
     
     <!-- Favicon -->
     <link rel="icon" href="{{ asset('favicon.ico') }}">
     
-    <!-- Tailwind CSS via CDN -->
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Tailwind CSS local -->
+    <link href="{{ asset('assets/css/tailwind.min.css') }}" rel="stylesheet">
     
-    <!-- Font Awesome para ícones -->
+    <!-- Font Awesome via CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Google Fonts - Inter e Poppins (mais modernas) -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Animate.css para animações -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <!-- Animate.css local -->
+    <link rel="stylesheet" href="{{ asset('assets/css/animate.min.css') }}">
     
-    <!-- Chart.js para gráficos -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <!-- Chart.js local -->
+    <script src="{{ asset('assets/js/chart.min.js') }}"></script>
     
     <!-- Estilos personalizados para o painel admin -->
     <style>
