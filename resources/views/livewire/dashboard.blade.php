@@ -2,7 +2,7 @@
     <div class="py-6">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h1 class="text-3xl font-bold text-gray-900">Olá, {{ $user->name }}</h1>
-            <p class="mt-1 text-sm text-gray-500">Bem-vindo ao seu painel de utilizador do OkavangoBook.</p>
+            <p class="mt-1 text-sm text-gray-500">Bem-vindo ao seu painel de utilizador do KiandaStay.</p>
         </div>
         
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">

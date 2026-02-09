@@ -1,4 +1,4 @@
-# Okavango Book - Planejamento da Versão 1.0 (MVP)
+# KiandaStay - Planejamento da Versão 1.0 (MVP)
 
 ## Objetivos
 Desenvolver um sistema mínimo viável que permita aos usuários buscar hospedagens e visualizar resultados, similar ao Trivago, mas com funcionalidades essenciais.

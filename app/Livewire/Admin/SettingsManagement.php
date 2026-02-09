@@ -117,7 +117,7 @@ class SettingsManagement extends Component
      */
     protected function loadSettings(): void
     {
-        $this->appName = Setting::get('app_name', config('app.name', 'OkavangoBook'));
+        $this->appName = Setting::get('app_name', config('app.name', 'KiandaStay'));
         $this->appDescription = Setting::get('app_description', 'Sistema de reservas de hotéis em Angola');
         $this->appKeywords = Setting::get('app_keywords', 'hotéis, reservas, Angola, turismo');
         $this->appCurrency = Setting::get('app_currency', 'KZ');

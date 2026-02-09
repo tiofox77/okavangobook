@@ -6,7 +6,7 @@
                     <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
                 </svg>
             </div>
-            <h1 class="text-xl font-bold sidebar-title transition-opacity duration-300">{{ \App\Models\Setting::get('app_name', 'Okavango Book') }} Admin</h1>
+            <h1 class="text-xl font-bold sidebar-title transition-opacity duration-300">{{ \App\Models\Setting::get('app_name', 'KiandaStay') }} Admin</h1>
         </div>
         <button id="sidebar-toggle" class="text-gray-300 hover:text-white transition-colors duration-200 p-1 rounded-md hover:bg-gray-700">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -25,6 +25,7 @@
             <span class="tooltip-text">Dashboard</span>
         </a>
         
+        @role('Admin')
         <a href="{{ route('admin.analytics') }}" class="menu-item flex items-center py-3 px-3 rounded-lg mb-1 {{ request()->routeIs('admin.analytics') ? 'active bg-gray-700' : '' }} tooltip">
             <div class="icon-container bg-indigo-500 bg-opacity-20 text-indigo-400">
                 <i class="fas fa-chart-bar"></i>
@@ -48,6 +49,7 @@
             <span class="sidebar-link-text transition-opacity duration-300">Relatórios</span>
             <span class="tooltip-text">Relatórios de Reservas</span>
         </a>
+        @endrole
         
         <a href="{{ route('admin.hotels') }}" class="menu-item flex items-center py-3 px-3 rounded-lg mb-1 {{ request()->routeIs('admin.hotels') ? 'active bg-gray-700' : '' }} tooltip">
             <div class="icon-container bg-amber-500 bg-opacity-20 text-amber-400">
@@ -102,6 +104,7 @@
             <span class="tooltip-text">Gerir Instalações de Lazer</span>
         </a>
         
+        @role('Admin')
         <a href="{{ route('admin.locations') }}" class="menu-item flex items-center py-3 px-3 rounded-lg mb-1 {{ request()->routeIs('admin.locations') ? 'active bg-gray-700' : '' }} tooltip">
             <div class="icon-container bg-purple-500 bg-opacity-20 text-purple-400">
                 <i class="fas fa-map-marker-alt"></i>
@@ -109,6 +112,7 @@
             <span class="sidebar-link-text transition-opacity duration-300">Localizações</span>
             <span class="tooltip-text">Gerir Localizações</span>
         </a>
+        @endrole
         
         <!-- Menu para Reservas -->
         <a href="{{ route('admin.reservations') }}" class="menu-item flex items-center py-3 px-3 rounded-lg mb-1 {{ request()->routeIs('admin.reservations') ? 'active bg-gray-700' : '' }} tooltip">
@@ -119,6 +123,7 @@
             <span class="tooltip-text">Gerir Reservas</span>
         </a>
         
+        @role('Admin')
         <!-- Menu para Cupons -->
         <a href="{{ route('admin.coupons') }}" class="menu-item flex items-center py-3 px-3 rounded-lg mb-1 {{ request()->routeIs('admin.coupons') ? 'active bg-gray-700' : '' }} tooltip">
             <div class="icon-container bg-pink-500 bg-opacity-20 text-pink-400">
@@ -152,22 +157,24 @@
             <span class="sidebar-link-text transition-opacity duration-300">Utilizadores</span>
             <span class="tooltip-text">Gerir Utilizadores</span>
         </a>
+        @endrole
         
         <div class="border-t border-gray-700 my-4 opacity-50"></div>
         
+        @role('Admin')
         <!-- Menu Configurações -->
-        <div class="mb-1">
-            <a href="#" id="config-menu-toggle" class="menu-item flex items-center py-3 px-3 rounded-lg mb-1 tooltip">
+        <div class="mb-1" x-data="{ open: {{ request()->routeIs('admin.settings') || request()->routeIs('admin.updates') ? 'true' : 'false' }} }">
+            <a href="#" @click.prevent="open = !open" class="menu-item flex items-center py-3 px-3 rounded-lg mb-1 tooltip">
                 <div class="icon-container bg-gray-500 bg-opacity-20 text-gray-400">
                     <i class="fas fa-cog"></i>
                 </div>
                 <span class="sidebar-link-text transition-opacity duration-300 flex-1">Configurações</span>
-                <i id="config-chevron" class="fas fa-chevron-down text-gray-400 transition-transform duration-200"></i>
+                <i class="fas fa-chevron-down text-gray-400 transition-transform duration-200" :class="{ 'rotate-180': open }"></i>
                 <span class="tooltip-text">Configurações</span>
             </a>
             
             <!-- Submenu Configurações -->
-            <div id="config-submenu" class="hidden ml-8 space-y-1">
+            <div x-show="open" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-2" class="ml-8 space-y-1">
                 <a href="{{ route('admin.settings') }}" class="menu-item flex items-center py-2 px-3 rounded-lg mb-1 tooltip text-sm">
                     <div class="icon-container bg-blue-500 bg-opacity-20 text-blue-400 w-8 h-8">
                         <i class="fas fa-sliders-h text-sm"></i>
@@ -185,6 +192,7 @@
                 </a>
             </div>
         </div>
+        @endrole
         
         <div class="border-t border-gray-700 my-4 opacity-50"></div>
         

@@ -26,7 +26,7 @@ class UpdatesManagement extends Component
     /**
      * Configurações do GitHub
      */
-    public string $githubRepo = 'username/okavangobook'; // Alterar para o seu repositório
+    public string $githubRepo = 'username/kiandastay'; // Alterar para o seu repositório
     public string $githubToken = ''; // Token do GitHub (opcional)
     
     /**
@@ -43,7 +43,7 @@ class UpdatesManagement extends Component
     public function mount(): void
     {
         $this->currentVersion = config('app.version', '1.0.0');
-        $this->githubRepo = config('app.github_repo', 'username/okavangobook');
+        $this->githubRepo = config('app.github_repo', 'username/kiandastay');
         $this->githubToken = config('app.github_token', '');
         $this->checkForUpdates();
     }

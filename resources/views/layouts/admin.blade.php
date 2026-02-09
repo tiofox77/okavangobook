@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ \App\Models\Setting::get('app_name', config('app.name', 'Okavango Book')) }} - Painel Administrativo - @yield('title', 'Dashboard')</title>
+    <title>{{ \App\Models\Setting::get('app_name', config('app.name', 'KiandaStay')) }} - Painel Administrativo - @yield('title', 'Dashboard')</title>
     
     <!-- Favicon -->
     <link rel="icon" href="{{ asset('favicon.ico') }}">
@@ -244,7 +244,7 @@
     <!-- Scripts adicionais -->
     @stack('styles')
 </head>
-<body class="bg-gray-100 min-h-screen" x-data="{ 
+<body class="bg-gray-100 h-screen overflow-hidden" x-data="{ 
     showNotifications: false,
     darkMode: localStorage.getItem('darkMode') === 'true',
     toggleDarkMode() {
@@ -515,25 +515,7 @@
                 }, 5000);
             });
             
-            // Menu dropdown das configurações
-            const configMenuToggle = document.getElementById('config-menu-toggle');
-            const configSubmenu = document.getElementById('config-submenu');
-            const configChevron = document.getElementById('config-chevron');
-            
-            if (configMenuToggle && configSubmenu && configChevron) {
-                configMenuToggle.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    
-                    // Toggle do submenu
-                    if (configSubmenu.classList.contains('hidden')) {
-                        configSubmenu.classList.remove('hidden');
-                        configChevron.classList.add('rotate-180');
-                    } else {
-                        configSubmenu.classList.add('hidden');
-                        configChevron.classList.remove('rotate-180');
-                    }
-                });
-            }
+            // Menu dropdown das configurações é gerido por Alpine.js no sidebar
         });
         
         // Livewire v3 usa livewire:init em vez de livewire:load

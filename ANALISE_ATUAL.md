@@ -1,11 +1,11 @@
-# Análise do Estado Atual do Okavango Book
+# Análise do Estado Atual do KiandaStay
 
 **Data da Análise:** 12 de Janeiro de 2026  
 **Versão Alvo:** 1.0 MVP
 
 ## Resumo Executivo
 
-O projeto Okavango Book está **bem avançado** em relação ao roadmap da Versão 1.0. A estrutura base está completa, com sistema de reservas implementado e painel administrativo funcional. Algumas funcionalidades do MVP ainda precisam ser finalizadas.
+O projeto KiandaStay está **bem avançado** em relação ao roadmap da Versão 1.0. A estrutura base está completa, com sistema de reservas implementado e painel administrativo funcional. Algumas funcionalidades do MVP ainda precisam ser finalizadas.
 
 ---
 

@@ -1,7 +1,7 @@
-# Okavango Book - Roadmap de Desenvolvimento
+# KiandaStay - Roadmap de Desenvolvimento
 
 ## Visão Geral
-Okavango Book é uma plataforma similar ao Trivago, que permite aos usuários pesquisar e comparar preços de hospedagem em diferentes hotéis, pousadas e outros tipos de acomodação. O sistema será desenvolvido incrementalmente, com foco em entregar valor rapidamente e adicionar funcionalidades conforme o projeto avança.
+KiandaStay é uma plataforma similar ao Trivago, que permite aos usuários pesquisar e comparar preços de hospedagem em diferentes hotéis, pousadas e outros tipos de acomodação. O sistema será desenvolvido incrementalmente, com foco em entregar valor rapidamente e adicionar funcionalidades conforme o projeto avança.
 
 ## Tecnologias Principais
 - **Backend**: Laravel

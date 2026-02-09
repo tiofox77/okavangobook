@@ -18,17 +18,26 @@ class RoleSeeder extends Seeder
         // Reset cached roles and permissions
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // Criar roles básicos
+        // Criar roles
         $adminRole = Role::firstOrCreate(['name' => 'Admin']);
+        $propriedadeRole = Role::firstOrCreate(['name' => 'Propriedade']);
         $userRole = Role::firstOrCreate(['name' => 'User']);
 
-        // Criar permissões básicas
+        // Criar permissões
         $permissions = [
             // Utilizador comum
             'make-booking',
             'view-own-bookings',
             'cancel-own-booking',
             'update-profile',
+            
+            // Gestor de Propriedade
+            'manage-own-hotels',
+            'manage-own-rooms',
+            'manage-own-restaurant',
+            'manage-own-leisure',
+            'manage-own-bookings',
+            'view-own-analytics',
             
             // Administrador
             'manage-users',
@@ -49,6 +58,19 @@ class RoleSeeder extends Seeder
             'view-own-bookings',
             'cancel-own-booking',
             'update-profile',
+        ]);
+
+        $propriedadeRole->givePermissionTo([
+            'make-booking',
+            'view-own-bookings',
+            'cancel-own-booking',
+            'update-profile',
+            'manage-own-hotels',
+            'manage-own-rooms',
+            'manage-own-restaurant',
+            'manage-own-leisure',
+            'manage-own-bookings',
+            'view-own-analytics',
         ]);
 
         $adminRole->givePermissionTo(Permission::all());

@@ -161,7 +161,7 @@ class SystemUpdates extends Component
         try {
             $response = Http::withHeaders([
                 'Accept' => 'application/vnd.github.v3+json',
-                'User-Agent' => 'OkavangoBook-Updater'
+                'User-Agent' => 'KiandaStay-Updater'
             ])->get("https://api.github.com/repos/{$repo}/releases");
 
             if ($response->successful()) {
@@ -561,7 +561,7 @@ class SystemUpdates extends Component
             // Fallback: Use Laravel's DB facade for a basic dump
             $this->addToLog('mysqldump não disponível, usando fallback PHP para backup de BD...');
             $tables = DB::select('SHOW TABLES');
-            $sqlDump = "-- OkavangoBook Database Backup\n-- Date: " . date('Y-m-d H:i:s') . "\n-- Database: {$database}\n\nSET FOREIGN_KEY_CHECKS=0;\n\n";
+            $sqlDump = "-- KiandaStay Database Backup\n-- Date: " . date('Y-m-d H:i:s') . "\n-- Database: {$database}\n\nSET FOREIGN_KEY_CHECKS=0;\n\n";
             
             foreach ($tables as $table) {
                 $tableName = array_values((array)$table)[0];
@@ -654,7 +654,7 @@ class SystemUpdates extends Component
 
             $response = Http::withHeaders([
                 'Accept' => 'application/vnd.github.v3+json',
-                'User-Agent' => 'OkavangoBook-Updater',
+                'User-Agent' => 'KiandaStay-Updater',
             ])->timeout(300)->get($downloadUrl);
             
             if (!$response->successful()) {
@@ -869,8 +869,8 @@ class SystemUpdates extends Component
     protected function enableMaintenanceMode(): void
     {
         try {
-            Artisan::call('down', ['--secret' => 'okavango-update']);
-            $this->addToLog('Modo de manutenção ativado (bypass: /okavango-update)');
+            Artisan::call('down', ['--secret' => 'kiandastay-update']);
+            $this->addToLog('Modo de manutenção ativado (bypass: /kiandastay-update)');
         } catch (\Exception $e) {
             Log::error('Failed to enable maintenance mode: ' . $e->getMessage());
         }
@@ -1150,7 +1150,7 @@ class SystemUpdates extends Component
             // Test if repository exists
             $response = Http::withHeaders([
                 'Accept' => 'application/vnd.github.v3+json',
-                'User-Agent' => 'OkavangoBook-Updater'
+                'User-Agent' => 'KiandaStay-Updater'
             ])->get("https://api.github.com/repos/{$repo}");
 
             if ($response->successful()) {

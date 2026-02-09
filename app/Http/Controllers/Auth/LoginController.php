@@ -49,7 +49,7 @@ class LoginController extends Controller
     protected function authenticated(Request $request, $user)
     {
         // Redirecionar baseado no role do utilizador
-        if ($user->hasRole('Admin')) {
+        if ($user->hasAnyRole(['Admin', 'Propriedade'])) {
             return redirect()->route('admin.dashboard');
         }
         

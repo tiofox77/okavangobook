@@ -23,7 +23,7 @@ class Contact extends Component
     {
         return view('livewire.contact')
             ->layout('layouts.app', [
-                'title' => 'Entre em Contacto - Okavango Book',
+                'title' => 'Entre em Contacto - KiandaStay',
                 'metaDescription' => 'Entre em contacto conosco para dúvidas, sugestões ou para planejar sua viagem em Angola.'
             ]);
     }

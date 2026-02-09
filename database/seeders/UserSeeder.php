@@ -18,7 +18,7 @@ class UserSeeder extends Seeder
         
         // 1. Criar Super Admin
         $superAdmin = User::firstOrCreate(
-            ['email' => 'admin@okavangobook.ao'],
+            ['email' => 'admin@kiandastay.vip'],
             [
                 'name' => 'Super Admin',
                 'password' => bcrypt('Admin2017'),
@@ -26,7 +26,7 @@ class UserSeeder extends Seeder
             ]
         );
         $superAdmin->assignRole('Admin');
-        $this->command->info('✅ Super Admin criado: admin@okavangobook.ao');
+        $this->command->info('✅ Super Admin criado: admin@kiandastay.vip');
         
         // 2. Manter usuário Softecangola como Admin
         $softec = User::where('email', 'softecangola@gmail.com')->first();
@@ -46,7 +46,7 @@ class UserSeeder extends Seeder
         foreach ($hotels as $hotel) {
             // Gerar email baseado no nome do hotel
             $hotelSlug = Str::slug($hotel->name);
-            $email = $hotelSlug . '@okavangobook.ao';
+            $email = $hotelSlug . '@kiandastay.vip';
             
             // Verificar se já existe
             $existingUser = User::where('email', $email)->first();
@@ -60,8 +60,8 @@ class UserSeeder extends Seeder
                     'email_verified_at' => now(),
                 ]);
                 
-                // Atribuir role User
-                $user->assignRole('User');
+                // Atribuir role Propriedade (gestor de propriedade)
+                $user->assignRole('Propriedade');
                 
                 // Vincular ao hotel
                 $hotel->user_id = $user->id;

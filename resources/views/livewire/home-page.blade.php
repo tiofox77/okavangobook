@@ -337,7 +337,7 @@
         </div>
     </section>
 
-    <!-- Por que escolher o Okavango Book (versão moderna 2025) -->
+    <!-- Por que escolher o KiandaStay (versão moderna 2025) -->
     <section class="py-28 relative overflow-hidden">
         <!-- Background com efeito de gradiente e formas geométricas -->
         <div class="absolute inset-0 bg-gradient-to-tr from-gray-50 to-blue-50 dark:from-gray-900 dark:to-blue-900 opacity-50"></div>
@@ -349,7 +349,7 @@
         <div class="container mx-auto px-4 relative z-10">
             <div class="text-center mb-20">
                 <span class="inline-block px-4 py-1 rounded-full bg-primary/10 text-primary dark:bg-primary/20 text-sm font-medium mb-4">Tecnologia de 2025</span>
-                <h2 class="text-4xl md:text-5xl font-extrabold mb-6">Por que escolher o <span class="text-primary">Okavango Book</span></h2>
+                <h2 class="text-4xl md:text-5xl font-extrabold mb-6">Por que escolher o <span class="text-primary">KiandaStay</span></h2>
                 <p class="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">Nosso sistema utiliza tecnologia de ponta com inteligência artificial para proporcionar a melhor experiência de reserva</p>
             </div>
             

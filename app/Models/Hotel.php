@@ -161,6 +161,14 @@ class Hotel extends Model
     }
     
     /**
+     * Obter todas as reservas deste hotel.
+     */
+    public function reservations(): HasMany
+    {
+        return $this->hasMany(Reservation::class);
+    }
+
+    /**
      * Obter todas as avaliações deste hotel.
      */
     public function reviews(): HasMany

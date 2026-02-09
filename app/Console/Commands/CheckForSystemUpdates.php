@@ -44,7 +44,7 @@ class CheckForSystemUpdates extends Command
         try {
             $response = Http::withHeaders([
                 'Accept' => 'application/vnd.github.v3+json',
-                'User-Agent' => 'OkavangoBook-Updater',
+                'User-Agent' => 'KiandaStay-Updater',
             ])->timeout(30)->get("https://api.github.com/repos/{$repo}/releases");
 
             if (!$response->successful()) {

@@ -132,7 +132,7 @@
                             </div>
                             <div>
                                 <h4 class="font-medium text-gray-800 mb-1">Email</h4>
-                                <p class="text-gray-600">info@okavangobook.com</p>
+                                <p class="text-gray-600">info@kiandastay.vip</p>
                             </div>
                         </div>
                         

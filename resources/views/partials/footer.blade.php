@@ -3,7 +3,7 @@
         <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
             <!-- Coluna 1: Logo e Descrição -->
             <div>
-                <div class="text-2xl font-bold mb-4">Okavango<span class="text-secondary">Book</span></div>
+                <div class="text-2xl font-bold mb-4">Kianda<span class="text-secondary">Stay</span></div>
                 <p class="text-gray-300 mb-4">
                     Encontre as melhores acomodações em toda Angola com os melhores preços garantidos.
                 </p>
@@ -68,7 +68,7 @@
                 </div>
                 <div class="flex items-center">
                     <i class="fas fa-envelope mr-2 text-blue-400"></i>
-                    info@okavangobook.com
+                    info@kiandastay.vip
                 </div>
             </div>
         </div>
@@ -77,7 +77,7 @@
         
         <div class="flex flex-col md:flex-row justify-between items-center">
             <div class="text-gray-400 mb-4 md:mb-0">
-                &copy; {{ date('Y') }} OkavangoBook. Todos os direitos reservados.
+                &copy; {{ date('Y') }} KiandaStay. Todos os direitos reservados.
             </div>
             <div class="flex space-x-4">
                 <img src="https://via.placeholder.com/50x30" alt="Visa" class="h-8">

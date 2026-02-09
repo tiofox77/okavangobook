@@ -4,7 +4,7 @@
             <!-- Logo -->
             <div class="flex items-center">
                 <a href="{{ route('home') }}" class="flex items-center">
-                    <span class="text-2xl font-bold text-primary">{{ \App\Models\Setting::get('app_name', 'Okavango') }}<span class="text-secondary">Book</span></span>
+                    <span class="text-2xl font-bold text-primary">{{ \App\Models\Setting::get('app_name', 'Kianda') }}<span class="text-secondary">Stay</span></span>
                 </a>
             </div>
             
@@ -46,7 +46,7 @@
                 @else
                     <div class="flex items-center space-x-2">
                         <!-- Links diretos para acesso rápido -->
-                        @if(auth()->user()->hasRole('Admin'))
+                        @if(auth()->user()->hasAnyRole(['Admin', 'Propriedade']))
                             <a href="{{ route('admin.dashboard') }}" class="bg-red-600 text-white px-3 py-1 rounded-md hover:bg-red-700 text-xs flex items-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
@@ -82,7 +82,7 @@
                                         Minha Conta
                                     </div>
                                 </a>
-                                @if(auth()->user()->hasRole('Admin'))
+                                @if(auth()->user()->hasAnyRole(['Admin', 'Propriedade']))
                                     <a href="{{ route('admin.dashboard') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                         <div class="flex items-center">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -93,9 +93,11 @@
                                         </div>
                                     </a>
                                     <div class="border-t border-gray-100"></div>
-                                    <a href="{{ route('admin.hotels') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 pl-10">Hotéis</a>
-                                    <a href="{{ route('admin.users') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 pl-10">Utilizadores</a>
-                                    <a href="{{ route('admin.locations') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 pl-10">Localizações</a>
+                                    <a href="{{ route('admin.hotels') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 pl-10">Propriedades</a>
+                                    @if(auth()->user()->hasRole('Admin'))
+                                        <a href="{{ route('admin.users') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 pl-10">Utilizadores</a>
+                                        <a href="{{ route('admin.locations') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 pl-10">Localizações</a>
+                                    @endif
                                 @endif
                                 <div class="border-t border-gray-100 mt-2"></div>
                                 <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50">
@@ -155,7 +157,7 @@
                 </a>
                 
                 <!-- Opções de administrador -->
-                @if(auth()->user()->hasRole('Admin'))
+                @if(auth()->user()->hasAnyRole(['Admin', 'Propriedade']))
                     <div class="border-t border-gray-100 my-1"></div>
                     <a href="{{ route('admin.dashboard') }}" class="flex items-center py-2 px-4 text-sm font-medium text-red-600 hover:bg-red-50">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -164,9 +166,11 @@
                         </svg>
                         Painel Admin
                     </a>
-                    <a href="{{ route('admin.hotels') }}" class="block py-2 px-4 text-sm hover:bg-gray-100 pl-10">Hotéis</a>
-                    <a href="{{ route('admin.users') }}" class="block py-2 px-4 text-sm hover:bg-gray-100 pl-10">Utilizadores</a>
-                    <a href="{{ route('admin.locations') }}" class="block py-2 px-4 text-sm hover:bg-gray-100 pl-10">Localizações</a>
+                    <a href="{{ route('admin.hotels') }}" class="block py-2 px-4 text-sm hover:bg-gray-100 pl-10">Propriedades</a>
+                    @if(auth()->user()->hasRole('Admin'))
+                        <a href="{{ route('admin.users') }}" class="block py-2 px-4 text-sm hover:bg-gray-100 pl-10">Utilizadores</a>
+                        <a href="{{ route('admin.locations') }}" class="block py-2 px-4 text-sm hover:bg-gray-100 pl-10">Localizações</a>
+                    @endif
                 @endif
                 
                 <!-- Terminar sessão -->
@@ -218,14 +222,9 @@
                 }
             });
             
-            // Também mostrar ao fazer hover (opcional)
-            userDropdown.addEventListener('mouseenter', function() {
-                dropdownMenu.classList.remove('hidden');
-            });
-            
-            userDropdown.addEventListener('mouseleave', function() {
-                // Só esconde se não estiver em foco por clique
-                if (!dropdownButton.classList.contains('active')) {
+            // Fechar com tecla Escape
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
                     dropdownMenu.classList.add('hidden');
                 }
             });
