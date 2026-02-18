@@ -24,6 +24,7 @@ Route::get('/destinations', App\Livewire\Destinations::class)->name('destination
 Route::get('/destination/{province}', App\Livewire\LocationDetails::class)->name('location.details');
 Route::get('/about-angola', App\Livewire\AboutAngola::class)->name('about.angola');
 Route::get('/contact', App\Livewire\Contact::class)->name('contact');
+Route::get('/pricing', App\Livewire\PricingPage::class)->name('pricing');
 
 // Sistema de Reservas - Público (não requer login)
 Route::get('/booking/create', App\Livewire\BookingCreate::class)->name('booking.create');
@@ -57,6 +58,9 @@ Route::middleware(['auth', 'role:Admin|Propriedade'])->prefix('admin')->group(fu
     Route::get('/leisure-facilities', App\Livewire\Admin\LeisureFacilitiesManagement::class)->name('admin.leisure');
     Route::get('/reservations', App\Livewire\Admin\ReservationManagement::class)->name('admin.reservations');
     Route::get('/reservations/create', App\Livewire\Admin\ReservationCreation::class)->name('admin.reservations.create');
+    Route::get('/notifications', App\Livewire\Admin\NotificationsPage::class)->name('admin.notifications');
+    Route::get('/profile', App\Livewire\Admin\AdminProfile::class)->name('admin.profile');
+    Route::get('/my-subscription', App\Livewire\Admin\MySubscription::class)->name('admin.my-subscription');
 });
 
 // Rotas exclusivas do Admin
@@ -71,4 +75,6 @@ Route::middleware(['auth', 'role:Admin'])->prefix('admin')->group(function () {
     Route::get('/reports/reservations', App\Livewire\Admin\ReservationReports::class)->name('admin.reports.reservations');
     Route::get('/settings', App\Livewire\Admin\SettingsManagement::class)->name('admin.settings');
     Route::get('/updates', App\Livewire\Admin\SystemUpdates::class)->name('admin.updates');
+    Route::get('/plans', App\Livewire\Admin\PlanManagement::class)->name('admin.plans');
+    Route::get('/payments', App\Livewire\Admin\PaymentManagement::class)->name('admin.payments');
 });

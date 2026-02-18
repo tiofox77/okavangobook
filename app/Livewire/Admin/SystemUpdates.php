@@ -713,26 +713,61 @@ class SystemUpdates extends Component
         try {
             $extractDir = storage_path('app' . DIRECTORY_SEPARATOR . 'updates' . DIRECTORY_SEPARATOR . 'extracted');
             
-            // Find the extracted repository folder (GitHub zips have a top-level folder)
-            $dirs = array_diff(scandir($extractDir), ['.', '..']);
-            $repoDir = $extractDir . DIRECTORY_SEPARATOR . reset($dirs);
+            if (!is_dir($extractDir)) {
+                throw new \Exception('Diretório de extração não encontrado: ' . $extractDir);
+            }
 
-            if (!is_dir($repoDir)) {
-                throw new \Exception('Diretório de atualização não encontrado');
+            // Find the extracted repository folder (GitHub zips have a top-level folder like owner-repo-hash)
+            $repoDir = null;
+            $entries = array_diff(scandir($extractDir), ['.', '..']);
+            foreach ($entries as $entry) {
+                $fullPath = $extractDir . DIRECTORY_SEPARATOR . $entry;
+                if (is_dir($fullPath)) {
+                    $repoDir = $fullPath;
+                    break;
+                }
+            }
+
+            if (!$repoDir || !is_dir($repoDir)) {
+                throw new \Exception('Diretório de atualização não encontrado em: ' . $extractDir . ' (conteúdo: ' . implode(', ', $entries) . ')');
+            }
+
+            $this->addToLog('Diretório fonte: ' . basename($repoDir));
+
+            // Verify the extracted dir looks like a Laravel project
+            if (!file_exists($repoDir . DIRECTORY_SEPARATOR . 'artisan')) {
+                $this->addToLog('Aviso: Ficheiro artisan não encontrado no diretório extraído - verificando subdiretórios...');
+                // Maybe there's another level of nesting
+                $subEntries = array_diff(scandir($repoDir), ['.', '..']);
+                foreach ($subEntries as $subEntry) {
+                    $subPath = $repoDir . DIRECTORY_SEPARATOR . $subEntry;
+                    if (is_dir($subPath) && file_exists($subPath . DIRECTORY_SEPARATOR . 'artisan')) {
+                        $repoDir = $subPath;
+                        $this->addToLog('Diretório correto encontrado: ' . basename($repoDir));
+                        break;
+                    }
+                }
             }
 
             // Copy files to application root, excluding sensitive paths
-            $this->copyDirectory($repoDir, base_path(), [
+            $exclude = [
                 'storage',
                 'node_modules',
                 'vendor',
                 '.git',
                 '.env',
-                'bootstrap' . DIRECTORY_SEPARATOR . 'cache',
-            ]);
+                'bootstrap/cache',
+            ];
+
+            $result = $this->copyDirectory($repoDir, base_path(), $exclude);
+            $this->addToLog("Ficheiros copiados: {$result['copied']}, ignorados: {$result['skipped']}, erros: {$result['errors']}");
+
+            if ($result['copied'] === 0) {
+                throw new \Exception('Nenhum ficheiro foi copiado! Verifique permissões e o conteúdo do repositório.');
+            }
 
             // Update composer dependencies (Windows-compatible)
-            if (file_exists($repoDir . DIRECTORY_SEPARATOR . 'composer.json')) {
+            if (file_exists(base_path('composer.json'))) {
                 $this->addToLog('Atualizando dependências do Composer...');
                 $composerCmd = 'composer install --no-dev --optimize-autoloader --working-dir="' . base_path() . '"';
                 
@@ -755,11 +790,19 @@ class SystemUpdates extends Component
     /**
      * Copy directory contents
      */
-    protected function copyDirectory(string $source, string $destination, array $exclude = []): void
+    protected function copyDirectory(string $source, string $destination, array $exclude = []): array
     {
+        $result = ['copied' => 0, 'skipped' => 0, 'errors' => 0];
+
         if (!is_dir($source)) {
-            return;
+            Log::error('copyDirectory: source dir does not exist: ' . $source);
+            return $result;
         }
+
+        // Normalize exclude patterns to use forward slashes
+        $normalizedExclude = array_map(function ($pattern) {
+            return str_replace('\\', '/', $pattern);
+        }, $exclude);
 
         $iterator = new RecursiveIteratorIterator(
             new RecursiveDirectoryIterator($source, RecursiveDirectoryIterator::SKIP_DOTS),
@@ -767,10 +810,11 @@ class SystemUpdates extends Component
         );
 
         foreach ($iterator as $item) {
-            $relativePath = $iterator->getSubPathName();
+            // Normalize path separators to forward slash for consistent matching
+            $relativePath = str_replace('\\', '/', $iterator->getSubPathName());
             $skip = false;
 
-            foreach ($exclude as $excludePattern) {
+            foreach ($normalizedExclude as $excludePattern) {
                 if (str_starts_with($relativePath, $excludePattern)) {
                     $skip = true;
                     break;
@@ -778,23 +822,33 @@ class SystemUpdates extends Component
             }
 
             if ($skip) {
+                $result['skipped']++;
                 continue;
             }
 
-            $destPath = $destination . DIRECTORY_SEPARATOR . $relativePath;
+            $destPath = $destination . DIRECTORY_SEPARATOR . $iterator->getSubPathName();
 
             if ($item->isDir()) {
                 if (!is_dir($destPath)) {
-                    mkdir($destPath, 0755, true);
+                    @mkdir($destPath, 0755, true);
                 }
             } else {
                 $destDir = dirname($destPath);
                 if (!is_dir($destDir)) {
-                    mkdir($destDir, 0755, true);
+                    @mkdir($destDir, 0755, true);
                 }
-                copy($item->getRealPath(), $destPath);
+                
+                $sourcePath = $item->getRealPath();
+                if (@copy($sourcePath, $destPath)) {
+                    $result['copied']++;
+                } else {
+                    $result['errors']++;
+                    Log::warning('Failed to copy: ' . $relativePath . ' -> ' . $destPath);
+                }
             }
         }
+
+        return $result;
     }
 
     /**

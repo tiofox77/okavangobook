@@ -126,7 +126,9 @@
             </div>
             <form wire:submit.prevent="save">
                 <div class="bg-white dark:bg-gray-800 px-6 py-6 overflow-y-auto max-h-[70vh]">
-                    <div x-data="{activeTab: 'basic'}" class="space-y-6">
+                    <div x-data="{activeTab: 'basic'}" 
+                         x-on:switch-tab.window="activeTab = $event.detail.tab; $nextTick(() => { let el = document.getElementById($event.detail.field); if(el) { el.focus(); el.scrollIntoView({behavior: 'smooth', block: 'center'}); } })"
+                         class="space-y-6">
                         <!-- Abas de navegação -->
                         <div class="flex flex-wrap gap-2 border-b border-gray-200 dark:border-gray-700 pb-2">
                             <button 

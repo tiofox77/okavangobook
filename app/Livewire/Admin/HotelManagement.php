@@ -332,7 +332,49 @@ class HotelManagement extends Component
     
     public function save()
     {
-        $validatedData = $this->validate();
+        // Mapa de campos para abas
+        $fieldTabMap = [
+            'name' => 'basic',
+            'property_type' => 'basic',
+            'description' => 'basic',
+            'price' => 'basic',
+            'rating' => 'basic',
+            'thumbnail' => 'basic',
+            'thumbnailUpload' => 'basic',
+            'imagesUpload' => 'basic',
+            'is_featured' => 'basic',
+            'is_active' => 'basic',
+            'slug' => 'basic',
+            'userId' => 'basic',
+            'phone' => 'contact',
+            'phoneNumber' => 'contact',
+            'email' => 'contact',
+            'website' => 'contact',
+            'check_in_time' => 'contact',
+            'check_out_time' => 'contact',
+            'locationId' => 'location',
+            'address' => 'location',
+            'latitude' => 'location',
+            'longitude' => 'location',
+            'mapLink' => 'location',
+            'amenities' => 'features',
+        ];
+
+        try {
+            $validatedData = $this->validate();
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Encontrar a primeira aba com erro e redirecionar
+            $errorFields = array_keys($e->validator->errors()->messages());
+            foreach ($errorFields as $field) {
+                // Limpar prefixos como "imagesUpload.0"
+                $baseField = explode('.', $field)[0];
+                if (isset($fieldTabMap[$baseField])) {
+                    $this->dispatch('switch-tab', tab: $fieldTabMap[$baseField], field: $field);
+                    break;
+                }
+            }
+            throw $e;
+        }
         
         // Criar o slug antes para usar nos caminhos das imagens
         if (empty($this->slug)) {
@@ -374,6 +416,11 @@ class HotelManagement extends Component
         // Combinar imagens existentes com novas imagens
         $imagesArray = array_merge($this->images, $newImages);
         
+        // Auto-atribuir user_id para utilizadores Propriedade
+        if (!auth()->user()->hasRole('Admin') && empty($this->userId)) {
+            $this->userId = auth()->id();
+        }
+
         // Preparar dados para salvar
         $hotelData = [
             'name' => $this->name,
@@ -382,7 +429,7 @@ class HotelManagement extends Component
             'user_id' => $this->userId,
             'address' => $this->address,
             'price' => $this->price,
-            'rating' => $this->rating,
+            'rating' => $this->rating ?? 0,
             'phone' => $this->phone,
             'phone_number' => $this->phone, // Para compatibilidade
             'email' => $this->email,

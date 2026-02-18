@@ -17,6 +17,9 @@ class Kernel extends ConsoleKernel
         
         // Verificar atualizações do sistema duas vezes por dia
         $schedule->command('system:check-updates')->twiceDaily(8, 20);
+        
+        // Expirar subscrições e pagamentos pendentes
+        $schedule->command('subscriptions:expire')->daily();
     }
 
     /**

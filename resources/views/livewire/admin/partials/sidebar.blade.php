@@ -25,6 +25,14 @@
             <span class="tooltip-text">Dashboard</span>
         </a>
         
+        <a href="{{ route('admin.notifications') }}" class="menu-item flex items-center py-3 px-3 rounded-lg mb-1 {{ request()->routeIs('admin.notifications') ? 'active bg-gray-700' : '' }} tooltip">
+            <div class="icon-container bg-rose-500 bg-opacity-20 text-rose-400">
+                <i class="fas fa-bell"></i>
+            </div>
+            <span class="sidebar-link-text transition-opacity duration-300">Notificações</span>
+            <span class="tooltip-text">Notificações</span>
+        </a>
+        
         @role('Admin')
         <a href="{{ route('admin.analytics') }}" class="menu-item flex items-center py-3 px-3 rounded-lg mb-1 {{ request()->routeIs('admin.analytics') ? 'active bg-gray-700' : '' }} tooltip">
             <div class="icon-container bg-indigo-500 bg-opacity-20 text-indigo-400">
@@ -157,6 +165,27 @@
             <span class="sidebar-link-text transition-opacity duration-300">Utilizadores</span>
             <span class="tooltip-text">Gerir Utilizadores</span>
         </a>
+        <!-- Menu para Planos -->
+        <a href="{{ route('admin.plans') }}" class="menu-item flex items-center py-3 px-3 rounded-lg mb-1 {{ request()->routeIs('admin.plans') ? 'active bg-gray-700' : '' }} tooltip">
+            <div class="icon-container bg-purple-500 bg-opacity-20 text-purple-400">
+                <i class="fas fa-gem"></i>
+            </div>
+            <span class="sidebar-link-text transition-opacity duration-300">Planos</span>
+            <span class="tooltip-text">Gerir Planos de Subscrição</span>
+        </a>
+        
+        <!-- Menu para Pagamentos -->
+        <a href="{{ route('admin.payments') }}" class="menu-item flex items-center py-3 px-3 rounded-lg mb-1 {{ request()->routeIs('admin.payments') ? 'active bg-gray-700' : '' }} tooltip">
+            <div class="icon-container bg-green-500 bg-opacity-20 text-green-400">
+                <i class="fas fa-credit-card"></i>
+            </div>
+            <span class="sidebar-link-text transition-opacity duration-300">Pagamentos</span>
+            @php $pendingPaymentsCount = \App\Models\PaymentTransaction::where('status', 'pending')->count(); @endphp
+            @if($pendingPaymentsCount > 0)
+                <span class="ml-auto bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold sidebar-link-text">{{ $pendingPaymentsCount }}</span>
+            @endif
+            <span class="tooltip-text">Gerir Pagamentos</span>
+        </a>
         @endrole
         
         <div class="border-t border-gray-700 my-4 opacity-50"></div>
@@ -196,6 +225,22 @@
         
         <div class="border-t border-gray-700 my-4 opacity-50"></div>
         
+        <a href="{{ route('admin.profile') }}" class="menu-item flex items-center py-3 px-3 rounded-lg mb-1 {{ request()->routeIs('admin.profile') ? 'active bg-gray-700' : '' }} tooltip">
+            <div class="icon-container bg-blue-500 bg-opacity-20 text-blue-400">
+                <i class="fas fa-user-circle"></i>
+            </div>
+            <span class="sidebar-link-text transition-opacity duration-300">Meu Perfil</span>
+            <span class="tooltip-text">Meu Perfil</span>
+        </a>
+        
+        <a href="{{ route('admin.my-subscription') }}" class="menu-item flex items-center py-3 px-3 rounded-lg mb-1 {{ request()->routeIs('admin.my-subscription') ? 'active bg-gray-700' : '' }} tooltip">
+            <div class="icon-container bg-purple-500 bg-opacity-20 text-purple-400">
+                <i class="fas fa-gem"></i>
+            </div>
+            <span class="sidebar-link-text transition-opacity duration-300">Meu Plano</span>
+            <span class="tooltip-text">Meu Plano</span>
+        </a>
+        
         <a href="{{ route('home') }}" class="menu-item flex items-center py-3 px-3 rounded-lg mb-1 tooltip">
             <div class="icon-container bg-gray-500 bg-opacity-20 text-gray-400">
                 <i class="fas fa-home"></i>
@@ -218,14 +263,14 @@
     
     <!-- Informação do Utilizador -->
     <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-700 bg-gray-800 bg-opacity-95">
-        <div class="flex items-center space-x-3">
-            <div class="flex-shrink-0 rounded-full bg-gradient-to-br from-red-500 to-red-700 h-10 w-10 flex items-center justify-center shadow-md">
+        <a href="{{ route('admin.profile') }}" class="flex items-center space-x-3 hover:opacity-80 transition-opacity">
+            <div class="flex-shrink-0 rounded-full bg-gradient-to-br from-blue-500 to-indigo-700 h-10 w-10 flex items-center justify-center shadow-md">
                 <span class="text-white font-medium">{{ Auth::user()->name[0] }}</span>
             </div>
             <div class="sidebar-user-info transition-opacity duration-300">
                 <p class="font-medium text-white">{{ Auth::user()->name }}</p>
                 <p class="text-xs text-gray-400">{{ Auth::user()->email }}</p>
             </div>
-        </div>
+        </a>
     </div>
 </div>

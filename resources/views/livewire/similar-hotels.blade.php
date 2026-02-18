@@ -11,9 +11,13 @@
                 @foreach($similarHotels as $hotel)
                     <a href="{{ route('hotel.details', $hotel->id) }}" class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-xl transition">
                         <div class="relative">
-                            <img src="{{ $hotel->featured_image ?? $hotel->thumbnail ?? '/images/hotel-placeholder.jpg' }}" 
+                            @php
+                                $thumbUrl = \App\Helpers\ImageHelper::getValidImage($hotel->thumbnail ?? $hotel->featured_image, 'hotel');
+                            @endphp
+                            <img src="{{ $thumbUrl }}" 
                                  alt="{{ $hotel->name }}" 
-                                 class="w-full h-40 object-cover">
+                                 class="w-full h-40 object-cover"
+                                 onerror="this.onerror=null; this.src='{{ \App\Helpers\ImageHelper::getValidImage(null, 'hotel') }}'">
                             @if($hotel->similarity_score > 20)
                                 <div class="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded-md text-xs font-bold">
                                     <i class="fas fa-check"></i> Match

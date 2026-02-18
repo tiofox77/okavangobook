@@ -18,6 +18,7 @@
                 <a href="{{ route('destinations') }}" class="text-gray-700 hover:text-primary {{ request()->routeIs('destinations') ? 'font-bold text-primary' : '' }}">Destinos</a>
                 <a href="{{ route('about.angola') }}" class="text-gray-700 hover:text-primary {{ request()->routeIs('about.angola') ? 'font-bold text-primary' : '' }}">Sobre Angola</a>
                 <a href="{{ route('contact') }}" class="text-gray-700 hover:text-primary {{ request()->routeIs('contact') ? 'font-bold text-primary' : '' }}">Contacto</a>
+                <a href="{{ route('pricing') }}" class="text-gray-700 hover:text-primary {{ request()->routeIs('pricing') ? 'font-bold text-primary' : '' }}">Planos</a>
             </nav>
             
             <!-- Botões de autenticação -->
@@ -136,6 +137,7 @@
         <a href="{{ route('destinations') }}" class="block py-2 px-4 text-sm hover:bg-gray-100 {{ request()->routeIs('destinations') ? 'font-bold bg-gray-100' : '' }}">Destinos</a>
         <a href="{{ route('about.angola') }}" class="block py-2 px-4 text-sm hover:bg-gray-100 {{ request()->routeIs('about.angola') ? 'font-bold bg-gray-100' : '' }}">Sobre Angola</a>
         <a href="{{ route('contact') }}" class="block py-2 px-4 text-sm hover:bg-gray-100 {{ request()->routeIs('contact') ? 'font-bold bg-gray-100' : '' }}">Contacto</a>
+        <a href="{{ route('pricing') }}" class="block py-2 px-4 text-sm hover:bg-gray-100 {{ request()->routeIs('pricing') ? 'font-bold bg-gray-100' : '' }}">Planos</a>
         
         <!-- Links de autenticação -->
         <div class="border-t border-gray-200 pt-2">

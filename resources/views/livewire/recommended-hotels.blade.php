@@ -16,9 +16,13 @@
             @foreach($hotels as $hotel)
                 <a href="{{ route('hotel.details', $hotel->id) }}" class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-xl transition transform hover:-translate-y-1">
                     <div class="relative">
-                        <img src="{{ $hotel->featured_image ?? $hotel->thumbnail ?? '/images/hotel-placeholder.jpg' }}" 
+                        @php
+                            $thumbUrl = \App\Helpers\ImageHelper::getValidImage($hotel->thumbnail ?? $hotel->featured_image, 'hotel');
+                        @endphp
+                        <img src="{{ $thumbUrl }}" 
                              alt="{{ $hotel->name }}" 
-                             class="w-full h-48 object-cover">
+                             class="w-full h-48 object-cover"
+                             onerror="this.onerror=null; this.src='{{ \App\Helpers\ImageHelper::getValidImage(null, 'hotel') }}'">
                         @if($hotel->stars)
                             <div class="absolute top-2 left-2 bg-yellow-500 text-white px-2 py-1 rounded-md text-sm font-bold">
                                 @for($i = 0; $i < $hotel->stars; $i++)

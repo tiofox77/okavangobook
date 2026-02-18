@@ -76,19 +76,21 @@
 }">
     @php
         // Função global para normalizar caminhos de imagens (definida uma única vez)
-        function normalizeImagePath($path) {
-            if (!is_string($path)) return '';
-            
-            // Remove duplicação de 'storage/' no caminho
-            $path = preg_replace('#^/+storage/+storage/#', 'storage/', $path);
-            $path = preg_replace('#^/+storage/#', 'storage/', $path);
-            
-            // Garante que as imagens tenham caminho completo
-            if (!empty($path) && !str_starts_with($path, 'http') && !str_starts_with($path, '/')) {
-                $path = '/' . $path;
+        if (!function_exists('normalizeImagePath')) {
+            function normalizeImagePath($path) {
+                if (!is_string($path)) return '';
+                
+                // Remove duplicação de 'storage/' no caminho
+                $path = preg_replace('#^/+storage/+storage/#', 'storage/', $path);
+                $path = preg_replace('#^/+storage/#', 'storage/', $path);
+                
+                // Garante que as imagens tenham caminho completo
+                if (!empty($path) && !str_starts_with($path, 'http') && !str_starts_with($path, '/')) {
+                    $path = '/' . $path;
+                }
+                
+                return $path;
             }
-            
-            return $path;
         }
     @endphp
     <!-- Cabeçalho do hotel -->
@@ -147,7 +149,7 @@
                                 <!-- Endereço -->
                                 <div class="flex items-start text-gray-600">
                                     <i class="fas fa-map-marker-alt mt-1 mr-2 text-blue-600"></i>
-                                    <span class="text-sm">{{ $hotel->address }}, {{ $hotel->location->name }}, {{ $hotel->location->province }}</span>
+                                    <span class="text-sm">{{ collect([$hotel->address, $hotel->location?->name, $hotel->location?->province])->filter()->implode(', ') }}</span>
                                 </div>
                             </div>
                             
@@ -219,49 +221,55 @@
             </div>
             
             <!-- Galeria de fotos -->
-            <div class="mt-6 grid grid-cols-4 gap-2">
-                @php
-                    // Preparar todas as imagens para o visualizador
-                    $allHotelImages = [];
-                    
-                    // Adicionar imagem de destaque
-                    if (!empty($hotel->featured_image)) {
-                        $allHotelImages[] = str_starts_with($hotel->featured_image, 'http') 
-                            ? $hotel->featured_image 
-                            : asset('storage/' . $hotel->featured_image);
+            @php
+                // Preparar todas as imagens para o visualizador
+                $allHotelImages = [];
+                $defaultPlaceholder = \App\Helpers\ImageHelper::getValidImage(null, 'hotel');
+                
+                // Adicionar thumbnail
+                if (!empty($hotel->thumbnail)) {
+                    $allHotelImages[] = str_starts_with($hotel->thumbnail, 'http') 
+                        ? $hotel->thumbnail 
+                        : asset('storage/' . $hotel->thumbnail);
+                }
+                
+                // Adicionar imagem de destaque
+                if (!empty($hotel->featured_image)) {
+                    $featImg = str_starts_with($hotel->featured_image, 'http') 
+                        ? $hotel->featured_image 
+                        : asset('storage/' . $hotel->featured_image);
+                    if (!in_array($featImg, $allHotelImages)) {
+                        $allHotelImages[] = $featImg;
                     }
-                    
-                    // Adicionar outras imagens da galeria
-                    $hotelImages = is_array($hotel->images) ? $hotel->images : json_decode($hotel->images ?? '[]');
-                    if (is_array($hotelImages)) {
-                        foreach ($hotelImages as $img) {
-                            if (!empty($img) && is_string($img)) {
-                                $imageUrl = str_starts_with($img, 'http') ? $img : asset('storage/' . $img);
+                }
+                
+                // Adicionar outras imagens da galeria
+                $hotelImages = is_array($hotel->images) ? $hotel->images : json_decode($hotel->images ?? '[]');
+                if (is_array($hotelImages)) {
+                    foreach ($hotelImages as $img) {
+                        if (!empty($img) && is_string($img)) {
+                            $imageUrl = str_starts_with($img, 'http') ? $img : asset('storage/' . $img);
+                            if (!in_array($imageUrl, $allHotelImages)) {
                                 $allHotelImages[] = $imageUrl;
                             }
                         }
                     }
-                    
-                    $allHotelImagesJson = json_encode($allHotelImages);
-                @endphp
+                }
                 
+                $hasImages = count($allHotelImages) > 0;
+                $allHotelImagesJson = json_encode($allHotelImages);
+                $featuredImageUrl = $allHotelImages[0] ?? $defaultPlaceholder;
+            @endphp
+            
+            @if($hasImages)
+            <div class="mt-6 grid grid-cols-4 gap-2">
                 <!-- Imagem de destaque -->
                 <div class="col-span-2 row-span-2 relative rounded-lg overflow-hidden">
-                    @php
-                        $featuredImageUrl = !empty($hotel->featured_image) 
-                            ? (str_starts_with($hotel->featured_image, 'http') 
-                                ? $hotel->featured_image 
-                                : asset('storage/' . $hotel->featured_image))
-                            : (isset($allHotelImages[0]) 
-                                ? (str_starts_with($allHotelImages[0], 'http') 
-                                    ? $allHotelImages[0] 
-                                    : asset('storage/' . $allHotelImages[0]))
-                                : '');
-                    @endphp
                     <div 
                         class="w-full h-full cursor-pointer" 
                         @click="openImageViewer('{{ $featuredImageUrl }}', {{ $allHotelImagesJson }}, 0)">
-                        <img src="{{ $featuredImageUrl }}" alt="{{ $hotel->name }}" class="w-full h-full object-cover rounded-lg">
+                        <img src="{{ $featuredImageUrl }}" alt="{{ $hotel->name }}" class="w-full h-full object-cover rounded-lg"
+                             onerror="this.onerror=null; this.src='{{ $defaultPlaceholder }}'">
                         <div class="absolute inset-0 bg-black bg-opacity-10 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
                             <div class="bg-white bg-opacity-80 rounded-full p-4 shadow-lg">
                                 <i class="fas fa-search-plus text-gray-800 text-2xl"></i>
@@ -271,24 +279,30 @@
                 </div>
                 
                 <!-- Galeria de imagens adicionais -->
-                @if(is_array($hotelImages))
-                    @foreach(array_slice($hotelImages, 0, 4) as $index => $image)
-                        @php
-                            $imageUrl = str_starts_with($image, 'http') ? $image : asset('storage/' . $image);
-                        @endphp
-                        <div class="relative rounded-lg overflow-hidden">
-                            <div 
-                                class="w-full h-full cursor-pointer" 
-                                @click="openImageViewer('{{ $imageUrl }}', {{ $allHotelImagesJson }}, {{ $index + 1 }})">
-                                <img src="{{ $imageUrl }}" alt="{{ $hotel->name }} - Imagem {{ $index + 1 }}" class="w-full h-full object-cover rounded-lg">
-                                <div class="absolute inset-0 bg-black bg-opacity-10 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                                    <i class="fas fa-search-plus text-white text-xl"></i>
-                                </div>
+                @foreach(array_slice($allHotelImages, 1, 4) as $index => $imageUrl)
+                    <div class="relative rounded-lg overflow-hidden">
+                        <div 
+                            class="w-full h-full cursor-pointer" 
+                            @click="openImageViewer('{{ $imageUrl }}', {{ $allHotelImagesJson }}, {{ $index + 1 }})">
+                            <img src="{{ $imageUrl }}" alt="{{ $hotel->name }} - Imagem {{ $index + 1 }}" class="w-full h-full object-cover rounded-lg"
+                                 onerror="this.onerror=null; this.src='{{ $defaultPlaceholder }}'">
+                            <div class="absolute inset-0 bg-black bg-opacity-10 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                                <i class="fas fa-search-plus text-white text-xl"></i>
                             </div>
                         </div>
-                    @endforeach
-                @endif
+                    </div>
+                @endforeach
             </div>
+            @else
+            <!-- Placeholder quando não há imagens -->
+            <div class="mt-6 rounded-xl overflow-hidden bg-gradient-to-br from-indigo-500 to-purple-600 h-64 flex flex-col items-center justify-center text-white">
+                <div class="bg-white bg-opacity-20 rounded-full p-6 mb-4">
+                    <i class="fas fa-camera text-4xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold">Sem imagens disponíveis</h3>
+                <p class="text-sm text-white text-opacity-80 mt-1">Este hotel ainda não tem fotografias</p>
+            </div>
+            @endif
             
             <!-- Navegação por tabs -->
             <div class="mt-8 border-b border-gray-200">

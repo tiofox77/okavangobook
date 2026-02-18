@@ -280,69 +280,7 @@
                             </svg>
                         </button>
                         
-                        <div class="relative" x-data="{ showNotifications: false }">
-                            <button @click="showNotifications = !showNotifications" class="relative text-gray-600 dark:text-gray-300 hover:text-admin-primary p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                                </svg>
-                                <span class="notification-badge">3</span>
-                            </button>
-                            
-                            <!-- Dropdown de notificações -->
-                            <div x-show="showNotifications" @click.away="showNotifications = false" 
-                                class="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-lg shadow-lg py-2 z-50 animate__animated animate__fadeIn animate__faster"
-                                x-transition:enter="transition ease-out duration-200"
-                                x-transition:enter-start="opacity-0 transform scale-95"
-                                x-transition:enter-end="opacity-100 transform scale-100"
-                                x-transition:leave="transition ease-in duration-100"
-                                x-transition:leave-start="opacity-100 transform scale-100"
-                                x-transition:leave-end="opacity-0 transform scale-95">
-                                <h3 class="px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-200 border-b dark:border-gray-700">Notificações</h3>
-                                
-                                <div class="max-h-60 overflow-y-auto">
-                                    <!-- Notificação 1 -->
-                                    <a href="#" class="flex items-start px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
-                                        <div class="flex-shrink-0 bg-blue-500 rounded-full p-1">
-                                            <svg class="h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                                <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
-                                            </svg>
-                                        </div>
-                                        <div class="ml-3 w-full">
-                                            <p class="text-sm text-gray-700 dark:text-gray-200">Nova reserva confirmada</p>
-                                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Há 5 minutos</p>
-                                        </div>
-                                    </a>
-                                    
-                                    <!-- Notificação 2 -->
-                                    <a href="#" class="flex items-start px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
-                                        <div class="flex-shrink-0 bg-red-500 rounded-full p-1">
-                                            <svg class="h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-                                            </svg>
-                                        </div>
-                                        <div class="ml-3 w-full">
-                                            <p class="text-sm text-gray-700 dark:text-gray-200">Alerta de estoque baixo</p>
-                                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Há 2 horas</p>
-                                        </div>
-                                    </a>
-                                    
-                                    <!-- Notificação 3 -->
-                                    <a href="#" class="flex items-start px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
-                                        <div class="flex-shrink-0 bg-green-500 rounded-full p-1">
-                                            <svg class="h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                                <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
-                                            </svg>
-                                        </div>
-                                        <div class="ml-3 w-full">
-                                            <p class="text-sm text-gray-700 dark:text-gray-200">Novo pagamento recebido</p>
-                                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Ontem às 18:30</p>
-                                        </div>
-                                    </a>
-                                </div>
-                                
-                                <a href="#" class="block text-center text-sm text-blue-600 dark:text-blue-400 font-semibold py-2 border-t dark:border-gray-700">Ver todas as notificações</a>
-                            </div>
-                        </div>
+                        @livewire('admin.admin-notifications')
                         
                         <span class="border-r border-gray-300 dark:border-gray-600 h-6"></span>
                         
