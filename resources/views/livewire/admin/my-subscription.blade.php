@@ -486,6 +486,21 @@
                                 </div>
                             </div>
                             <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Comprovativo de Transferência *</label>
+                                <div class="relative">
+                                    <input type="file" wire:model="proofFile" accept=".jpg,.jpeg,.png,.pdf"
+                                        class="w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-900/30 dark:file:text-blue-300 border border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer bg-white dark:bg-gray-700">
+                                    <div wire:loading wire:target="proofFile" class="absolute right-3 top-1/2 -translate-y-1/2">
+                                        <i class="fas fa-spinner fa-spin text-blue-500"></i>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-gray-400 mt-1">JPG, PNG ou PDF (máx. 5MB)</p>
+                                @if($proofFile && !$errors->has('proofFile'))
+                                    <p class="text-xs text-green-600 mt-1"><i class="fas fa-check-circle mr-1"></i>{{ $proofFile->getClientOriginalName() }}</p>
+                                @endif
+                                @error('proofFile') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                            </div>
+                            <div>
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notas adicionais (opcional)</label>
                                 <textarea wire:model="userNotes" rows="2" placeholder="Informação adicional..."
                                     class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-blue-500 shadow-sm text-sm"></textarea>

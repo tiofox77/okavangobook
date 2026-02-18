@@ -237,6 +237,7 @@ class User extends Authenticatable
             'account_holder' => $transferData['account_holder'] ?? null,
             'transfer_reference' => $transferData['transfer_reference'] ?? null,
             'transfer_date' => $transferData['transfer_date'] ?? null,
+            'proof_file' => $transferData['proof_file'] ?? null,
             'user_notes' => $transferData['user_notes'] ?? null,
             'expires_at' => now()->addHours(72),
         ]);

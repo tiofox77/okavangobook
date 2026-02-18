@@ -7,9 +7,12 @@ use App\Models\PaymentTransaction;
 use App\Models\Subscription;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 class PricingPage extends Component
 {
+    use WithFileUploads;
+
     public string $billingCycle = 'monthly';
 
     // Step 1: Plan selection confirm
@@ -24,6 +27,7 @@ class PricingPage extends Component
     public string $transferReference = '';
     public ?string $transferDate = null;
     public string $userNotes = '';
+    public $proofFile = null;
 
     // Step 3: Success / pending
     public bool $showSuccessModal = false;
@@ -100,16 +104,26 @@ class PricingPage extends Component
             'accountHolder' => 'required|string|max:150',
             'transferReference' => 'required|string|max:100',
             'transferDate' => 'required|date|before_or_equal:today',
+            'proofFile' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
         ], [
             'bankName.required' => 'O nome do banco é obrigatório.',
             'accountHolder.required' => 'O nome do titular é obrigatório.',
             'transferReference.required' => 'A referência da transferência é obrigatória.',
             'transferDate.required' => 'A data da transferência é obrigatória.',
             'transferDate.before_or_equal' => 'A data não pode ser no futuro.',
+            'proofFile.required' => 'O comprovativo de transferência é obrigatório.',
+            'proofFile.mimes' => 'O ficheiro deve ser JPG, PNG ou PDF.',
+            'proofFile.max' => 'O ficheiro não pode exceder 5MB.',
         ]);
 
         $plan = Plan::findOrFail($this->selectedPlanId);
         $user = Auth::user();
+
+        // Guardar comprovativo na pasta do utilizador
+        $proofPath = null;
+        if ($this->proofFile) {
+            $proofPath = $this->proofFile->store('payment-proofs/user-' . $user->id, 'public');
+        }
 
         $payment = $user->createPaymentRequest($plan, $this->selectedCycle, [
             'payment_method' => 'bank_transfer',
@@ -118,6 +132,7 @@ class PricingPage extends Component
             'transfer_reference' => $this->transferReference,
             'transfer_date' => $this->transferDate,
             'user_notes' => $this->userNotes ?: null,
+            'proof_file' => $proofPath,
         ]);
 
         $this->showTransferModal = false;
@@ -141,6 +156,7 @@ class PricingPage extends Component
         $this->transferReference = '';
         $this->transferDate = null;
         $this->userNotes = '';
+        $this->proofFile = null;
     }
 
     public function render()

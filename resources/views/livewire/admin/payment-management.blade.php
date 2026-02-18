@@ -260,6 +260,37 @@
                     </div>
                     @endif
 
+                    @if($detailPayment->proof_file)
+                    <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+                        <h4 class="text-sm font-bold text-gray-700 dark:text-gray-300 mb-3">
+                            <i class="fas fa-file-image mr-1"></i> Comprovativo de Transferência
+                        </h4>
+                        <div class="bg-gray-50 dark:bg-gray-700/30 rounded-xl p-3">
+                            @php
+                                $ext = pathinfo($detailPayment->proof_file, PATHINFO_EXTENSION);
+                                $isImage = in_array(strtolower($ext), ['jpg', 'jpeg', 'png']);
+                            @endphp
+                            @if($isImage)
+                                <a href="{{ asset('storage/' . $detailPayment->proof_file) }}" target="_blank" class="block">
+                                    <img src="{{ asset('storage/' . $detailPayment->proof_file) }}" alt="Comprovativo" class="max-h-64 rounded-lg mx-auto border border-gray-200 dark:border-gray-600 hover:opacity-90 transition-opacity">
+                                </a>
+                            @else
+                                <a href="{{ asset('storage/' . $detailPayment->proof_file) }}" target="_blank"
+                                    class="flex items-center gap-3 p-3 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                                    <div class="p-2 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600">
+                                        <i class="fas fa-file-pdf text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-gray-800 dark:text-white text-sm">Comprovativo PDF</p>
+                                        <p class="text-xs text-gray-500">Clique para abrir</p>
+                                    </div>
+                                    <i class="fas fa-external-link-alt text-gray-400 ml-auto"></i>
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                    @endif
+
                     @if($detailPayment->user_notes)
                     <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
                         <h4 class="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
