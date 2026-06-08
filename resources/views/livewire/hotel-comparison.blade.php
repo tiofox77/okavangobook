@@ -130,7 +130,7 @@
                             <td class="p-4 font-medium text-gray-700 dark:text-gray-300 sticky left-0 bg-white dark:bg-gray-800"></td>
                             @foreach($hotels as $hotel)
                                 <td class="p-4 text-center">
-                                    <a href="{{ route('hotel.details', $hotel['id']) }}" class="block w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition">
+                                    <a href="{{ route('hotel.details', $hotel['slug']) }}" class="block w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition">
                                         Ver Detalhes
                                     </a>
                                 </td>

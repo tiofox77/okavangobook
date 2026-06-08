@@ -1,3 +1,5 @@
+@section('title', 'Planos e preços — Anuncie a sua propriedade')
+@section('meta_description', 'Conheça os planos KiandaStay para divulgar o seu hotel, resort ou hospedaria em Angola. Escolha o plano ideal para o seu negócio.')
 <div class="min-h-screen bg-gradient-to-b from-gray-50 to-white">
     <!-- Hero Section -->
     <div class="relative overflow-hidden bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-800 text-white">

@@ -1,6 +1,8 @@
 @php
     use Illuminate\Support\Str;
 @endphp
+@section('title', 'Pesquisar hotéis e acomodações em Angola')
+@section('meta_description', 'Compare preços de hotéis, resorts e hospedarias em Angola. Filtre por destino, datas, preço e comodidades e reserve a melhor opção.')
 
 <div class="bg-gray-100 min-h-screen relative">
     <!-- Indicador de carregamento elegante para pesquisa principal -->
@@ -951,7 +953,7 @@
                                         </div>
                                         
                                         <a 
-                                            href="{{ route('hotel.details', ['id' => $hotel->id, 'check_in' => $checkIn, 'check_out' => $checkOut, 'guests' => $guests, 'rooms' => $rooms]) }}" 
+                                            href="{{ route('hotel.details', ['slug' => $hotel->slug, 'check_in' => $checkIn, 'check_out' => $checkOut, 'guests' => $guests, 'rooms' => $rooms]) }}" 
                                             class="inline-flex items-center justify-center bg-primary hover:bg-primary-dark text-white font-medium py-2 px-4 rounded-lg transition-all duration-300 gap-1 hover:gap-2 {{ $viewMode == 'grid' ? 'w-full' : '' }}"
                                         >
                                             <span>Ver detalhes</span>

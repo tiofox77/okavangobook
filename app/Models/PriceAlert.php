@@ -82,7 +82,7 @@ class PriceAlert extends Model
                 'Alerta de Preço Atingido!',
                 "O preço do {$this->hotel->name} baixou para {$currentPrice} Kz",
                 'fas fa-tag',
-                route('hotel.details', $this->hotel_id)
+                route('hotel.details', $this->hotel->slug ?? $this->hotel_id)
             );
 
             if ($this->user && $this->user->email) {

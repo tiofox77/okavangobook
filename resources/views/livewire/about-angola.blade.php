@@ -1,3 +1,5 @@
+@section('title', 'Sobre Angola — Guia de viagem, cultura e turismo')
+@section('meta_description', 'Conheça Angola: história, cultura, gastronomia e os melhores locais para visitar. O seu guia completo para viajar pelas 18 províncias.')
 <div>
     <!-- Hero Section com vídeo/imagem paralax -->
     <div class="relative h-screen overflow-hidden">

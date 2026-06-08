@@ -18,7 +18,7 @@ Olá {{ $alert->user->name }},
 
 Não perca esta oportunidade! Reserve agora e aproveite o melhor preço.
 
-<x-mail::button :url="route('hotel.details', $alert->hotel_id)">
+<x-mail::button :url="route('hotel.details', $alert->hotel->slug ?? $alert->hotel_id)">
 Ver Hotel e Reservar
 </x-mail::button>
 

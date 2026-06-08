@@ -10,7 +10,11 @@
     
     <!-- Tailwind CSS local -->
     <link href="{{ asset('assets/css/tailwind.min.css') }}" rel="stylesheet">
-    
+
+    <!-- Dark mode: overrides globais (antes) + variantes dark: explícitas (depois) -->
+    <link href="{{ asset('assets/css/dark-overrides.css') }}" rel="stylesheet">
+    <link href="{{ asset('assets/css/dark-mode.css') }}" rel="stylesheet">
+
     <!-- Font Awesome via CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     

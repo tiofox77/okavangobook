@@ -7,7 +7,9 @@ use App\Models\Location;
 use App\Models\Price;
 use App\Models\RoomType;
 use App\Models\Setting;
+use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Livewire\Component;
 
 class HomePage extends Component
@@ -433,7 +435,22 @@ class HomePage extends Component
     
     public function render()
     {
-        return view('livewire.home-page')
-            ->layout('layouts.app', ['slot' => 'content']);
+        return view('livewire.home-page', [
+            'stats' => $this->getStats(),
+        ])->layout('layouts.app', ['slot' => 'content']);
+    }
+
+    /**
+     * Estatísticas reais para a secção hero (números honestos = mais confiança).
+     */
+    protected function getStats(): array
+    {
+        return Cache::remember('home.stats', 3600, function () {
+            return [
+                'hotels' => Hotel::where('is_active', true)->count(),
+                'provinces' => Location::whereHas('hotels')->distinct('province')->count('province'),
+                'users' => User::count(),
+            ];
+        });
     }
 }

@@ -4,13 +4,42 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ \App\Models\Setting::get('app_name', config('app.name', 'KiandaStay')) }} - @yield('title', 'Encontre as melhores acomodações em Angola')</title>
-    
-    <!-- Favicon -->
-    <link rel="icon" href="{{ asset('favicon.ico') }}">
-    
+
+    {{-- SEO: meta description, Open Graph, Twitter, canonical, dados estruturados --}}
+    @include('partials.seo')
+
+    <!-- Aplicar modo escuro antes do render para evitar flash (FOUC) -->
+    <script>
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.documentElement.classList.add('dark');
+        }
+        function toggleDarkMode() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('darkMode', isDark);
+        }
+    </script>
+
+    <!-- Favicon & ícones -->
+    <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('assets/img/favicon-32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/img/favicon-16.png') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ asset('assets/img/icon.svg') }}">
+    <link rel="apple-touch-icon" href="{{ asset('assets/img/apple-touch-icon.png') }}">
+
+    <!-- PWA -->
+    <link rel="manifest" href="{{ asset('manifest.webmanifest') }}">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="KiandaStay">
+    <meta name="mobile-web-app-capable" content="yes">
+
     <!-- Tailwind CSS local -->
     <link href="{{ asset('assets/css/tailwind.min.css') }}" rel="stylesheet">
-    
+
+    <!-- Dark mode: overrides globais (antes) + variantes dark: explícitas (depois) -->
+    <link href="{{ asset('assets/css/dark-overrides.css') }}" rel="stylesheet">
+    <link href="{{ asset('assets/css/dark-mode.css') }}" rel="stylesheet">
+
     <!-- Font Awesome via CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -61,7 +90,7 @@
     <!-- Scripts adicionais -->
     @stack('styles')
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col">
+<body class="bg-gray-100 dark:bg-gray-900 dark:text-gray-100 min-h-screen flex flex-col transition-colors duration-300">
     <!-- Header -->
     @include('partials.header')
     
@@ -135,5 +164,16 @@
     
     <!-- Scripts adicionais -->
     @stack('scripts')
+
+    <!-- Registo do Service Worker (PWA) -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').catch((err) => {
+                    console.warn('Falha ao registar o Service Worker:', err);
+                });
+            });
+        }
+    </script>
 </body>
 </html>

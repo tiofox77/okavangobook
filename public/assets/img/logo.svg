@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="80" viewBox="0 0 360 80" fill="none">
+  <defs>
+    <linearGradient id="lbg" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1a5fae"/>
+      <stop offset="1" stop-color="#0d3a6b"/>
+    </linearGradient>
+  </defs>
+  <!-- Marca -->
+  <rect x="8" y="8" width="64" height="64" rx="16" fill="url(#lbg)"/>
+  <path d="M40 20c-9.4 0-17 7.6-17 17 0 11.8 17 25 17 25s17-13.2 17-25c0-9.4-7.6-17-17-17z" fill="#ffffff"/>
+  <path d="M40 29l9.5 8v.5h-3v8.5H33.5V37.5h-3V37l9.5-8z" fill="#134e91"/>
+  <rect x="37.5" y="40" width="5" height="6.5" rx="1" fill="#f59e0b"/>
+  <!-- Wordmark -->
+  <text x="86" y="51" font-family="Montserrat, Arial, sans-serif" font-size="32" font-weight="700">
+    <tspan fill="#134e91">Kianda</tspan><tspan fill="#f59e0b">Stay</tspan>
+  </text>
+</svg>

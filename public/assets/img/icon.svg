@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1a5fae"/>
+      <stop offset="1" stop-color="#0d3a6b"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <!-- Pino de localização -->
+  <path d="M256 96c-70.7 0-128 57.3-128 128 0 89 128 192 128 192s128-103 128-192c0-70.7-57.3-128-128-128z"
+        fill="#ffffff"/>
+  <!-- Telhado/casa dentro do pino (símbolo de estadia) -->
+  <path d="M256 168l72 60v4h-22v66h-100v-66h-22v-4l72-60z" fill="#134e91"/>
+  <rect x="238" y="250" width="36" height="48" rx="4" fill="#f59e0b"/>
+</svg>

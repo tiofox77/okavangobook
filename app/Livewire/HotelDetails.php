@@ -29,18 +29,29 @@ class HotelDetails extends Component
         'rooms' => ['except' => 1],
     ];
     
-    public function mount($id)
+    public function mount($slug)
     {
-        $this->hotelId = $id;
         $this->checkIn = request('check_in', Carbon::now()->format('Y-m-d'));
         $this->checkOut = request('check_out', Carbon::now()->addDay()->format('Y-m-d'));
         $this->guests = request('guests', 2);
         $this->rooms = request('rooms', 1);
-        
+
+        // Backward-compat: se vier um ID numérico, redirecionar para o slug
+        if (is_numeric($slug)) {
+            $hotel = Hotel::find($slug);
+            if ($hotel && $hotel->slug) {
+                return $this->redirectRoute('hotel.details', ['slug' => $hotel->slug], navigate: false);
+            }
+            abort(404);
+        }
+
+        $hotel = Hotel::where('slug', $slug)->firstOrFail();
+        $this->hotelId = $hotel->id;
+
         // Recuperar tab ativa da sessão
-        $sessionKey = "hotel.{$id}.tab";
+        $sessionKey = "hotel.{$this->hotelId}.tab";
         $this->activeTab = session($sessionKey, 'info');
-        
+
         $this->loadHotelData();
     }
     

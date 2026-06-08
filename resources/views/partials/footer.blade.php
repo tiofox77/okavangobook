@@ -1,4 +1,4 @@
-<footer class="bg-gray-800 text-white py-8 mt-auto">
+<footer class="bg-gray-800 dark:bg-gray-950 text-white py-8 mt-auto transition-colors duration-300">
     <div class="container mx-auto px-4">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
             <!-- Coluna 1: Logo e Descrição -->
@@ -7,31 +7,34 @@
                 <p class="text-gray-300 mb-4">
                     Encontre as melhores acomodações em toda Angola com os melhores preços garantidos.
                 </p>
-                <div class="flex space-x-4">
-                    <a href="#" class="text-gray-300 hover:text-white">
-                        <i class="fab fa-facebook-f"></i>
-                    </a>
-                    <a href="#" class="text-gray-300 hover:text-white">
-                        <i class="fab fa-instagram"></i>
-                    </a>
-                    <a href="#" class="text-gray-300 hover:text-white">
-                        <i class="fab fa-twitter"></i>
-                    </a>
-                    <a href="#" class="text-gray-300 hover:text-white">
-                        <i class="fab fa-youtube"></i>
-                    </a>
-                </div>
+                @php
+                    $socials = array_filter([
+                        'facebook-f' => \App\Models\Setting::get('social_facebook', ''),
+                        'instagram'  => \App\Models\Setting::get('social_instagram', ''),
+                        'twitter'    => \App\Models\Setting::get('social_twitter', ''),
+                        'youtube'    => \App\Models\Setting::get('social_youtube', ''),
+                    ]);
+                @endphp
+                @if(count($socials))
+                    <div class="flex space-x-4">
+                        @foreach($socials as $icon => $url)
+                            <a href="{{ $url }}" target="_blank" rel="noopener noreferrer" aria-label="{{ ucfirst(str_replace('-f', '', $icon)) }}" class="text-gray-300 hover:text-white transition-colors">
+                                <i class="fab fa-{{ $icon }}"></i>
+                            </a>
+                        @endforeach
+                    </div>
+                @endif
             </div>
             
             <!-- Coluna 2: Links Úteis -->
             <div>
                 <h3 class="text-lg font-semibold mb-4">Links Úteis</h3>
                 <ul class="space-y-2">
-                    <li><a href="#" class="text-gray-300 hover:text-white">Sobre Nós</a></li>
-                    <li><a href="#" class="text-gray-300 hover:text-white">Destinos Populares</a></li>
-                    <li><a href="#" class="text-gray-300 hover:text-white">Ofertas Especiais</a></li>
-                    <li><a href="#" class="text-gray-300 hover:text-white">Blog de Viagens</a></li>
-                    <li><a href="#" class="text-gray-300 hover:text-white">Guia de Angola</a></li>
+                    <li><a href="{{ route('about.angola') }}" class="text-gray-300 hover:text-white">Sobre Nós</a></li>
+                    <li><a href="{{ route('destinations') }}" class="text-gray-300 hover:text-white">Destinos Populares</a></li>
+                    <li><a href="{{ route('search.results', ['sort' => 'price_asc']) }}" class="text-gray-300 hover:text-white">Ofertas Especiais</a></li>
+                    <li><a href="{{ route('articles') }}" class="text-gray-300 hover:text-white">Blog de Viagens</a></li>
+                    <li><a href="{{ route('about.angola') }}" class="text-gray-300 hover:text-white">Guia de Angola</a></li>
                 </ul>
             </div>
             
@@ -42,7 +45,7 @@
                     <li><a href="#" class="text-gray-300 hover:text-white">FAQ</a></li>
                     <li><a href="#" class="text-gray-300 hover:text-white">Política de Privacidade</a></li>
                     <li><a href="#" class="text-gray-300 hover:text-white">Termos e Condições</a></li>
-                    <li><a href="#" class="text-gray-300 hover:text-white">Contacte-nos</a></li>
+                    <li><a href="{{ route('contact') }}" class="text-gray-300 hover:text-white">Contacte-nos</a></li>
                     <li><a href="#" class="text-gray-300 hover:text-white">Carreiras</a></li>
                 </ul>
             </div>
@@ -79,10 +82,10 @@
             <div class="text-gray-400 mb-4 md:mb-0">
                 &copy; {{ date('Y') }} KiandaStay. Todos os direitos reservados.
             </div>
-            <div class="flex space-x-4">
-                <img src="https://via.placeholder.com/50x30" alt="Visa" class="h-8">
-                <img src="https://via.placeholder.com/50x30" alt="Mastercard" class="h-8">
-                <img src="https://via.placeholder.com/50x30" alt="Multicaixa" class="h-8">
+            <div class="flex space-x-3">
+                <span class="bg-white text-blue-800 text-xs font-bold px-3 py-1.5 rounded shadow-sm">VISA</span>
+                <span class="bg-white text-red-600 text-xs font-bold px-3 py-1.5 rounded shadow-sm">Mastercard</span>
+                <span class="bg-white text-green-700 text-xs font-bold px-3 py-1.5 rounded shadow-sm">Multicaixa</span>
             </div>
         </div>
     </div>

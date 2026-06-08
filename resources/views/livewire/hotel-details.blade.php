@@ -1,4 +1,42 @@
-<div class="bg-gray-100 min-h-screen" x-data="{
+@section('title', $hotel->name . ' — ' . ($hotel->location->name ?? 'Angola'))
+@section('meta_description', \Illuminate\Support\Str::limit(strip_tags($hotel->description) ?: ('Reserve ' . $hotel->name . ' em ' . ($hotel->location->name ?? 'Angola') . '. Veja preços, fotos, comodidades e avaliações.'), 155))
+@section('og_type', 'product')
+@if($hotel->thumbnail)
+    @section('meta_image', \App\Helpers\ImageHelper::getValidImage($hotel->thumbnail, 'hotel'))
+@endif
+@section('structured_data')
+@php
+    $hotelLd = array_filter([
+        '@context' => 'https://schema.org',
+        '@type' => 'Hotel',
+        'name' => $hotel->name,
+        'description' => \Illuminate\Support\Str::limit(strip_tags($hotel->description ?? ''), 300) ?: null,
+        'image' => $hotel->thumbnail ? \App\Helpers\ImageHelper::getValidImage($hotel->thumbnail, 'hotel') : null,
+        'url' => url()->current(),
+        'telephone' => $hotel->phone ?: null,
+        'priceRange' => $hotel->min_price ? ('AKZ ' . number_format($hotel->min_price, 0, ',', '.')) : null,
+        'address' => array_filter([
+            '@type' => 'PostalAddress',
+            'streetAddress' => $hotel->address ?: null,
+            'addressLocality' => $hotel->location->name ?? null,
+            'addressRegion' => $hotel->location->province ?? null,
+            'addressCountry' => 'AO',
+        ]),
+        'starRating' => $hotel->stars ? ['@type' => 'Rating', 'ratingValue' => (string) $hotel->stars] : null,
+        'aggregateRating' => ($hotel->rating && $hotel->reviews_count)
+            ? ['@type' => 'AggregateRating', 'ratingValue' => (string) $hotel->rating, 'reviewCount' => (string) $hotel->reviews_count]
+            : null,
+        'geo' => ($hotel->latitude && $hotel->longitude)
+            ? ['@type' => 'GeoCoordinates', 'latitude' => (string) $hotel->latitude, 'longitude' => (string) $hotel->longitude]
+            : null,
+    ]);
+@endphp
+<script type="application/ld+json">
+{!! json_encode($hotelLd, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+</script>
+@endsection
+
+<div class="bg-gray-100 dark:bg-gray-900 min-h-screen" x-data="{
     showImageViewer: false,
     currentImage: '',
     currentIndex: 0,

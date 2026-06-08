@@ -1,0 +1,48 @@
+{
+    "name": "KiandaStay - Acomodações em Angola",
+    "short_name": "KiandaStay",
+    "description": "Encontre, compare e reserve hotéis, resorts e hospedarias em todas as províncias de Angola.",
+    "start_url": "/?source=pwa",
+    "scope": "/",
+    "display": "standalone",
+    "orientation": "portrait-primary",
+    "background_color": "#ffffff",
+    "theme_color": "#134e91",
+    "lang": "pt",
+    "dir": "ltr",
+    "categories": ["travel", "lifestyle", "business"],
+    "icons": [
+        {
+            "src": "/assets/img/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/assets/img/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/assets/img/icon-maskable-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "Pesquisar hotéis",
+            "short_name": "Pesquisar",
+            "url": "/search",
+            "icons": [{ "src": "/assets/img/icon-192.png", "sizes": "192x192" }]
+        },
+        {
+            "name": "Destinos",
+            "short_name": "Destinos",
+            "url": "/destinations",
+            "icons": [{ "src": "/assets/img/icon-192.png", "sizes": "192x192" }]
+        }
+    ]
+}

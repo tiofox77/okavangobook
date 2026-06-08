@@ -1,3 +1,5 @@
+@section('title', 'Blog & Guias de Viagem em Angola')
+@section('meta_description', 'Dicas, guias e roteiros para explorar Angola. Leia os nossos artigos sobre destinos, gastronomia e cultura angolana.')
 <div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
     <div class="max-w-7xl mx-auto px-4">
         <div class="mb-8">

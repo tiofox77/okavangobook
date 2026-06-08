@@ -40,6 +40,9 @@ class DatabaseSeeder extends Seeder
             
             // Por último os preços
             PriceSeeder::class,
+
+            // Hotéis reais de Angola — todas as 18 províncias
+            AngolaHotelsSeeder::class,
         ]);
     }
 }

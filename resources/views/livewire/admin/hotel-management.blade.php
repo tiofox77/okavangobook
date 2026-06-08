@@ -149,7 +149,7 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <div class="flex justify-end space-x-2">
-                                            <a href="{{ route('hotel.details', $hotel->id) }}" target="_blank" class="text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-300 transition-colors duration-150" title="Ver na Página Pública">
+                                            <a href="{{ route('hotel.details', $hotel->slug) }}" target="_blank" class="text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-300 transition-colors duration-150" title="Ver na Página Pública">
                                                 <i class="fas fa-external-link-alt"></i>
                                             </a>
                                             <button wire:click="view({{ $hotel->id }})" class="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300 transition-colors duration-150" title="Visualizar">

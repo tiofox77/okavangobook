@@ -8,10 +8,43 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class Hotel extends Model
 {
     use HasFactory;
+
+    /**
+     * Garante que todo hotel tenha um slug único.
+     * Protege as rotas /hotel/{slug} contra slugs nulos vindos de
+     * seeders, factories ou criação programática.
+     */
+    protected static function booted(): void
+    {
+        static::saving(function (Hotel $hotel) {
+            if (empty($hotel->slug) && !empty($hotel->name)) {
+                $hotel->slug = static::generateUniqueSlug($hotel->name, $hotel->id);
+            }
+        });
+    }
+
+    /**
+     * Gera um slug único a partir de um texto base, evitando colisões.
+     */
+    public static function generateUniqueSlug(string $base, $ignoreId = null): string
+    {
+        $slug = Str::slug($base) ?: 'hotel';
+        $original = $slug;
+        $suffix = 2;
+
+        while (static::where('slug', $slug)
+            ->when($ignoreId, fn ($q) => $q->where('id', '!=', $ignoreId))
+            ->exists()) {
+            $slug = $original . '-' . $suffix++;
+        }
+
+        return $slug;
+    }
     
     /**
      * Os atributos que são atribuíveis em massa.

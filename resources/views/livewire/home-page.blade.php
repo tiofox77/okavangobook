@@ -18,7 +18,7 @@
                     <span class="block mt-2 text-3xl md:text-5xl">Como Nunca Antes</span>
                 </h1>
                 <p class="text-xl text-white/90 mb-10 text-center max-w-3xl mx-auto font-light">
-                    Descubra experiências únicas em 2025 com nossa tecnologia de reservas inteligente
+                    Descubra experiências únicas em {{ date('Y') }} com nossa tecnologia de reservas inteligente
                 </p>
             </div>
             
@@ -29,16 +29,16 @@
                 <!-- Estatísticas animadas abaixo do formulário -->
                 <div class="flex flex-wrap justify-center mt-6 gap-8 text-center text-white">
                     <div class="stat-item">
-                        <span class="block text-2xl font-bold">2500+</span>
+                        <span class="block text-2xl font-bold">{{ number_format($stats['hotels'], 0, ',', '.') }}+</span>
                         <span class="text-sm opacity-80">Hotéis</span>
                     </div>
                     <div class="stat-item">
-                        <span class="block text-2xl font-bold">18</span>
+                        <span class="block text-2xl font-bold">{{ $stats['provinces'] }}</span>
                         <span class="text-sm opacity-80">Províncias</span>
                     </div>
                     <div class="stat-item">
-                        <span class="block text-2xl font-bold">180k+</span>
-                        <span class="text-sm opacity-80">Usuários</span>
+                        <span class="block text-2xl font-bold">{{ number_format($stats['users'], 0, ',', '.') }}+</span>
+                        <span class="text-sm opacity-80">Utilizadores</span>
                     </div>
                 </div>
             </div>
@@ -247,7 +247,7 @@
                     <div class="w-24 h-1.5 bg-gradient-to-r from-primary to-blue-500 mx-auto mt-5 rounded-full"></div>
                 </h2>
                 <p class="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto text-lg font-normal leading-relaxed">
-                    Descubra a beleza e cultura das 18 províncias de Angola em 2025
+                    Descubra a beleza e cultura das 18 províncias de Angola em {{ date('Y') }}
                 </p>
             </div>
             
@@ -348,7 +348,7 @@
         
         <div class="container mx-auto px-4 relative z-10">
             <div class="text-center mb-20">
-                <span class="inline-block px-4 py-1 rounded-full bg-primary/10 text-primary dark:bg-primary/20 text-sm font-medium mb-4">Tecnologia de 2025</span>
+                <span class="inline-block px-4 py-1 rounded-full bg-primary/10 text-primary dark:bg-primary/20 text-sm font-medium mb-4">Tecnologia de {{ date('Y') }}</span>
                 <h2 class="text-4xl md:text-5xl font-extrabold mb-6">Por que escolher o <span class="text-primary">KiandaStay</span></h2>
                 <p class="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">Nosso sistema utiliza tecnologia de ponta com inteligência artificial para proporcionar a melhor experiência de reserva</p>
             </div>
@@ -549,7 +549,7 @@
                         'linear-gradient(135deg, #92400e 0%, #b45309 100%)',
                     ];
                 @endphp
-                <a href="{{ route('hotel.details', $resort['id']) }}" 
+                <a href="{{ route('hotel.details', $resort['slug']) }}" 
                    class="group rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2" style="background: #ffffff;">
                     <!-- Image area with gradient fallback -->
                     <div class="relative h-48 overflow-hidden">
@@ -630,7 +630,7 @@
                         'linear-gradient(135deg, #064e3b 0%, #047857 100%)',
                     ];
                 @endphp
-                <a href="{{ route('hotel.details', $hospedaria['id']) }}" 
+                <a href="{{ route('hotel.details', $hospedaria['slug']) }}" 
                    class="group rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2" style="background: #ffffff;">
                     <!-- Image area with gradient fallback -->
                     <div class="relative h-48 overflow-hidden">
@@ -819,7 +819,7 @@
                         <!-- Botão de ação com efeito de brilho -->
                         <div class="relative group/button mt-4">
                             <div class="absolute -inset-0.5 rounded-xl opacity-75 group-hover/button:opacity-100 blur transition duration-500 group-hover/button:duration-200 animate-tilt {{ str_contains($offerButtonClass, 'text-white') ? 'from-blue-500 to-blue-700' : 'from-yellow-400 to-yellow-600' }}"></div>
-                            <a href="{{ route('hotel.details', ['id' => $offer['id']]) }}" 
+                            <a href="{{ route('hotel.details', $offer['slug']) }}" 
                                class="relative w-full py-3 px-6 flex items-center justify-between {{ $offerButtonClass }} rounded-xl font-bold hover:shadow-xl hover:shadow-primary/30 transition-all duration-300 transform group-hover/button:-translate-y-0.5">
                                 <span>Reservar Agora</span>
                                 <i class="fas fa-arrow-right ml-2 transition-transform group-hover/button:translate-x-1 group-hover/button:scale-110"></i>

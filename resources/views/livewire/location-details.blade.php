@@ -183,7 +183,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     @foreach($hotels as $hotel)
                         <div class="group bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 animate-fade-in-up" style="animation-delay: {{ $loop->iteration * 100 + 300 }}ms">
-                            <a href="{{ route('hotel.details', ['id' => $hotel->id]) }}" class="block">
+                            <a href="{{ route('hotel.details', $hotel->slug) }}" class="block">
                                 <div class="relative h-48 overflow-hidden">
                                     <img 
                                         src="{{ filter_var($hotel->featured_image, FILTER_VALIDATE_URL) ? $hotel->featured_image : $imageHelper::getValidImage($hotel->featured_image, 'hotel') }}" 

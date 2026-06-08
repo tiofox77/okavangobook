@@ -16,15 +16,22 @@ use Illuminate\Support\Facades\Route;
 // Rota principal - Página inicial
 Route::get('/', App\Livewire\HomePage::class)->name('home');
 
+// SEO - Sitemap dinâmico
+Route::get('/sitemap.xml', [App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
+
 // Rotas principais
 Route::get('/search', App\Livewire\SearchResults::class)->name('search.results');
-Route::get('/hotel/{id}', App\Livewire\HotelDetails::class)->name('hotel.details');
+Route::get('/hotel/{slug}', App\Livewire\HotelDetails::class)->name('hotel.details');
 Route::get('/compare', App\Livewire\HotelComparison::class)->name('hotels.compare');
 Route::get('/destinations', App\Livewire\Destinations::class)->name('destinations');
 Route::get('/destination/{province}', App\Livewire\LocationDetails::class)->name('location.details');
 Route::get('/about-angola', App\Livewire\AboutAngola::class)->name('about.angola');
 Route::get('/contact', App\Livewire\Contact::class)->name('contact');
 Route::get('/pricing', App\Livewire\PricingPage::class)->name('pricing');
+
+// Artigos / Blog (público)
+Route::get('/articles', App\Livewire\ArticlesList::class)->name('articles');
+Route::get('/articles/{slug}', App\Livewire\ArticleDetails::class)->name('article.details');
 
 // Sistema de Reservas - Público (não requer login)
 Route::get('/booking/create', App\Livewire\BookingCreate::class)->name('booking.create');

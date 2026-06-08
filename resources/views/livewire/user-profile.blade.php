@@ -63,7 +63,7 @@
                                         <i class="fas fa-star {{ $i <= $hotel->stars ? '' : 'opacity-30' }}"></i>
                                     @endfor
                                 </div>
-                                <a href="{{ route('hotel.details', $hotel->id) }}" class="text-blue-600 hover:text-blue-700 font-medium">
+                                <a href="{{ route('hotel.details', $hotel->slug) }}" class="text-blue-600 hover:text-blue-700 font-medium">
                                     Ver Detalhes <i class="fas fa-arrow-right ml-1"></i>
                                 </a>
                             </div>

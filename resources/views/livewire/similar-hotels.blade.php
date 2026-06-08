@@ -9,7 +9,7 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 @foreach($similarHotels as $hotel)
-                    <a href="{{ route('hotel.details', $hotel->id) }}" class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-xl transition">
+                    <a href="{{ route('hotel.details', $hotel->slug) }}" class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-xl transition">
                         <div class="relative">
                             @php
                                 $thumbUrl = \App\Helpers\ImageHelper::getValidImage($hotel->thumbnail ?? $hotel->featured_image, 'hotel');

@@ -1,3 +1,5 @@
+@section('title', 'Destinos em Angola — 18 províncias para explorar')
+@section('meta_description', 'Descubra os melhores destinos turísticos de Angola: Luanda, Benguela, Lubango, Namibe e mais. Encontre hotéis e acomodações em cada província.')
 <div>
     <div class="bg-gradient-to-b from-blue-50 to-white min-h-screen">
         <!-- Hero Section -->

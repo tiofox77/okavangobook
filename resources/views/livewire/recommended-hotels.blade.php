@@ -14,7 +14,7 @@
     @if($hotels->count() > 0)
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             @foreach($hotels as $hotel)
-                <a href="{{ route('hotel.details', $hotel->id) }}" class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-xl transition transform hover:-translate-y-1">
+                <a href="{{ route('hotel.details', $hotel->slug) }}" class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-xl transition transform hover:-translate-y-1">
                     <div class="relative">
                         @php
                             $thumbUrl = \App\Helpers\ImageHelper::getValidImage($hotel->thumbnail ?? $hotel->featured_image, 'hotel');

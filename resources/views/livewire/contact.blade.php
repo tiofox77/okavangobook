@@ -1,3 +1,5 @@
+@section('title', 'Contacto — Fale connosco')
+@section('meta_description', 'Entre em contacto com a equipa KiandaStay. Tire dúvidas sobre reservas, hotéis e parcerias em Angola.')
 <div>
     <!-- Hero Section -->
     <div class="relative bg-primary/90 overflow-hidden py-20">
