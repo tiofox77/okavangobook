@@ -1,11 +1,11 @@
 User-agent: *
 Disallow: /admin
-Disallow: /dashboard
-Disallow: /my-bookings
-Disallow: /profile
-Disallow: /price-alerts
-Disallow: /booking/confirm
-Disallow: /booking/success
+Disallow: /conta
+Disallow: /minhas-reservas
+Disallow: /perfil
+Disallow: /alertas-preco
+Disallow: /reserva/confirmar
+Disallow: /reserva/sucesso
 Allow: /
 
 Sitemap: https://kiandastay.vip/sitemap.xml

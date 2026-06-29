@@ -312,7 +312,7 @@
                         </div>
                         
                         <!-- Botão de explorar estilizado -->
-                        <a href="/search?location={{ urlencode($destination['name']) }}" 
+                        <a href="{{ route('search.results', ['location' => $destination['name']]) }}"
                            class="mt-2 w-full py-3 flex items-center justify-center {{ $buttonClass }} font-semibold hover:shadow-lg hover:shadow-primary/40 transition-all duration-300 transform group-hover:scale-[1.02] hover:brightness-110 rounded-xl">
                             <span>Explorar {{ $destination['name'] }}</span>
                             <i class="fas fa-arrow-right ml-2 transition-transform group-hover:translate-x-1"></i>
@@ -329,7 +329,7 @@
             </div>
             
             <div class="text-center mt-16">
-                <a href="/search" class="inline-flex items-center px-8 py-4 rounded-full bg-gradient-to-r from-blue-600 to-blue-800 text-white font-semibold hover:shadow-lg hover:shadow-blue-500/40 transition-all duration-300 transform hover:scale-105 hover:brightness-110">
+                <a href="{{ route('destinations') }}" class="inline-flex items-center px-8 py-4 rounded-full bg-gradient-to-r from-blue-600 to-blue-800 text-white font-semibold hover:shadow-lg hover:shadow-blue-500/40 transition-all duration-300 transform hover:scale-105 hover:brightness-110">
                     <span>Ver Todos os Destinos</span>
                     <i class="fas fa-compass ml-2"></i>
                 </a>

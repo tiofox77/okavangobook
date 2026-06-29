@@ -19,30 +19,30 @@ Route::get('/', App\Livewire\HomePage::class)->name('home');
 // SEO - Sitemap dinâmico
 Route::get('/sitemap.xml', [App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
 
-// Rotas principais
-Route::get('/search', App\Livewire\SearchResults::class)->name('search.results');
+// Rotas principais (URLs em português; nomes mantidos para compatibilidade)
+Route::get('/pesquisa', App\Livewire\SearchResults::class)->name('search.results');
 Route::get('/hotel/{slug}', App\Livewire\HotelDetails::class)->name('hotel.details');
-Route::get('/compare', App\Livewire\HotelComparison::class)->name('hotels.compare');
-Route::get('/destinations', App\Livewire\Destinations::class)->name('destinations');
-Route::get('/destination/{province}', App\Livewire\LocationDetails::class)->name('location.details');
-Route::get('/about-angola', App\Livewire\AboutAngola::class)->name('about.angola');
-Route::get('/contact', App\Livewire\Contact::class)->name('contact');
-Route::get('/pricing', App\Livewire\PricingPage::class)->name('pricing');
+Route::get('/comparar', App\Livewire\HotelComparison::class)->name('hotels.compare');
+Route::get('/destinos', App\Livewire\Destinations::class)->name('destinations');
+Route::get('/destino/{province}', App\Livewire\LocationDetails::class)->name('location.details');
+Route::get('/sobre-angola', App\Livewire\AboutAngola::class)->name('about.angola');
+Route::get('/contacto', App\Livewire\Contact::class)->name('contact');
+Route::get('/planos', App\Livewire\PricingPage::class)->name('pricing');
 
 // Artigos / Blog (público)
-Route::get('/articles', App\Livewire\ArticlesList::class)->name('articles');
-Route::get('/articles/{slug}', App\Livewire\ArticleDetails::class)->name('article.details');
+Route::get('/blog', App\Livewire\ArticlesList::class)->name('articles');
+Route::get('/blog/{slug}', App\Livewire\ArticleDetails::class)->name('article.details');
 
 // Sistema de Reservas - Público (não requer login)
-Route::get('/booking/create', App\Livewire\BookingCreate::class)->name('booking.create');
-Route::get('/booking/confirm/{booking}', App\Livewire\BookingConfirm::class)->name('booking.confirm');
-Route::get('/booking/success/{booking}', App\Livewire\BookingSuccess::class)->name('booking.success');
+Route::get('/reserva/criar', App\Livewire\BookingCreate::class)->name('booking.create');
+Route::get('/reserva/confirmar/{booking}', App\Livewire\BookingConfirm::class)->name('booking.confirm');
+Route::get('/reserva/sucesso/{booking}', App\Livewire\BookingSuccess::class)->name('booking.success');
 
 // Sistema de Reservas - Utilizador Logado
 Route::middleware(['auth'])->group(function () {
-    Route::get('/my-bookings', App\Livewire\MyBookings::class)->name('my.bookings');
-    Route::get('/booking/{booking}', App\Livewire\BookingDetails::class)->name('booking.details');
-    Route::get('/profile', App\Livewire\UserProfile::class)->name('profile');
+    Route::get('/minhas-reservas', App\Livewire\MyBookings::class)->name('my.bookings');
+    Route::get('/reserva/{booking}', App\Livewire\BookingDetails::class)->name('booking.details');
+    Route::get('/perfil', App\Livewire\UserProfile::class)->name('profile');
 });
 
 // Rotas de autenticação
@@ -50,9 +50,28 @@ Auth::routes();
 
 // Dashboard do utilizador normal
 Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard', App\Livewire\Dashboard::class)->name('dashboard');
-    Route::get('/price-alerts', App\Livewire\PriceAlerts::class)->name('price-alerts');
+    Route::get('/conta', App\Livewire\Dashboard::class)->name('dashboard');
+    Route::get('/alertas-preco', App\Livewire\PriceAlerts::class)->name('price-alerts');
 });
+
+// Redirects 301 das URLs antigas (EN) para as novas (PT) — preserva SEO/links
+Route::permanentRedirect('/search', '/pesquisa');
+Route::permanentRedirect('/compare', '/comparar');
+Route::permanentRedirect('/destinations', '/destinos');
+Route::permanentRedirect('/destination/{province}', '/destino/{province}');
+Route::permanentRedirect('/about-angola', '/sobre-angola');
+Route::permanentRedirect('/contact', '/contacto');
+Route::permanentRedirect('/pricing', '/planos');
+Route::permanentRedirect('/articles', '/blog');
+Route::permanentRedirect('/articles/{slug}', '/blog/{slug}');
+Route::permanentRedirect('/booking/create', '/reserva/criar');
+Route::permanentRedirect('/booking/confirm/{booking}', '/reserva/confirmar/{booking}');
+Route::permanentRedirect('/booking/success/{booking}', '/reserva/sucesso/{booking}');
+Route::permanentRedirect('/booking/{booking}', '/reserva/{booking}');
+Route::permanentRedirect('/my-bookings', '/minhas-reservas');
+Route::permanentRedirect('/profile', '/perfil');
+Route::permanentRedirect('/dashboard', '/conta');
+Route::permanentRedirect('/price-alerts', '/alertas-preco');
 
 // Rotas do painel de administração - Admin e Propriedade
 Route::middleware(['auth', 'role:Admin|Propriedade'])->prefix('admin')->group(function () {
