@@ -113,17 +113,6 @@
     
     @livewireScripts
     
-    <!-- Scripts para garantir compatibilidade com Livewire v3 -->
-    <script>
-        // Livewire v3 usa livewire:init em vez de livewire:load
-        document.addEventListener('livewire:init', () => {
-            // Verificar se o Livewire está carregado corretamente
-            console.log('Livewire v3 carregado com sucesso');
-            
-            // Regra importante: Com Livewire v3, usamos dispatch em vez de emit para eventos
-        });
-    </script>
-    
     <!-- jQuery local -->
     <script src="{{ asset('assets/js/jquery.min.js') }}"></script>
     

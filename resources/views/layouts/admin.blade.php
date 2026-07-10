@@ -459,11 +459,6 @@
             
             // Menu dropdown das configurações é gerido por Alpine.js no sidebar
         });
-        
-        // Livewire v3 usa livewire:init em vez de livewire:load
-        document.addEventListener('livewire:init', () => {
-            console.log('Livewire v3 carregado com sucesso no painel admin');
-        });
     </script>
     
     <!-- Scripts adicionais -->
