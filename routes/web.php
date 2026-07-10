@@ -33,6 +33,11 @@ Route::get('/planos', App\Livewire\PricingPage::class)->name('pricing');
 Route::get('/blog', App\Livewire\ArticlesList::class)->name('articles');
 Route::get('/blog/{slug}', App\Livewire\ArticleDetails::class)->name('article.details');
 
+// Páginas institucionais (estáticas)
+Route::view('/privacidade', 'pages.privacy')->name('privacy');
+Route::view('/termos', 'pages.terms')->name('terms');
+Route::view('/faq', 'pages.faq')->name('faq');
+
 // Sistema de Reservas - Público (não requer login)
 Route::get('/reserva/criar', App\Livewire\BookingCreate::class)->name('booking.create');
 Route::get('/reserva/confirmar/{booking}', App\Livewire\BookingConfirm::class)->name('booking.confirm');

@@ -42,11 +42,10 @@
             <div>
                 <h3 class="text-lg font-semibold mb-4">Suporte</h3>
                 <ul class="space-y-2">
-                    <li><a href="#" class="text-gray-300 hover:text-white">FAQ</a></li>
-                    <li><a href="#" class="text-gray-300 hover:text-white">Política de Privacidade</a></li>
-                    <li><a href="#" class="text-gray-300 hover:text-white">Termos e Condições</a></li>
+                    <li><a href="{{ route('faq') }}" class="text-gray-300 hover:text-white">FAQ</a></li>
+                    <li><a href="{{ route('privacy') }}" class="text-gray-300 hover:text-white">Política de Privacidade</a></li>
+                    <li><a href="{{ route('terms') }}" class="text-gray-300 hover:text-white">Termos e Condições</a></li>
                     <li><a href="{{ route('contact') }}" class="text-gray-300 hover:text-white">Contacte-nos</a></li>
-                    <li><a href="#" class="text-gray-300 hover:text-white">Carreiras</a></li>
                 </ul>
             </div>
             

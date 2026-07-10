@@ -79,10 +79,12 @@
         .text-secondary {
             color: #f59e0b;
         }
-        
+
         .bg-secondary {
             background-color: #f59e0b;
         }
+
+        [x-cloak] { display: none !important; }
     </style>
     
     @livewireStyles

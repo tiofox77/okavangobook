@@ -26,6 +26,9 @@ class SitemapController extends Controller
                 ['contact', 'monthly', '0.5'],
                 ['pricing', 'monthly', '0.6'],
                 ['articles', 'weekly', '0.7'],
+                ['faq', 'monthly', '0.4'],
+                ['privacy', 'yearly', '0.3'],
+                ['terms', 'yearly', '0.3'],
             ];
             foreach ($static as [$route, $freq, $priority]) {
                 $urls[] = $this->url(route($route), null, $freq, $priority);

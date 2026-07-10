@@ -62,7 +62,7 @@
 
         @if($notifications->count() > 0)
             <div class="p-3 text-center border-t border-gray-200 dark:border-gray-700">
-                <a href="#" class="text-sm text-blue-600 hover:text-blue-800">
+                <a href="{{ route('dashboard') }}" class="text-sm text-blue-600 hover:text-blue-800">
                     Ver todas as notificações
                 </a>
             </div>

@@ -162,20 +162,24 @@
                 </div>
                 
                 <!-- Redes Sociais -->
-                <div class="flex justify-center space-x-4">
-                    <a href="#" class="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition transform hover:scale-110">
-                        <i class="fab fa-facebook-f"></i>
-                    </a>
-                    <a href="#" class="w-12 h-12 bg-blue-400 text-white rounded-full flex items-center justify-center hover:bg-blue-500 transition transform hover:scale-110">
-                        <i class="fab fa-twitter"></i>
-                    </a>
-                    <a href="#" class="w-12 h-12 bg-pink-600 text-white rounded-full flex items-center justify-center hover:bg-pink-700 transition transform hover:scale-110">
-                        <i class="fab fa-instagram"></i>
-                    </a>
-                    <a href="#" class="w-12 h-12 bg-red-600 text-white rounded-full flex items-center justify-center hover:bg-red-700 transition transform hover:scale-110">
-                        <i class="fab fa-youtube"></i>
-                    </a>
-                </div>
+                @php
+                    $contactSocials = [
+                        ['facebook-f', \App\Models\Setting::get('social_facebook', ''), 'bg-blue-600 hover:bg-blue-700'],
+                        ['twitter', \App\Models\Setting::get('social_twitter', ''), 'bg-blue-400 hover:bg-blue-500'],
+                        ['instagram', \App\Models\Setting::get('social_instagram', ''), 'bg-pink-600 hover:bg-pink-700'],
+                        ['youtube', \App\Models\Setting::get('social_youtube', ''), 'bg-red-600 hover:bg-red-700'],
+                    ];
+                    $contactSocials = array_filter($contactSocials, fn ($s) => !empty($s[1]));
+                @endphp
+                @if(count($contactSocials))
+                    <div class="flex justify-center space-x-4">
+                        @foreach($contactSocials as [$icon, $url, $classes])
+                            <a href="{{ $url }}" target="_blank" rel="noopener noreferrer" aria-label="{{ ucfirst(str_replace('-f', '', $icon)) }}" class="w-12 h-12 {{ $classes }} text-white rounded-full flex items-center justify-center transition transform hover:scale-110">
+                                <i class="fab fa-{{ $icon }}"></i>
+                            </a>
+                        @endforeach
+                    </div>
+                @endif
             </div>
         </div>
     </div>

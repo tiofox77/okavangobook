@@ -33,22 +33,6 @@ class HomePage extends Component
         return number_format($price, 0, ',', '.');
     }
     
-    // Método para calcular média de avaliações
-    public function calculateAverageRating($hotelId)
-    {
-        // Na versão 1.0, vamos simplesmente retornar uma classificação aleatória entre 4 e 5
-        // Em versões futuras, isso será calculado com base nas avaliações reais dos usuários
-        return rand(40, 50) / 10;
-    }
-    
-    // Método para calcular número de avaliações
-    public function calculateReviewsCount($hotelId)
-    {
-        // Na versão 1.0, vamos simplesmente retornar um número aleatório entre 10 e 200
-        // Em versões futuras, isso será calculado com base nas avaliações reais dos usuários
-        return rand(10, 200);
-    }
-    
     // Buscar destinos populares do banco de dados
     public function loadPopularDestinations()
     {
@@ -136,7 +120,7 @@ class HomePage extends Component
                         'name' => $hotel->name,
                         'location' => $hotelLocation,
                         'rating' => $hotel->stars ?? rand(3, 5),
-                        'reviews' => $this->calculateReviewsCount($hotel->id),
+                        'reviews' => $hotel->reviews_count ?? 0,
                         'original_price' => $basePrice,
                         'discount_price' => $discountPrice,
                         'discount_percentage' => $discountPercentage,
@@ -161,7 +145,7 @@ class HomePage extends Component
                     'name' => $hotel->name,
                     'location' => $hotelLocation,
                     'rating' => $hotel->stars ?? rand(3, 5),
-                    'reviews' => $this->calculateReviewsCount($hotel->id),
+                    'reviews' => $hotel->reviews_count ?? 0,
                     'original_price' => $price->original_price ?? $price->price * 1.2,
                     'discount_price' => $price->price,
                     'discount_percentage' => $price->discount_percentage ?? 20,

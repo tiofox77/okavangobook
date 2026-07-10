@@ -228,7 +228,7 @@
                     <a href="{{ route('search.results', ['selectedProvince' => $province]) }}" class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition">
                         Encontrar Hotéis
                     </a>
-                    <a href="#" class="px-6 py-3 bg-white text-primary border border-primary rounded-lg hover:bg-primary/5 transition">
+                    <a href="{{ route('about.angola') }}" class="px-6 py-3 bg-white text-primary border border-primary rounded-lg hover:bg-primary/5 transition">
                         Guia de Viagem
                     </a>
                 </div>

@@ -45,7 +45,7 @@
                                 </svg>
                             </div>
                             <p class="text-sm text-gray-600 mb-4">Actualize as suas informações pessoais e preferências</p>
-                            <a href="#" class="inline-block px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors text-sm">Editar Perfil</a>
+                            <a href="{{ route('profile') }}" class="inline-block px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors text-sm">Editar Perfil</a>
                         </div>
                     </div>
                 </div>
