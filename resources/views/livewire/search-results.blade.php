@@ -604,6 +604,38 @@
                         @endfor
                     </div>
                 </div>
+
+                <!-- Hotéis perto de si (via GPS) -->
+                @if(!empty($nearbyHotels))
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 mb-6">
+                        <h2 class="font-bold text-lg text-gray-800 dark:text-white mb-3 flex items-center">
+                            <i class="fas fa-location-crosshairs text-primary mr-2"></i> Hotéis perto de si
+                        </h2>
+                        <div class="flex gap-4 overflow-x-auto pb-2 -mx-1 px-1">
+                            @foreach($nearbyHotels as $nh)
+                                <a href="{{ route('hotel.details', $nh['slug']) }}" class="flex-shrink-0 w-56 bg-gray-50 dark:bg-gray-700 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition group">
+                                    <div class="relative h-28 overflow-hidden">
+                                        <img src="{{ $nh['image'] }}" alt="{{ $nh['name'] }}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                                        <span class="absolute top-2 right-2 bg-primary text-white text-xs font-semibold px-2 py-0.5 rounded-full shadow">
+                                            <i class="fas fa-map-marker-alt mr-1"></i>{{ $nh['distance'] }} km
+                                        </span>
+                                    </div>
+                                    <div class="p-3">
+                                        <h3 class="text-sm font-bold text-gray-800 dark:text-white truncate">{{ $nh['name'] }}</h3>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ $nh['location'] }}{{ $nh['province'] ? ', ' . $nh['province'] : '' }}</p>
+                                        <div class="flex items-center justify-between mt-1">
+                                            <span class="text-xs text-amber-500">{!! str_repeat('<i class="fas fa-star"></i>', (int) $nh['stars']) !!}</span>
+                                            @if($nh['rating'])
+                                                <span class="text-xs font-bold text-primary">{{ number_format($nh['rating'], 1) }}/10</span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </a>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
                 <!-- Ordenação -->
                 <div class="bg-white rounded-lg shadow-md p-4 mb-6">
                     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
@@ -978,3 +1010,18 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+    document.addEventListener('livewire:initialized', () => {
+        if (!('geolocation' in navigator)) return;
+        navigator.geolocation.getCurrentPosition(
+            function (pos) {
+                @this.call('setUserLocation', pos.coords.latitude, pos.coords.longitude);
+            },
+            function () { /* sem GPS: mantém a listagem normal */ },
+            { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 }
+        );
+    });
+</script>
+@endpush

@@ -35,6 +35,11 @@ class SearchResults extends Component
     public $popularDestinations = [];
     public $provinces = [];
     public $provinceCounts = [];
+
+    // Geolocalização (hotéis próximos)
+    public $userLatitude = null;
+    public $userLongitude = null;
+    public $nearbyHotels = [];
     
     protected $queryString = [
         'location' => ['except' => ''],
@@ -602,5 +607,63 @@ class SearchResults extends Component
             $val = json_decode($val, true);
         }
         return is_array($val) ? $val : [];
+    }
+
+    /**
+     * Chamado pelo JS quando o GPS devolve coordenadas.
+     */
+    public function setUserLocation($latitude, $longitude)
+    {
+        $this->userLatitude = (float) $latitude;
+        $this->userLongitude = (float) $longitude;
+        $this->loadNearbyHotels($this->userLatitude, $this->userLongitude);
+    }
+
+    /**
+     * Carrega os hotéis mais próximos da localização do utilizador (Haversine).
+     */
+    protected function loadNearbyHotels($latitude, $longitude, $radiusKm = 50)
+    {
+        $this->nearbyHotels = Hotel::where('is_active', true)
+            ->whereNotNull('latitude')
+            ->whereNotNull('longitude')
+            ->with('location')
+            ->get()
+            ->map(function ($hotel) use ($latitude, $longitude) {
+                $hotel->distance = $this->calculateDistance(
+                    $latitude, $longitude,
+                    (float) $hotel->latitude, (float) $hotel->longitude
+                );
+                return $hotel;
+            })
+            ->filter(fn ($hotel) => $hotel->distance <= $radiusKm)
+            ->sortBy('distance')
+            ->take(6)
+            ->map(function ($hotel) {
+                return [
+                    'name' => $hotel->name,
+                    'location' => $hotel->location->name ?? 'Angola',
+                    'province' => $hotel->location->province ?? '',
+                    'image' => \App\Helpers\ImageHelper::getValidImage($hotel->thumbnail, 'hotel'),
+                    'rating' => $hotel->rating > 0 ? round($hotel->rating * 2, 1) : null,
+                    'stars' => $hotel->stars,
+                    'distance' => round($hotel->distance, 1),
+                    'slug' => $hotel->slug ?? \Illuminate\Support\Str::slug($hotel->name),
+                ];
+            })
+            ->values()
+            ->toArray();
+    }
+
+    /**
+     * Distância entre dois pontos (km) — fórmula de Haversine.
+     */
+    protected function calculateDistance($lat1, $lon1, $lat2, $lon2)
+    {
+        $earthRadius = 6371;
+        $dLat = deg2rad($lat2 - $lat1);
+        $dLon = deg2rad($lon2 - $lon1);
+        $a = sin($dLat / 2) ** 2 + cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * sin($dLon / 2) ** 2;
+        return $earthRadius * 2 * atan2(sqrt($a), sqrt(1 - $a));
     }
 }
