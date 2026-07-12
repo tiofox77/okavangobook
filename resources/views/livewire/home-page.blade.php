@@ -14,11 +14,11 @@
         <div class="container mx-auto px-4 h-full flex flex-col justify-center items-center relative z-30">
             <div class="animate-fade-in-down">
                 <h1 class="text-4xl md:text-6xl font-extrabold text-white mb-6 text-center tracking-tight leading-tight">
-                    <span class="bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-100">Explore Angola</span>
-                    <span class="block mt-2 text-3xl md:text-5xl">Como Nunca Antes</span>
+                    <span class="bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-100">{{ __('Explore Angola') }}</span>
+                    <span class="block mt-2 text-3xl md:text-5xl">{{ __('Como Nunca Antes') }}</span>
                 </h1>
                 <p class="text-xl text-white/90 mb-10 text-center max-w-3xl mx-auto font-light">
-                    Descubra experiências únicas em {{ date('Y') }} com nossa tecnologia de reservas inteligente
+                    {{ __('Descubra experiências únicas em :year com nossa tecnologia de reservas inteligente', ['year' => date('Y')]) }}
                 </p>
             </div>
             
@@ -30,15 +30,15 @@
                 <div class="flex flex-wrap justify-center mt-6 gap-8 text-center text-white">
                     <div class="stat-item">
                         <span class="block text-2xl font-bold">{{ number_format($stats['hotels'], 0, ',', '.') }}+</span>
-                        <span class="text-sm opacity-80">Hotéis</span>
+                        <span class="text-sm opacity-80">{{ __('Hotéis') }}</span>
                     </div>
                     <div class="stat-item">
                         <span class="block text-2xl font-bold">{{ $stats['provinces'] }}</span>
-                        <span class="text-sm opacity-80">Províncias</span>
+                        <span class="text-sm opacity-80">{{ __('Províncias') }}</span>
                     </div>
                     <div class="stat-item">
                         <span class="block text-2xl font-bold">{{ number_format($stats['users'], 0, ',', '.') }}+</span>
-                        <span class="text-sm opacity-80">Utilizadores</span>
+                        <span class="text-sm opacity-80">{{ __('Utilizadores') }}</span>
                     </div>
                 </div>
             </div>

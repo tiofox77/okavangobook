@@ -157,9 +157,16 @@
         <button onclick="toggleDarkMode()" type="button" class="flex items-center w-full py-2 px-4 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
             <i class="fas fa-moon mr-2 dark:hidden"></i>
             <i class="fas fa-sun mr-2 hidden dark:inline"></i>
-            <span class="dark:hidden">Modo escuro</span>
-            <span class="hidden dark:inline">Modo claro</span>
+            <span class="dark:hidden">{{ __('Modo escuro') }}</span>
+            <span class="hidden dark:inline">{{ __('Modo claro') }}</span>
         </button>
+        <!-- Idioma (mobile) -->
+        <div class="flex items-center gap-2 py-2 px-4 border-b border-gray-100 dark:border-gray-700">
+            <i class="fas fa-globe text-gray-500 dark:text-gray-400"></i>
+            <a href="{{ route('language.switch', 'en') }}" class="text-sm {{ app()->getLocale() == 'en' ? 'font-bold text-primary' : 'text-gray-700 dark:text-gray-200' }}">EN</a>
+            <span class="text-gray-300">|</span>
+            <a href="{{ route('language.switch', 'pt') }}" class="text-sm {{ app()->getLocale() == 'pt' ? 'font-bold text-primary' : 'text-gray-700 dark:text-gray-200' }}">PT</a>
+        </div>
         <a href="{{ route('home') }}" class="block py-2 px-4 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 {{ request()->routeIs('home') ? 'font-bold bg-gray-100' : '' }}">{{ __('Início') }}</a>
         <a href="{{ route('search.results') }}" class="block py-2 px-4 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 {{ request()->routeIs('search.results') && !request()->has('sort') && !request()->has('property_types') ? 'font-bold bg-gray-100' : '' }}">{{ __('Hotéis') }}</a>
         <a href="{{ route('search.results', ['property_types' => ['resort']]) }}" class="block py-2 px-4 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 {{ request()->input('property_types.0') === 'resort' ? 'font-bold bg-gray-100' : '' }}">{{ __('Resorts') }}</a>
