@@ -15,20 +15,32 @@
             
             <!-- Menu de navegação para desktop -->
             <nav class="hidden lg:flex space-x-4 xl:space-x-6">
-                <a href="{{ route('home') }}" class="text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-blue-400 {{ request()->routeIs('home') ? 'font-bold text-primary dark:text-blue-400' : '' }}">Início</a>
-                <a href="{{ route('search.results') }}" class="text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-blue-400 {{ request()->routeIs('search.results') && !request()->has('sort') && !request()->has('property_types') ? 'font-bold text-primary dark:text-blue-400' : '' }}">Hotéis</a>
-                <a href="{{ route('search.results', ['property_types' => ['resort']]) }}" class="text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-blue-400 {{ request()->input('property_types.0') === 'resort' ? 'font-bold text-primary dark:text-blue-400' : '' }}">Resorts</a>
-                <a href="{{ route('search.results', ['property_types' => ['hospedaria']]) }}" class="text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-blue-400 {{ request()->input('property_types.0') === 'hospedaria' ? 'font-bold text-primary dark:text-blue-400' : '' }}">Hospedarias</a>
-                <a href="{{ route('search.results', ['sort' => 'price_asc']) }}" class="text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-blue-400 {{ request()->has('sort') ? 'font-bold text-primary dark:text-blue-400' : '' }}">Ofertas</a>
-                <a href="{{ route('destinations') }}" class="text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-blue-400 {{ request()->routeIs('destinations') ? 'font-bold text-primary dark:text-blue-400' : '' }}">Destinos</a>
-                <a href="{{ route('articles') }}" class="text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-blue-400 {{ request()->routeIs('articles') || request()->routeIs('article.details') ? 'font-bold text-primary dark:text-blue-400' : '' }}">Blog</a>
-                <a href="{{ route('about.angola') }}" class="text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-blue-400 {{ request()->routeIs('about.angola') ? 'font-bold text-primary dark:text-blue-400' : '' }}">Sobre Angola</a>
-                <a href="{{ route('contact') }}" class="text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-blue-400 {{ request()->routeIs('contact') ? 'font-bold text-primary dark:text-blue-400' : '' }}">Contacto</a>
-                <a href="{{ route('pricing') }}" class="text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-blue-400 {{ request()->routeIs('pricing') ? 'font-bold text-primary dark:text-blue-400' : '' }}">Planos</a>
+                <a href="{{ route('home') }}" class="text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-blue-400 {{ request()->routeIs('home') ? 'font-bold text-primary dark:text-blue-400' : '' }}">{{ __('Início') }}</a>
+                <a href="{{ route('search.results') }}" class="text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-blue-400 {{ request()->routeIs('search.results') && !request()->has('sort') && !request()->has('property_types') ? 'font-bold text-primary dark:text-blue-400' : '' }}">{{ __('Hotéis') }}</a>
+                <a href="{{ route('search.results', ['property_types' => ['resort']]) }}" class="text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-blue-400 {{ request()->input('property_types.0') === 'resort' ? 'font-bold text-primary dark:text-blue-400' : '' }}">{{ __('Resorts') }}</a>
+                <a href="{{ route('search.results', ['property_types' => ['hospedaria']]) }}" class="text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-blue-400 {{ request()->input('property_types.0') === 'hospedaria' ? 'font-bold text-primary dark:text-blue-400' : '' }}">{{ __('Hospedarias') }}</a>
+                <a href="{{ route('search.results', ['sort' => 'price_asc']) }}" class="text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-blue-400 {{ request()->has('sort') ? 'font-bold text-primary dark:text-blue-400' : '' }}">{{ __('Ofertas') }}</a>
+                <a href="{{ route('destinations') }}" class="text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-blue-400 {{ request()->routeIs('destinations') ? 'font-bold text-primary dark:text-blue-400' : '' }}">{{ __('Destinos') }}</a>
+                <a href="{{ route('articles') }}" class="text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-blue-400 {{ request()->routeIs('articles') || request()->routeIs('article.details') ? 'font-bold text-primary dark:text-blue-400' : '' }}">{{ __('Blog') }}</a>
+                <a href="{{ route('about.angola') }}" class="text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-blue-400 {{ request()->routeIs('about.angola') ? 'font-bold text-primary dark:text-blue-400' : '' }}">{{ __('Sobre Angola') }}</a>
+                <a href="{{ route('contact') }}" class="text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-blue-400 {{ request()->routeIs('contact') ? 'font-bold text-primary dark:text-blue-400' : '' }}">{{ __('Contacto') }}</a>
+                <a href="{{ route('pricing') }}" class="text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-blue-400 {{ request()->routeIs('pricing') ? 'font-bold text-primary dark:text-blue-400' : '' }}">{{ __('Planos') }}</a>
             </nav>
             
             <!-- Botões de autenticação -->
             <div class="hidden lg:flex items-center space-x-4">
+                <!-- Seletor de idioma -->
+                <div class="relative" x-data="{ langOpen: false }">
+                    <button @click="langOpen = !langOpen" type="button" class="flex items-center text-gray-700 dark:text-gray-200 hover:text-primary text-sm px-2 py-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <i class="fas fa-globe mr-1"></i>{{ strtoupper(app()->getLocale()) }}
+                        <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                    </button>
+                    <div x-show="langOpen" @click.away="langOpen = false" x-cloak class="absolute right-0 mt-2 w-36 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50 ring-1 ring-black/5 dark:ring-white/10">
+                        <a href="{{ route('language.switch', 'en') }}" class="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 {{ app()->getLocale() == 'en' ? 'font-bold text-primary' : 'text-gray-700 dark:text-gray-200' }}">🇬🇧 English</a>
+                        <a href="{{ route('language.switch', 'pt') }}" class="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 {{ app()->getLocale() == 'pt' ? 'font-bold text-primary' : 'text-gray-700 dark:text-gray-200' }}">🇦🇴 Português</a>
+                    </div>
+                </div>
+
                 <!-- Alternar modo escuro -->
                 <button onclick="toggleDarkMode()" type="button" aria-label="Alternar modo escuro" title="Alternar modo escuro" class="text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-yellow-300 transition p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
                     <i class="fas fa-moon text-xl dark:hidden"></i>
@@ -54,8 +66,8 @@
                 @endauth
                 
                 @guest
-                    <a href="{{ route('login') }}" class="text-gray-700 hover:text-primary">Entrar</a>
-                    <a href="{{ route('register') }}" class="bg-primary text-white px-4 py-2 rounded-md hover:bg-blue-700">Registrar</a>
+                    <a href="{{ route('login') }}" class="text-gray-700 hover:text-primary">{{ __('Entrar') }}</a>
+                    <a href="{{ route('register') }}" class="bg-primary text-white px-4 py-2 rounded-md hover:bg-blue-700">{{ __('Registrar') }}</a>
                 @else
                     <div class="flex items-center space-x-2">
                         <!-- Links diretos para acesso rápido -->
@@ -64,14 +76,14 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
                                 </svg>
-                                <span>Admin</span>
+                                <span>{{ __('Admin') }}</span>
                             </a>
                         @endif
                         <a href="{{ route('dashboard') }}" class="text-gray-700 hover:text-primary text-sm flex items-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                             </svg>
-                            <span>Conta</span>
+                            <span>{{ __('Conta') }}</span>
                         </a>
                         
                         <!-- Dropdown com mais opções -->
@@ -106,10 +118,10 @@
                                         </div>
                                     </a>
                                     <div class="border-t border-gray-100"></div>
-                                    <a href="{{ route('admin.hotels') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 pl-10">Propriedades</a>
+                                    <a href="{{ route('admin.hotels') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 pl-10">{{ __('Propriedades') }}</a>
                                     @if(auth()->user()->hasRole('Admin'))
-                                        <a href="{{ route('admin.users') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 pl-10">Utilizadores</a>
-                                        <a href="{{ route('admin.locations') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 pl-10">Localizações</a>
+                                        <a href="{{ route('admin.users') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 pl-10">{{ __('Utilizadores') }}</a>
+                                        <a href="{{ route('admin.locations') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 pl-10">{{ __('Localizações') }}</a>
                                     @endif
                                 @endif
                                 <div class="border-t border-gray-100 mt-2"></div>
@@ -148,22 +160,22 @@
             <span class="dark:hidden">Modo escuro</span>
             <span class="hidden dark:inline">Modo claro</span>
         </button>
-        <a href="{{ route('home') }}" class="block py-2 px-4 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 {{ request()->routeIs('home') ? 'font-bold bg-gray-100' : '' }}">Início</a>
-        <a href="{{ route('search.results') }}" class="block py-2 px-4 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 {{ request()->routeIs('search.results') && !request()->has('sort') && !request()->has('property_types') ? 'font-bold bg-gray-100' : '' }}">Hotéis</a>
-        <a href="{{ route('search.results', ['property_types' => ['resort']]) }}" class="block py-2 px-4 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 {{ request()->input('property_types.0') === 'resort' ? 'font-bold bg-gray-100' : '' }}">Resorts</a>
-        <a href="{{ route('search.results', ['property_types' => ['hospedaria']]) }}" class="block py-2 px-4 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 {{ request()->input('property_types.0') === 'hospedaria' ? 'font-bold bg-gray-100' : '' }}">Hospedarias</a>
-        <a href="{{ route('search.results', ['sort' => 'price_asc']) }}" class="block py-2 px-4 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 {{ request()->has('sort') ? 'font-bold bg-gray-100' : '' }}">Ofertas</a>
-        <a href="{{ route('destinations') }}" class="block py-2 px-4 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 {{ request()->routeIs('destinations') ? 'font-bold bg-gray-100 dark:bg-gray-700' : '' }}">Destinos</a>
-        <a href="{{ route('articles') }}" class="block py-2 px-4 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 {{ request()->routeIs('articles') || request()->routeIs('article.details') ? 'font-bold bg-gray-100 dark:bg-gray-700' : '' }}">Blog</a>
-        <a href="{{ route('about.angola') }}" class="block py-2 px-4 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 {{ request()->routeIs('about.angola') ? 'font-bold bg-gray-100 dark:bg-gray-700' : '' }}">Sobre Angola</a>
-        <a href="{{ route('contact') }}" class="block py-2 px-4 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 {{ request()->routeIs('contact') ? 'font-bold bg-gray-100' : '' }}">Contacto</a>
-        <a href="{{ route('pricing') }}" class="block py-2 px-4 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 {{ request()->routeIs('pricing') ? 'font-bold bg-gray-100' : '' }}">Planos</a>
+        <a href="{{ route('home') }}" class="block py-2 px-4 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 {{ request()->routeIs('home') ? 'font-bold bg-gray-100' : '' }}">{{ __('Início') }}</a>
+        <a href="{{ route('search.results') }}" class="block py-2 px-4 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 {{ request()->routeIs('search.results') && !request()->has('sort') && !request()->has('property_types') ? 'font-bold bg-gray-100' : '' }}">{{ __('Hotéis') }}</a>
+        <a href="{{ route('search.results', ['property_types' => ['resort']]) }}" class="block py-2 px-4 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 {{ request()->input('property_types.0') === 'resort' ? 'font-bold bg-gray-100' : '' }}">{{ __('Resorts') }}</a>
+        <a href="{{ route('search.results', ['property_types' => ['hospedaria']]) }}" class="block py-2 px-4 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 {{ request()->input('property_types.0') === 'hospedaria' ? 'font-bold bg-gray-100' : '' }}">{{ __('Hospedarias') }}</a>
+        <a href="{{ route('search.results', ['sort' => 'price_asc']) }}" class="block py-2 px-4 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 {{ request()->has('sort') ? 'font-bold bg-gray-100' : '' }}">{{ __('Ofertas') }}</a>
+        <a href="{{ route('destinations') }}" class="block py-2 px-4 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 {{ request()->routeIs('destinations') ? 'font-bold bg-gray-100 dark:bg-gray-700' : '' }}">{{ __('Destinos') }}</a>
+        <a href="{{ route('articles') }}" class="block py-2 px-4 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 {{ request()->routeIs('articles') || request()->routeIs('article.details') ? 'font-bold bg-gray-100 dark:bg-gray-700' : '' }}">{{ __('Blog') }}</a>
+        <a href="{{ route('about.angola') }}" class="block py-2 px-4 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 {{ request()->routeIs('about.angola') ? 'font-bold bg-gray-100 dark:bg-gray-700' : '' }}">{{ __('Sobre Angola') }}</a>
+        <a href="{{ route('contact') }}" class="block py-2 px-4 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 {{ request()->routeIs('contact') ? 'font-bold bg-gray-100' : '' }}">{{ __('Contacto') }}</a>
+        <a href="{{ route('pricing') }}" class="block py-2 px-4 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 {{ request()->routeIs('pricing') ? 'font-bold bg-gray-100' : '' }}">{{ __('Planos') }}</a>
         
         <!-- Links de autenticação -->
         <div class="border-t border-gray-200 pt-2">
             @guest
-                <a href="{{ route('login') }}" class="block py-2 px-4 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Entrar</a>
-                <a href="{{ route('register') }}" class="block py-2 px-4 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Registrar</a>
+                <a href="{{ route('login') }}" class="block py-2 px-4 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">{{ __('Entrar') }}</a>
+                <a href="{{ route('register') }}" class="block py-2 px-4 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">{{ __('Registrar') }}</a>
             @else
                 <div class="px-4 py-2 text-xs text-gray-500">
                     <div class="font-semibold">{{ Auth::user()->name }}</div>
@@ -188,10 +200,10 @@
                         </svg>
                         Painel Admin
                     </a>
-                    <a href="{{ route('admin.hotels') }}" class="block py-2 px-4 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 pl-10">Propriedades</a>
+                    <a href="{{ route('admin.hotels') }}" class="block py-2 px-4 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 pl-10">{{ __('Propriedades') }}</a>
                     @if(auth()->user()->hasRole('Admin'))
-                        <a href="{{ route('admin.users') }}" class="block py-2 px-4 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 pl-10">Utilizadores</a>
-                        <a href="{{ route('admin.locations') }}" class="block py-2 px-4 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 pl-10">Localizações</a>
+                        <a href="{{ route('admin.users') }}" class="block py-2 px-4 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 pl-10">{{ __('Utilizadores') }}</a>
+                        <a href="{{ route('admin.locations') }}" class="block py-2 px-4 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 pl-10">{{ __('Localizações') }}</a>
                     @endif
                 @endif
                 

@@ -44,9 +44,20 @@
                     <form wire:submit.prevent="saveGeneralSettings" class="space-y-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Nome da Aplicação</label>
-                            <input type="text" wire:model.live="appName" 
+                            <input type="text" wire:model.live="appName"
                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                             @error('appName') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Idioma padrão do site</label>
+                            <select wire:model.live="defaultLanguage"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="en">English (padrão)</option>
+                                <option value="pt">Português</option>
+                            </select>
+                            <p class="text-xs text-gray-500 mt-1">Idioma usado para novos visitantes. Cada utilizador pode alternar no seletor 🌐 do site.</p>
+                            @error('defaultLanguage') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                         </div>
 
                         <div>

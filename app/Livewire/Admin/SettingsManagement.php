@@ -20,6 +20,7 @@ class SettingsManagement extends Component
 
     // General Settings
     public string $appName = '';
+    public string $defaultLanguage = 'en';
     public string $appDescription = '';
     public string $appKeywords = '';
     public string $appCurrency = 'KZ';
@@ -118,6 +119,7 @@ class SettingsManagement extends Component
     protected function loadSettings(): void
     {
         $this->appName = Setting::get('app_name', config('app.name', 'KiandaStay'));
+        $this->defaultLanguage = Setting::get('default_language', config('app.locale', 'en'));
         $this->appDescription = Setting::get('app_description', 'Sistema de reservas de hotéis em Angola');
         $this->appKeywords = Setting::get('app_keywords', 'hotéis, reservas, Angola, turismo');
         $this->appCurrency = Setting::get('app_currency', 'KZ');
@@ -256,6 +258,7 @@ class SettingsManagement extends Component
 
             // Save other settings
             Setting::set('app_name', $this->appName, 'general', 'string', 'Nome da aplicação', true);
+            Setting::set('default_language', in_array($this->defaultLanguage, ['en', 'pt']) ? $this->defaultLanguage : 'en', 'general', 'string', 'Idioma padrão', true);
             Setting::set('app_description', $this->appDescription, 'general', 'string', 'Descrição da aplicação', true);
             Setting::set('app_keywords', $this->appKeywords, 'general', 'string', 'Palavras-chave da aplicação', true);
             Setting::set('app_currency', $this->appCurrency, 'general', 'string', 'Moeda da aplicação', true);

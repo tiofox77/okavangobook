@@ -19,6 +19,14 @@ Route::get('/', App\Livewire\HomePage::class)->name('home');
 // SEO - Sitemap dinâmico
 Route::get('/sitemap.xml', [App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
 
+// Troca de idioma (PT/EN)
+Route::get('/language/{locale}', function (string $locale) {
+    if (in_array($locale, \App\Http\Middleware\SetLocale::SUPPORTED, true)) {
+        session(['locale' => $locale]);
+    }
+    return redirect()->back();
+})->name('language.switch');
+
 // Rotas principais (URLs em português; nomes mantidos para compatibilidade)
 Route::get('/pesquisa', App\Livewire\SearchResults::class)->name('search.results');
 Route::get('/hotel/{slug}', App\Livewire\HotelDetails::class)->name('hotel.details');
