@@ -20,9 +20,11 @@ class EventServiceProvider extends ServiceProvider
         ],
         \App\Events\ReservationCreated::class => [
             \App\Listeners\SendReservationNotifications::class,
+            [\App\Listeners\DispatchReservationWebhook::class, 'handleCreated'],
         ],
         \App\Events\ReservationStatusChanged::class => [
             \App\Listeners\SendReservationNotifications::class,
+            [\App\Listeners\DispatchReservationWebhook::class, 'handleStatusChanged'],
         ],
     ];
 

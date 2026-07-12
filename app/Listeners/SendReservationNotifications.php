@@ -40,8 +40,12 @@ class SendReservationNotifications implements ShouldQueue
         );
 
         if ($reservation->user && $reservation->user->email) {
-            Mail::to($reservation->user->email)
-                ->queue(new ReservationConfirmed($reservation));
+            try {
+                Mail::to($reservation->user->email)
+                    ->queue(new ReservationConfirmed($reservation));
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Falha ao enviar email de reserva: ' . $e->getMessage());
+            }
         }
     }
 
@@ -69,8 +73,12 @@ class SendReservationNotifications implements ShouldQueue
             );
 
             if ($reservation->user && $reservation->user->email) {
-                Mail::to($reservation->user->email)
-                    ->send(new ReservationCancelled($reservation));
+                try {
+                    Mail::to($reservation->user->email)
+                        ->send(new ReservationCancelled($reservation));
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::warning('Falha ao enviar email de cancelamento: ' . $e->getMessage());
+                }
             }
         }
     }

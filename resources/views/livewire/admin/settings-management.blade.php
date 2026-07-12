@@ -60,6 +60,25 @@
                             @error('defaultLanguage') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                         </div>
 
+                        <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                <i class="fas fa-plug text-blue-500 mr-1"></i> API Key (integração com outros sistemas)
+                            </label>
+                            <div class="flex gap-2">
+                                <input type="text" readonly value="{{ $apiKey ?: 'Ainda não gerada' }}"
+                                       class="flex-1 px-3 py-2 border border-gray-300 rounded-md bg-white text-sm font-mono" onclick="this.select()">
+                                <button type="button" wire:click="generateApiKey"
+                                        onclick="return confirm('Gerar uma nova API key? A chave anterior deixará de funcionar.')"
+                                        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm whitespace-nowrap">
+                                    <i class="fas fa-key mr-1"></i> Gerar
+                                </button>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1">
+                                Envie no cabeçalho <code class="bg-gray-200 px-1 rounded">X-API-Key</code> para criar reservas e gerir webhooks.
+                                Endpoints em <code class="bg-gray-200 px-1 rounded">/api/v1</code>. Consulte a documentação da API.
+                            </p>
+                        </div>
+
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
                             <textarea wire:model.live="appDescription" rows="3"

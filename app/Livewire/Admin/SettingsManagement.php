@@ -21,6 +21,7 @@ class SettingsManagement extends Component
     // General Settings
     public string $appName = '';
     public string $defaultLanguage = 'en';
+    public string $apiKey = '';
     public string $appDescription = '';
     public string $appKeywords = '';
     public string $appCurrency = 'KZ';
@@ -120,6 +121,7 @@ class SettingsManagement extends Component
     {
         $this->appName = Setting::get('app_name', config('app.name', 'KiandaStay'));
         $this->defaultLanguage = Setting::get('default_language', config('app.locale', 'en'));
+        $this->apiKey = Setting::get('api_key', '');
         $this->appDescription = Setting::get('app_description', 'Sistema de reservas de hotéis em Angola');
         $this->appKeywords = Setting::get('app_keywords', 'hotéis, reservas, Angola, turismo');
         $this->appCurrency = Setting::get('app_currency', 'KZ');
@@ -171,6 +173,17 @@ class SettingsManagement extends Component
     /**
      * Save general settings
      */
+    /**
+     * Gera (ou regenera) a API key usada pelos sistemas externos.
+     */
+    public function generateApiKey(): void
+    {
+        $this->apiKey = 'okb_' . \Illuminate\Support\Str::random(48);
+        Setting::set('api_key', $this->apiKey, 'general', 'string', 'API Key', false);
+        Setting::clearCache();
+        session()->flash('message', 'Nova API key gerada. Guarde-a — dá acesso à API.');
+    }
+
     public function saveGeneralSettings(): void
     {
         $this->validate([
