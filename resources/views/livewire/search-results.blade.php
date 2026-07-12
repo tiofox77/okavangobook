@@ -832,10 +832,14 @@
                                     <div class="mb-3">
                                         <div class="flex justify-between items-start mb-1">
                                             <h3 class="text-xl font-bold text-gray-800 hover:text-primary transition-colors duration-300">{{ $hotel->name }}</h3>
-                                            <div class="flex items-center bg-{{ $hotel->rating >= 8 ? 'green' : ($hotel->rating >= 7 ? 'blue' : ($hotel->rating >= 6 ? 'yellow' : 'red')) }}-100 text-{{ $hotel->rating >= 8 ? 'green' : ($hotel->rating >= 7 ? 'blue' : ($hotel->rating >= 6 ? 'yellow' : 'red')) }}-700 font-bold px-2 py-1 rounded-lg">
-                                                <span class="text-base">{{ number_format($hotel->rating, 1) }}</span>
-                                                <span class="text-xs ml-1">/10</span>
-                                            </div>
+                                            @if($hotel->rating > 0)
+                                                <div class="flex items-center bg-{{ $hotel->rating >= 8 ? 'green' : ($hotel->rating >= 7 ? 'blue' : ($hotel->rating >= 6 ? 'yellow' : 'red')) }}-100 text-{{ $hotel->rating >= 8 ? 'green' : ($hotel->rating >= 7 ? 'blue' : ($hotel->rating >= 6 ? 'yellow' : 'red')) }}-700 font-bold px-2 py-1 rounded-lg">
+                                                    <span class="text-base">{{ number_format($hotel->rating, 1) }}</span>
+                                                    <span class="text-xs ml-1">/10</span>
+                                                </div>
+                                            @else
+                                                <span class="bg-gray-100 text-gray-600 font-semibold text-xs px-2 py-1 rounded-lg whitespace-nowrap">Novo</span>
+                                            @endif
                                         </div>
                                         
                                         <div class="flex items-center text-sm text-gray-600 mb-2">
@@ -844,6 +848,7 @@
                                         </div>
                                         
                                         <!-- Avaliação simplificada -->
+                                        @if($hotel->rating > 0)
                                         <div class="flex items-center gap-3">
                                             <span class="text-sm font-medium">
                                                 @if($hotel->rating >= 9)
@@ -855,10 +860,11 @@
                                                 @elseif($hotel->rating >= 6)
                                                     Regular
                                                 @else
-                                                    Precisa Melhorar
+                                                    Razoável
                                                 @endif
                                             </span>
                                         </div>
+                                        @endif
                                     </div>
                                     
                                     @if($viewMode == 'list')
