@@ -527,93 +527,37 @@
                             <i class="fas" :class="open ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                         </div>
                         
-                        <div x-show="open" class="mt-2 grid grid-cols-1 gap-2">
-                            <div class="flex items-center py-1 px-2 rounded-lg hover:bg-gray-50 transition-colors duration-200">
-                                <input 
-                                    type="checkbox" 
-                                    id="amenity-wifi" 
-                                    wire:model.live="amenities" 
-                                    wire:loading.attr="disabled"
-                                    value="wifi" 
-                                    class="w-4 h-4 text-primary focus:ring-primary border-gray-300 rounded cursor-pointer"
-                                >
-                                <label for="amenity-wifi" class="ml-3 flex items-center cursor-pointer">
-                                    <i class="fas fa-wifi text-gray-600 mr-2"></i>
-                                    <span class="text-sm">Wi-Fi</span>
-                                </label>
-                                @if(isset($amenityCounts['wifi']))
-                                    <span class="ml-auto text-xs text-gray-500">({{ $amenityCounts['wifi'] }})</span>
-                                @endif
-                            </div>
-                            
-                            <div class="flex items-center py-1 px-2 rounded-lg hover:bg-gray-50 transition-colors duration-200">
-                                <input 
-                                    type="checkbox" 
-                                    id="amenity-pool" 
-                                    wire:model.live="amenities" 
-                                    wire:loading.attr="disabled"
-                                    value="pool" 
-                                    class="w-4 h-4 text-primary focus:ring-primary border-gray-300 rounded cursor-pointer"
-                                >
-                                <label for="amenity-pool" class="ml-3 flex items-center cursor-pointer">
-                                    <i class="fas fa-swimming-pool text-gray-600 mr-2"></i>
-                                    <span class="text-sm">Piscina</span>
-                                </label>
-                                @if(isset($amenityCounts['pool']))
-                                    <span class="ml-auto text-xs text-gray-500">({{ $amenityCounts['pool'] }})</span>
-                                @endif
-                            </div>
-                            
-                            <div class="flex items-center py-1 px-2 rounded-lg hover:bg-gray-50 transition-colors duration-200">
-                                <input 
-                                    type="checkbox" 
-                                    id="amenity-breakfast" 
-                                    wire:model.live="amenities" 
-                                    wire:loading.attr="disabled"
-                                    value="breakfast" 
-                                    class="w-4 h-4 text-primary focus:ring-primary border-gray-300 rounded cursor-pointer"
-                                >
-                                <label for="amenity-breakfast" class="ml-3 flex items-center cursor-pointer">
-                                    <i class="fas fa-coffee text-gray-600 mr-2"></i>
-                                    <span class="text-sm">Café da manhã</span>
-                                </label>
-                                @if(isset($amenityCounts['breakfast']))
-                                    <span class="ml-auto text-xs text-gray-500">({{ $amenityCounts['breakfast'] }})</span>
-                                @endif
-                            </div>
-                            
-                            <div class="flex items-center py-1 px-2 rounded-lg hover:bg-gray-50 transition-colors duration-200">
-                                <input 
-                                    type="checkbox" 
-                                    id="amenity-parking" 
-                                    wire:model.live="amenities" 
-                                    wire:loading.attr="disabled"
-                                    value="parking" 
-                                    class="w-4 h-4 text-primary focus:ring-primary border-gray-300 rounded cursor-pointer"
-                                >
-                                <label for="amenity-parking" class="ml-3 flex items-center cursor-pointer">
-                                    <i class="fas fa-parking text-gray-600 mr-2"></i>
-                                    <span class="text-sm">Estacionamento</span>
-                                </label>
-                                @if(isset($amenityCounts['parking']))
-                                    <span class="ml-auto text-xs text-gray-500">({{ $amenityCounts['parking'] }})</span>
-                                @endif
-                            </div>
-                            
-                            <div class="flex items-center py-1 px-2 rounded-lg hover:bg-gray-50 transition-colors duration-200">
-                                <input 
-                                    type="checkbox" 
-                                    id="amenity-ac" 
-                                    wire:model.live="amenities" 
-                                    wire:loading.attr="disabled"
-                                    value="air_conditioning" 
-                                    class="w-4 h-4 text-primary focus:ring-primary border-gray-300 rounded cursor-pointer"
-                                >
-                                <label for="amenity-ac" class="flex items-center cursor-pointer">
-                                    <i class="fas fa-snowflake text-gray-600 mr-2"></i>
-                                    <span>Ar condicionado</span>
-                                </label>
-                            </div>
+                        <div x-show="open" class="mt-2 grid grid-cols-1 gap-2 max-h-64 overflow-y-auto">
+                            @forelse($availableAmenities as $amenityName => $amenityCount)
+                                @php
+                                    $al = \Illuminate\Support\Str::lower($amenityName);
+                                    $icon = 'fa-check';
+                                    if (str_contains($al, 'wi-fi') || str_contains($al, 'wifi') || str_contains($al, 'internet')) $icon = 'fa-wifi';
+                                    elseif (str_contains($al, 'piscina')) $icon = 'fa-swimming-pool';
+                                    elseif (str_contains($al, 'estacion') || str_contains($al, 'parqu')) $icon = 'fa-parking';
+                                    elseif (str_contains($al, 'restaurante')) $icon = 'fa-utensils';
+                                    elseif (str_contains($al, 'bar')) $icon = 'fa-glass-martini-alt';
+                                    elseif (str_contains($al, 'academia') || str_contains($al, 'ginás') || str_contains($al, 'gym')) $icon = 'fa-dumbbell';
+                                    elseif (str_contains($al, 'spa')) $icon = 'fa-spa';
+                                    elseif (str_contains($al, 'ar cond') || str_contains($al, 'climat')) $icon = 'fa-snowflake';
+                                    elseif (str_contains($al, 'pequeno') || str_contains($al, 'almoço') || str_contains($al, 'café') || str_contains($al, 'refei')) $icon = 'fa-mug-hot';
+                                    elseif (str_contains($al, 'pet')) $icon = 'fa-paw';
+                                    elseif (str_contains($al, 'transfer') || str_contains($al, 'aeroporto')) $icon = 'fa-plane';
+                                    elseif (str_contains($al, 'tv')) $icon = 'fa-tv';
+                                    elseif (str_contains($al, 'jardim')) $icon = 'fa-tree';
+                                    elseif (str_contains($al, 'praia') || str_contains($al, 'mar')) $icon = 'fa-umbrella-beach';
+                                @endphp
+                                <div class="flex items-center py-1 px-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
+                                    <input type="checkbox" id="amenity-{{ $loop->index }}" wire:model.live="amenities" wire:loading.attr="disabled" value="{{ $amenityName }}" class="w-4 h-4 text-primary focus:ring-primary border-gray-300 rounded cursor-pointer">
+                                    <label for="amenity-{{ $loop->index }}" class="ml-3 flex items-center cursor-pointer flex-1">
+                                        <i class="fas {{ $icon }} text-gray-600 dark:text-gray-300 mr-2 w-4 text-center"></i>
+                                        <span class="text-sm">{{ $amenityName }}</span>
+                                    </label>
+                                    <span class="ml-auto text-xs text-gray-500">({{ $amenityCount }})</span>
+                                </div>
+                            @empty
+                                <p class="text-sm text-gray-500 px-2">Sem comodidades disponíveis.</p>
+                            @endforelse
                         </div>
                     </div>
                     
@@ -832,9 +776,10 @@
                                     <div class="mb-3">
                                         <div class="flex justify-between items-start mb-1">
                                             <h3 class="text-xl font-bold text-gray-800 hover:text-primary transition-colors duration-300">{{ $hotel->name }}</h3>
+                                            @php $score = round($hotel->rating * 2, 1); @endphp
                                             @if($hotel->rating > 0)
-                                                <div class="flex items-center bg-{{ $hotel->rating >= 8 ? 'green' : ($hotel->rating >= 7 ? 'blue' : ($hotel->rating >= 6 ? 'yellow' : 'red')) }}-100 text-{{ $hotel->rating >= 8 ? 'green' : ($hotel->rating >= 7 ? 'blue' : ($hotel->rating >= 6 ? 'yellow' : 'red')) }}-700 font-bold px-2 py-1 rounded-lg">
-                                                    <span class="text-base">{{ number_format($hotel->rating, 1) }}</span>
+                                                <div class="flex items-center bg-{{ $score >= 8 ? 'green' : ($score >= 7 ? 'blue' : ($score >= 6 ? 'yellow' : 'red')) }}-100 text-{{ $score >= 8 ? 'green' : ($score >= 7 ? 'blue' : ($score >= 6 ? 'yellow' : 'red')) }}-700 font-bold px-2 py-1 rounded-lg">
+                                                    <span class="text-base">{{ number_format($score, 1) }}</span>
                                                     <span class="text-xs ml-1">/10</span>
                                                 </div>
                                             @else
@@ -851,13 +796,13 @@
                                         @if($hotel->rating > 0)
                                         <div class="flex items-center gap-3">
                                             <span class="text-sm font-medium">
-                                                @if($hotel->rating >= 9)
+                                                @if($score >= 9)
                                                     Excelente
-                                                @elseif($hotel->rating >= 8)
+                                                @elseif($score >= 8)
                                                     Muito Bom
-                                                @elseif($hotel->rating >= 7)
+                                                @elseif($score >= 7)
                                                     Bom
-                                                @elseif($hotel->rating >= 6)
+                                                @elseif($score >= 6)
                                                     Regular
                                                 @else
                                                     Razoável

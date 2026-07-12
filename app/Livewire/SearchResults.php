@@ -358,42 +358,33 @@ class SearchResults extends Component
         }
         
         // ====== FILTROS DE AVALIAÇÃO DOS HÓSPEDES ======
+        // A coluna `rating` está numa escala 0-5, mas a UI usa 0-10.
+        // Comparamos com `rating * 2` para alinhar com os limiares /10.
         if (!empty($this->ratings)) {
             $query->where(function($q) {
                 foreach ($this->ratings as $rating) {
                     if ($rating == 9) {
-                        // Excelente: 9.0+
-                        $q->orWhere('rating', '>=', 9.0);
+                        $q->orWhereRaw('rating * 2 >= 9');
                     } elseif ($rating == 8) {
-                        // Muito Bom: 8.0-8.9
-                        $q->orWhereBetween('rating', [8.0, 8.9]);
+                        $q->orWhereRaw('rating * 2 >= 8 AND rating * 2 < 9');
                     } elseif ($rating == 7) {
-                        // Bom: 7.0-7.9
-                        $q->orWhereBetween('rating', [7.0, 7.9]);
+                        $q->orWhereRaw('rating * 2 >= 7 AND rating * 2 < 8');
                     } elseif ($rating == 6) {
-                        // Regular: 6.0-6.9
-                        $q->orWhereBetween('rating', [6.0, 6.9]);
+                        $q->orWhereRaw('rating * 2 >= 6 AND rating * 2 < 7');
                     } elseif ($rating == 0) {
-                        // Ruim: < 6.0
-                        $q->orWhere('rating', '<', 6.0);
+                        $q->orWhereRaw('rating * 2 < 6 AND rating > 0');
                     }
                 }
             });
         }
         
         // ====== FILTROS DE COMODIDADES (AMENITIES) ======
+        // Lógica E: o hotel tem de possuir TODAS as comodidades selecionadas.
+        // Usa LIKE por substring (robusto ao JSON por vezes duplamente codificado).
         if (!empty($this->amenities)) {
-            $query->where(function($q) {
-                foreach ($this->amenities as $amenity) {
-                    // Verifica tanto para o caso do campo ser uma string JSON ou uma string simples
-                    $q->orWhere(function($subQuery) use ($amenity) {
-                        // Tenta como JSON
-                        $subQuery->orWhereRaw("JSON_CONTAINS(amenities, '\"$amenity\"')");
-                        // Tenta como string simples
-                        $subQuery->orWhere('amenities', 'like', "%$amenity%");
-                    });
-                }
-            });
+            foreach ($this->amenities as $amenity) {
+                $query->where('amenities', 'like', '%' . $amenity . '%');
+            }
         }
         
         // ====== FILTROS DE TIPO DE PROPRIEDADE ======
@@ -535,20 +526,18 @@ class SearchResults extends Component
         }
         
         // Contar hotéis por avaliação para mostrar nos filtros
+        // Rating está numa escala 0-5; a UI usa 0-10 (rating * 2).
         $ratingCounts = [
-            9 => Hotel::where('rating', '>=', 9.0)->count(),
-            8 => Hotel::whereBetween('rating', [8.0, 8.9])->count(),
-            7 => Hotel::whereBetween('rating', [7.0, 7.9])->count(),
-            6 => Hotel::whereBetween('rating', [6.0, 6.9])->count(),
-            0 => Hotel::where('rating', '<', 6.0)->count(),
+            9 => Hotel::whereRaw('rating * 2 >= 9')->count(),
+            8 => Hotel::whereRaw('rating * 2 >= 8 AND rating * 2 < 9')->count(),
+            7 => Hotel::whereRaw('rating * 2 >= 7 AND rating * 2 < 8')->count(),
+            6 => Hotel::whereRaw('rating * 2 >= 6 AND rating * 2 < 7')->count(),
+            0 => Hotel::whereRaw('rating * 2 < 6 AND rating > 0')->count(),
         ];
-        
-        // Contar hotéis por amenidade para mostrar nos filtros
-        $amenityCounts = [];
-        $amenities = ['wifi', 'pool', 'breakfast', 'parking', 'air_conditioning', 'gym', 'spa', 'restaurant'];
-        foreach ($amenities as $amenity) {
-            $amenityCounts[$amenity] = Hotel::whereJsonContains('amenities', $amenity)->count();
-        }
+
+        // Comodidades reais (descodificadas dos dados) com contagem, para
+        // que as opções do filtro correspondam ao que existe nos hotéis.
+        $availableAmenities = $this->getAvailableAmenities();
         
         // Contar hotéis por tipo de propriedade (considera filtros ativos)
         $selectedProvinces = $this->selectedProvinces;
@@ -575,8 +564,43 @@ class SearchResults extends Component
             'popularDestinations' => $popularDestinations,
             'starCounts' => $starCounts,
             'ratingCounts' => $ratingCounts,
-            'amenityCounts' => $amenityCounts,
+            'availableAmenities' => $availableAmenities,
             'propertyTypeCounts' => $propertyTypeCounts,
         ])->layout('layouts.app', ['slot' => 'content']);
+    }
+
+    /**
+     * Devolve as comodidades mais comuns nos hotéis, com contagem.
+     * Descodifica o JSON da coluna `amenities` (por vezes duplamente codificado).
+     */
+    protected function getAvailableAmenities(int $limit = 12): array
+    {
+        $counts = [];
+        foreach (Hotel::whereNotNull('amenities')->pluck('amenities') as $raw) {
+            foreach ($this->decodeAmenities($raw) as $name) {
+                $name = trim((string) $name);
+                if ($name === '') {
+                    continue;
+                }
+                $counts[$name] = ($counts[$name] ?? 0) + 1;
+            }
+        }
+        arsort($counts);
+        return array_slice($counts, 0, $limit, true);
+    }
+
+    /**
+     * Descodifica o valor da coluna amenities, tolerando dupla codificação.
+     */
+    protected function decodeAmenities($raw): array
+    {
+        $val = $raw;
+        if (is_string($val)) {
+            $val = json_decode($val, true);
+        }
+        if (is_string($val)) { // duplamente codificado
+            $val = json_decode($val, true);
+        }
+        return is_array($val) ? $val : [];
     }
 }
