@@ -645,7 +645,7 @@ class SearchResults extends Component
                     'location' => $hotel->location->name ?? 'Angola',
                     'province' => $hotel->location->province ?? '',
                     'image' => \App\Helpers\ImageHelper::getValidImage($hotel->thumbnail, 'hotel'),
-                    'rating' => $hotel->rating > 0 ? round($hotel->rating * 2, 1) : null,
+                    'rating' => $hotel->rating > 0 ? round($hotel->rating, 1) : null,
                     'stars' => $hotel->stars,
                     'distance' => round($hotel->distance, 1),
                     'slug' => $hotel->slug ?? \Illuminate\Support\Str::slug($hotel->name),

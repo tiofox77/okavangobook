@@ -626,7 +626,7 @@
                                         <div class="flex items-center justify-between mt-1">
                                             <span class="text-xs text-amber-500">{!! str_repeat('<i class="fas fa-star"></i>', (int) $nh['stars']) !!}</span>
                                             @if($nh['rating'])
-                                                <span class="text-xs font-bold text-primary">{{ number_format($nh['rating'], 1) }}/10</span>
+                                                <span class="text-xs font-bold text-primary"><i class="fas fa-star mr-0.5"></i>{{ number_format($nh['rating'], 1) }}/5</span>
                                             @endif
                                         </div>
                                     </div>
@@ -808,11 +808,11 @@
                                     <div class="mb-3">
                                         <div class="flex justify-between items-start mb-1">
                                             <h3 class="text-xl font-bold text-gray-800 hover:text-primary transition-colors duration-300">{{ $hotel->name }}</h3>
-                                            @php $score = round($hotel->rating * 2, 1); @endphp
                                             @if($hotel->rating > 0)
-                                                <div class="flex items-center bg-{{ $score >= 8 ? 'green' : ($score >= 7 ? 'blue' : ($score >= 6 ? 'yellow' : 'red')) }}-100 text-{{ $score >= 8 ? 'green' : ($score >= 7 ? 'blue' : ($score >= 6 ? 'yellow' : 'red')) }}-700 font-bold px-2 py-1 rounded-lg">
-                                                    <span class="text-base">{{ number_format($score, 1) }}</span>
-                                                    <span class="text-xs ml-1">/10</span>
+                                                <div class="flex items-center bg-{{ $hotel->rating >= 4 ? 'green' : ($hotel->rating >= 3.5 ? 'blue' : ($hotel->rating >= 3 ? 'yellow' : 'red')) }}-100 text-{{ $hotel->rating >= 4 ? 'green' : ($hotel->rating >= 3.5 ? 'blue' : ($hotel->rating >= 3 ? 'yellow' : 'red')) }}-700 font-bold px-2 py-1 rounded-lg">
+                                                    <i class="fas fa-star text-xs mr-1"></i>
+                                                    <span class="text-base">{{ number_format($hotel->rating, 1) }}</span>
+                                                    <span class="text-xs ml-1">/5</span>
                                                 </div>
                                             @else
                                                 <span class="bg-gray-100 text-gray-600 font-semibold text-xs px-2 py-1 rounded-lg whitespace-nowrap">Novo</span>
@@ -828,13 +828,13 @@
                                         @if($hotel->rating > 0)
                                         <div class="flex items-center gap-3">
                                             <span class="text-sm font-medium">
-                                                @if($score >= 9)
+                                                @if($hotel->rating >= 4.5)
                                                     Excelente
-                                                @elseif($score >= 8)
+                                                @elseif($hotel->rating >= 4)
                                                     Muito Bom
-                                                @elseif($score >= 7)
+                                                @elseif($hotel->rating >= 3.5)
                                                     Bom
-                                                @elseif($score >= 6)
+                                                @elseif($hotel->rating >= 3)
                                                     Regular
                                                 @else
                                                     Razoável
