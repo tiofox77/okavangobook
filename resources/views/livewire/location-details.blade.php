@@ -161,7 +161,7 @@
                                     <i class="fas fa-hotel text-primary mr-2"></i>
                                     <span class="text-gray-700">{{ $location->hotels_count }} hotéis</span>
                                 </div>
-                                <a href="{{ route('search.results', ['selectedProvince' => $location->province, 'location' => $location->name]) }}" class="flex items-center text-sm font-medium text-primary group-hover:text-primary-dark">
+                                <a href="{{ route('search.results', ['province' => $location->province, 'location' => $location->name]) }}" class="flex items-center text-sm font-medium text-primary group-hover:text-primary-dark">
                                     <span>Ver hotéis</span>
                                     <i class="fas fa-arrow-right ml-2 group-hover:ml-3 transition-all"></i>
                                 </a>
@@ -214,7 +214,7 @@
                 </div>
                 
                 <div class="text-center mt-12 animate-fade-in" style="animation-delay: 800ms">
-                    <a href="{{ route('search.results', ['selectedProvince' => $province]) }}" class="inline-block bg-primary text-white px-8 py-4 rounded-lg font-medium hover:bg-primary-dark transition transform hover:scale-105 shadow-lg hover:shadow-xl">
+                    <a href="{{ route('search.results', ['province' => $province]) }}" class="inline-block bg-primary text-white px-8 py-4 rounded-lg font-medium hover:bg-primary-dark transition transform hover:scale-105 shadow-lg hover:shadow-xl">
                         <i class="fas fa-hotel mr-2"></i> Ver todos os hotéis em {{ $provinceName }}
                     </a>
                 </div>
@@ -225,7 +225,7 @@
                 <h3 class="text-2xl font-bold text-gray-800 mb-4">Planeje sua viagem para {{ $provinceName }}</h3>
                 <p class="text-gray-600 max-w-2xl mx-auto mb-6">Descubra os melhores hotéis, restaurantes e atrações para tornar sua viagem inesquecível.</p>
                 <div class="flex flex-wrap justify-center gap-4">
-                    <a href="{{ route('search.results', ['selectedProvince' => $province]) }}" class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition">
+                    <a href="{{ route('search.results', ['province' => $province]) }}" class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition">
                         Encontrar Hotéis
                     </a>
                     <a href="{{ route('about.angola') }}" class="px-6 py-3 bg-white text-primary border border-primary rounded-lg hover:bg-primary/5 transition">

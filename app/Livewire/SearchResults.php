@@ -404,16 +404,10 @@ class SearchResults extends Component
         // ====== FILTROS DE PREÇO ======
         // Usamos apenas where para permitir hotéis que tenham pelo menos um tipo de quarto que atenda ao critério
         if ($this->minPrice > 0 || $this->maxPrice < 1000000) {
+            // Filtra por faixa de preço, de forma coerente com a listagem e a
+            // ordenação (que não restringem os preços por data de validade).
             $query->whereHas('roomTypes.prices', function($q) {
                 $q->whereBetween('price', [$this->minPrice, $this->maxPrice]);
-                
-                // Apenas filtrar por datas se ambas estiverem definidas
-                if ($this->checkIn && $this->checkOut) {
-                    $q->where(function($dateQuery) {
-                        $dateQuery->whereDate('check_in', '<=', $this->checkIn)
-                                 ->whereDate('check_out', '>=', $this->checkOut);
-                    });
-                }
             });
         }
         
