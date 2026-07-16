@@ -32,6 +32,7 @@ Route::prefix('v1')->group(function () {
     Route::middleware(['api.key', 'throttle:60,1'])->group(function () {
         Route::post('/bookings', [BookingController::class, 'store'])->name('api.bookings.store');
         Route::get('/bookings/{code}', [BookingController::class, 'show'])->name('api.bookings.show');
+        Route::post('/bookings/{code}/cancel', [BookingController::class, 'cancel'])->name('api.bookings.cancel');
 
         // Webhooks (registar endpoints que recebem eventos)
         Route::get('/webhooks', [WebhookController::class, 'index'])->name('api.webhooks.index');

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Events\ReservationCreated;
+use App\Events\ReservationStatusChanged;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ReservationResource;
 use App\Models\Hotel;
@@ -101,5 +102,34 @@ class BookingController extends Controller
             ->firstOrFail();
 
         return new ReservationResource($reservation);
+    }
+
+    /**
+     * POST /api/v1/bookings/{code}/cancel
+     * Cancela uma reserva e dispara o webhook reservation.cancelled.
+     */
+    public function cancel(Request $request, string $code)
+    {
+        $reservation = Reservation::where('confirmation_code', $code)
+            ->orWhere('id', $code)
+            ->with('hotel')
+            ->firstOrFail();
+
+        if (in_array($reservation->status, ['cancelled', 'completed'], true)) {
+            return response()->json([
+                'message' => "A reserva já está {$reservation->status} e não pode ser cancelada.",
+            ], 422);
+        }
+
+        $oldStatus = $reservation->status;
+        $reservation->update([
+            'status' => 'cancelled',
+            'cancelled_at' => now(),
+            'cancellation_reason' => $request->input('reason', 'Cancelada via API'),
+        ]);
+
+        event(new ReservationStatusChanged($reservation, $oldStatus, 'cancelled'));
+
+        return new ReservationResource($reservation->fresh('hotel'));
     }
 }
