@@ -8,6 +8,7 @@ use App\Models\Price;
 use App\Models\RoomType;
 use App\Models\Setting;
 use App\Models\User;
+use Illuminate\Support\Str;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Livewire\Component;
@@ -390,17 +391,8 @@ class HomePage extends Component
                 ->whereNotNull('thumbnail')
                 ->first();
             
-            if ($hotel && $hotel->thumbnail) {
-                $this->propertyTypeImages[$type] = $hotel->thumbnail;
-            } else {
-                // Fallback - tentar pegar de featured_image
-                $hotel = Hotel::where('property_type', $type)
-                    ->where('is_active', true)
-                    ->whereNotNull('featured_image')
-                    ->first();
-                
-                $this->propertyTypeImages[$type] = $hotel ? $hotel->featured_image : null;
-            }
+            // A coluna featured_image não existe; usamos apenas thumbnail.
+            $this->propertyTypeImages[$type] = $hotel?->thumbnail;
         }
     }
     
