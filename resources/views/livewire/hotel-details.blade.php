@@ -137,7 +137,7 @@
             <!-- Navegação de volta -->
             <div class="mb-6">
                 <a href="{{ url()->previous() }}" class="inline-flex items-center text-gray-600 hover:text-blue-600 transition-colors">
-                    <i class="fas fa-arrow-left mr-2"></i> Voltar aos resultados
+                    <i class="fas fa-arrow-left mr-2"></i> {{ __('Voltar aos resultados') }}
                 </a>
             </div>
             
@@ -153,17 +153,17 @@
                                 @if($propertyType === 'resort')
                                     <div class="inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-full text-sm font-semibold mb-2">
                                         <i class="fas fa-umbrella-beach"></i>
-                                        <span>Resort de Luxo</span>
+                                        <span>{{ __('Resort de Luxo') }}</span>
                                     </div>
                                 @elseif($propertyType === 'hospedaria')
                                     <div class="inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-green-500 to-teal-500 text-white rounded-full text-sm font-semibold mb-2">
                                         <i class="fas fa-home"></i>
-                                        <span>Hospedaria</span>
+                                        <span>{{ __('Hospedaria') }}</span>
                                     </div>
                                 @else
                                     <div class="inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full text-sm font-semibold mb-2">
                                         <i class="fas fa-hotel"></i>
-                                        <span>Hotel</span>
+                                        <span>{{ __('Hotel') }}</span>
                                     </div>
                                 @endif
                                 
@@ -196,13 +196,13 @@
                                 <button wire:click="addToCompare" wire:loading.attr="disabled" class="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-blue-300 text-blue-600 hover:bg-blue-50 transition-all disabled:opacity-50">
                                     <i class="fas fa-balance-scale" wire:loading.remove wire:target="addToCompare"></i>
                                     <i class="fas fa-spinner fa-spin" wire:loading wire:target="addToCompare"></i>
-                                    <span class="font-medium" wire:loading.remove wire:target="addToCompare">Comparar</span>
+                                    <span class="font-medium" wire:loading.remove wire:target="addToCompare">{{ __('Comparar') }}</span>
                                 </button>
                                 <button wire:click="toggleFavorite" wire:loading.attr="disabled" class="flex items-center gap-2 px-4 py-2 rounded-lg border-2 transition-all disabled:opacity-50 {{ $isFavorited ? 'bg-red-50 border-red-500 text-red-600 hover:bg-red-100' : 'bg-white border-gray-300 text-gray-600 hover:border-red-500 hover:text-red-600' }}">
                                     <i class="{{ $isFavorited ? 'fas' : 'far' }} fa-heart" wire:loading.remove wire:target="toggleFavorite"></i>
                                     <i class="fas fa-spinner fa-spin" wire:loading wire:target="toggleFavorite"></i>
                                     <span class="font-medium" wire:loading.remove wire:target="toggleFavorite">{{ $isFavorited ? 'Remover' : 'Favoritar' }}</span>
-                                    <span class="font-medium" wire:loading wire:target="toggleFavorite">Processando...</span>
+                                    <span class="font-medium" wire:loading wire:target="toggleFavorite">{{ __('Processando...') }}</span>
                                 </button>
                             </div>
                         </div>
@@ -212,7 +212,7 @@
                             <button wire:click="addToCompare" wire:loading.attr="disabled" class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg border-2 border-blue-300 text-blue-600 transition-all disabled:opacity-50">
                                 <i class="fas fa-balance-scale" wire:loading.remove wire:target="addToCompare"></i>
                                 <i class="fas fa-spinner fa-spin" wire:loading wire:target="addToCompare"></i>
-                                <span class="font-medium" wire:loading.remove wire:target="addToCompare">Comparar</span>
+                                <span class="font-medium" wire:loading.remove wire:target="addToCompare">{{ __('Comparar') }}</span>
                             </button>
                             <button wire:click="toggleFavorite" wire:loading.attr="disabled" class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg border-2 transition-all disabled:opacity-50 {{ $isFavorited ? 'bg-red-50 border-red-500 text-red-600' : 'bg-white border-gray-300 text-gray-600' }}">
                                 <i class="{{ $isFavorited ? 'fas' : 'far' }} fa-heart" wire:loading.remove wire:target="toggleFavorite"></i>
@@ -227,11 +227,11 @@
                         @if(count($roomTypes) > 0 && isset($roomTypes[0]['lowest_price']))
                             <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-5 border-2 border-blue-200">
                                 <div class="text-center">
-                                    <p class="text-xs font-medium text-gray-600 uppercase tracking-wide mb-2">A partir de</p>
+                                    <p class="text-xs font-medium text-gray-600 uppercase tracking-wide mb-2">{{ __('A partir de') }}</p>
                                     <div class="text-4xl font-bold text-blue-600 mb-1">
                                         AKZ {{ number_format($roomTypes[0]['lowest_price'] / $nights, 0, ',', '.') }}
                                     </div>
-                                    <p class="text-sm text-gray-600 mb-4">por noite</p>
+                                    <p class="text-sm text-gray-600 mb-4">{{ __('por noite') }}</p>
                                     
                                     <div class="bg-white rounded-lg p-3 mb-4">
                                         <div class="flex items-center justify-between text-sm">
@@ -241,7 +241,7 @@
                                     </div>
                                     
                                     <a href="#rooms" class="block w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg">
-                                        Ver Quartos Disponíveis
+                                        {{ __('Ver Quartos Disponíveis') }}
                                     </a>
                                 </div>
                             </div>
@@ -249,7 +249,7 @@
                             <div class="bg-red-50 rounded-xl p-5 border-2 border-red-200">
                                 <div class="text-center">
                                     <i class="fas fa-calendar-times text-red-400 text-3xl mb-3"></i>
-                                    <h3 class="text-red-600 font-bold mb-2">Sem Disponibilidade</h3>
+                                    <h3 class="text-red-600 font-bold mb-2">{{ __('Sem Disponibilidade') }}</h3>
                                     <p class="text-gray-600 text-sm">Não há quartos disponíveis nas datas selecionadas. Tente outras datas.</p>
                                 </div>
                             </div>
@@ -337,8 +337,8 @@
                 <div class="bg-white bg-opacity-20 rounded-full p-6 mb-4">
                     <i class="fas fa-camera text-4xl"></i>
                 </div>
-                <h3 class="text-lg font-semibold">Sem imagens disponíveis</h3>
-                <p class="text-sm text-white text-opacity-80 mt-1">Este hotel ainda não tem fotografias</p>
+                <h3 class="text-lg font-semibold">{{ __('Sem imagens disponíveis') }}</h3>
+                <p class="text-sm text-white text-opacity-80 mt-1">{{ __('Este hotel ainda não tem fotografias') }}</p>
             </div>
             @endif
             
@@ -349,20 +349,20 @@
                         wire:click="changeTab('info')" 
                         class="py-4 px-6 font-medium {{ $activeTab == 'info' ? 'text-primary border-b-2 border-primary' : 'text-gray-500 hover:text-gray-700' }}"
                     >
-                        <i class="fas fa-info-circle mr-2"></i> Informações
+                        <i class="fas fa-info-circle mr-2"></i> {{ __('Informações') }}
                     </button>
                     <button 
                         wire:click="changeTab('rooms')" 
                         class="py-4 px-6 font-medium {{ $activeTab == 'rooms' ? 'text-primary border-b-2 border-primary' : 'text-gray-500 hover:text-gray-700' }}"
                     >
-                        <i class="fas fa-bed mr-2"></i> Quartos
+                        <i class="fas fa-bed mr-2"></i> {{ __('Quartos') }}
                     </button>
                     @if(isset($hotel->restaurantItems) && $hotel->restaurantItems->count() > 0)
                         <button 
                             wire:click="changeTab('restaurant')" 
                             class="py-4 px-6 font-medium {{ $activeTab == 'restaurant' ? 'text-primary border-b-2 border-primary' : 'text-gray-500 hover:text-gray-700' }}"
                         >
-                            <i class="fas fa-utensils mr-2"></i> Restaurante
+                            <i class="fas fa-utensils mr-2"></i> {{ __('Restaurante') }}
                         </button>
                     @endif
                     @if(isset($hotel->leisureFacilities) && $hotel->leisureFacilities->count() > 0)
@@ -370,20 +370,20 @@
                             wire:click="changeTab('leisure')" 
                             class="py-4 px-6 font-medium {{ $activeTab == 'leisure' ? 'text-primary border-b-2 border-primary' : 'text-gray-500 hover:text-gray-700' }}"
                         >
-                            <i class="fas fa-swimming-pool mr-2"></i> Lazer
+                            <i class="fas fa-swimming-pool mr-2"></i> {{ __('Lazer') }}
                         </button>
                     @endif
                     <button 
                         wire:click="changeTab('location')" 
                         class="py-4 px-6 font-medium {{ $activeTab == 'location' ? 'text-primary border-b-2 border-primary' : 'text-gray-500 hover:text-gray-700' }}"
                     >
-                        <i class="fas fa-map-marker-alt mr-2"></i> Localização
+                        <i class="fas fa-map-marker-alt mr-2"></i> {{ __('Localização') }}
                     </button>
                     <button 
                         wire:click="changeTab('reviews')" 
                         class="py-4 px-6 font-medium {{ $activeTab == 'reviews' ? 'text-primary border-b-2 border-primary' : 'text-gray-500 hover:text-gray-700' }}"
                     >
-                        <i class="fas fa-star mr-2"></i> Avaliações
+                        <i class="fas fa-star mr-2"></i> {{ __('Avaliações') }}
                     </button>
                 </nav>
             </div>
@@ -417,7 +417,7 @@
                             <div class="mt-8 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-6 border-2 border-amber-200">
                                 <div class="flex items-center gap-3 mb-4">
                                     <i class="fas fa-crown text-3xl text-amber-600"></i>
-                                    <h3 class="text-2xl font-bold text-gray-900">Experiência Resort de Luxo</h3>
+                                    <h3 class="text-2xl font-bold text-gray-900">{{ __('Experiência Resort de Luxo') }}</h3>
                                 </div>
                                 <p class="text-gray-700 leading-relaxed mb-6">
                                     Desfrute de uma experiência completa com todas as comodidades de um resort de classe mundial. 
@@ -429,9 +429,9 @@
                                     <div class="bg-white rounded-lg p-4 shadow-sm">
                                         <div class="flex items-center gap-3 mb-2">
                                             <i class="fas fa-umbrella-beach text-2xl text-amber-600"></i>
-                                            <h4 class="font-bold text-gray-900">Área de Lazer</h4>
+                                            <h4 class="font-bold text-gray-900">{{ __('Área de Lazer') }}</h4>
                                         </div>
-                                        <p class="text-sm text-gray-600">Piscinas, jardins e áreas de relaxamento</p>
+                                        <p class="text-sm text-gray-600">{{ __('Piscinas, jardins e áreas de relaxamento') }}</p>
                                     </div>
                                     
                                     <div class="bg-white rounded-lg p-4 shadow-sm">
@@ -439,23 +439,23 @@
                                             <i class="fas fa-spa text-2xl text-teal-600"></i>
                                             <h4 class="font-bold text-gray-900">Spa & Wellness</h4>
                                         </div>
-                                        <p class="text-sm text-gray-600">Tratamentos e massagens exclusivas</p>
+                                        <p class="text-sm text-gray-600">{{ __('Tratamentos e massagens exclusivas') }}</p>
                                     </div>
                                     
                                     <div class="bg-white rounded-lg p-4 shadow-sm">
                                         <div class="flex items-center gap-3 mb-2">
                                             <i class="fas fa-utensils text-2xl text-red-600"></i>
-                                            <h4 class="font-bold text-gray-900">Gastronomia</h4>
+                                            <h4 class="font-bold text-gray-900">{{ __('Gastronomia') }}</h4>
                                         </div>
-                                        <p class="text-sm text-gray-600">Restaurantes e bares de alta cozinha</p>
+                                        <p class="text-sm text-gray-600">{{ __('Restaurantes e bares de alta cozinha') }}</p>
                                     </div>
                                     
                                     <div class="bg-white rounded-lg p-4 shadow-sm">
                                         <div class="flex items-center gap-3 mb-2">
                                             <i class="fas fa-dumbbell text-2xl text-blue-600"></i>
-                                            <h4 class="font-bold text-gray-900">Fitness & Desporto</h4>
+                                            <h4 class="font-bold text-gray-900">{{ __('Fitness & Desporto') }}</h4>
                                         </div>
-                                        <p class="text-sm text-gray-600">Ginásio, courts e atividades</p>
+                                        <p class="text-sm text-gray-600">{{ __('Ginásio, courts e atividades') }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -496,12 +496,12 @@
                     <!-- Quartos disponíveis -->
                     <div id="rooms" class="bg-white rounded-lg shadow-md p-6 mb-8">
                         <div class="flex justify-between items-center mb-6">
-                            <h2 class="text-2xl font-bold">Quartos disponíveis</h2>
+                            <h2 class="text-2xl font-bold">{{ __('Quartos disponíveis') }}</h2>
                             
                             <!-- Formulário para alterar datas -->
                             <div class="flex items-center space-x-2">
                                 <div>
-                                    <label for="check_in" class="block text-sm font-medium text-gray-700">Check-in</label>
+                                    <label for="check_in" class="block text-sm font-medium text-gray-700">{{ __('Check-in') }}</label>
                                     <input 
                                         type="date" 
                                         id="check_in" 
@@ -510,7 +510,7 @@
                                     >
                                 </div>
                                 <div>
-                                    <label for="check_out" class="block text-sm font-medium text-gray-700">Check-out</label>
+                                    <label for="check_out" class="block text-sm font-medium text-gray-700">{{ __('Check-out') }}</label>
                                     <input 
                                         type="date" 
                                         id="check_out" 
@@ -523,7 +523,7 @@
                                         wire:click="updateDates" 
                                         class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
                                     >
-                                        <i class="fas fa-search mr-2"></i> Atualizar
+                                        <i class="fas fa-search mr-2"></i> {{ __('Atualizar') }}
                                     </button>
                                 </div>
                             </div>
@@ -612,7 +612,7 @@
                                         @if($propertyType === 'resort')
                                             <div class="flex items-center gap-2 my-2">
                                                 <span class="inline-flex items-center px-2 py-1 bg-amber-100 text-amber-800 text-xs font-semibold rounded">
-                                                    <i class="fas fa-gem mr-1"></i>Experiência Premium
+                                                    <i class="fas fa-gem mr-1"></i>{{ __('Experiência Premium') }}
                                                 </span>
                                             </div>
                                         @endif
@@ -630,7 +630,7 @@
                                                         <div class="text-sm text-gray-600">preço base por noite</div>
                                                     @endif
                                                 @else
-                                                    <div class="text-red-600">Sem disponibilidade</div>
+                                                    <div class="text-red-600">{{ __('Sem disponibilidade') }}</div>
                                                 @endif
                                             </div>
                                             
@@ -640,14 +640,14 @@
                                                     wire:click="selectRoom('{{ $room['id'] }}')" 
                                                     class="px-4 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-100 transition-colors"
                                                 >
-                                                    Detalhes
+                                                    {{ __('Detalhes') }}
                                                 </button>
                                                 @if($room['is_available'])
                                                     <button
                                                         wire:click="bookRoom('{{ $room['id'] }}')" 
                                                         class="px-4 py-2 bg-primary text-white rounded hover:bg-blue-700 transition-colors"
                                                     >
-                                                        Reservar agora
+                                                        {{ __('Reservar agora') }}
                                                     </button>
                                                 @endif
                                             </div>
@@ -661,7 +661,7 @@
                                         <div class="flex flex-col gap-8">
                                             <!-- Galeria de fotos -->
                                             <div>
-                                                <h4 class="font-bold text-lg mb-3">Fotos do quarto</h4>
+                                                <h4 class="font-bold text-lg mb-3">{{ __('Fotos do quarto') }}</h4>
                                                 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                                                     @php
                                                         $galleryImages = $room['images'] ?? [];
@@ -699,7 +699,7 @@
                                                     @empty
                                                         <div class="col-span-full p-4 text-center text-gray-500">
                                                             <i class="fas fa-images mb-2 text-2xl"></i>
-                                                            <p>Sem imagens disponíveis</p>
+                                                            <p>{{ __('Sem imagens disponíveis') }}</p>
                                                         </div>
                                                     @endforelse
                                                 </div>
@@ -707,14 +707,14 @@
                                         
                                             <!-- Descrição completa e amenidades -->
                                             <div>
-                                                <h4 class="font-bold text-lg mb-3">Detalhes do quarto</h4>
+                                                <h4 class="font-bold text-lg mb-3">{{ __('Detalhes do quarto') }}</h4>
                                                 <p class="text-gray-600 mb-4">{{ $room['description'] }}</p>
                                                 
                                                 <div class="flex flex-wrap gap-6 mb-6">
                                                     <div class="flex items-center">
                                                         <i class="fas fa-user-friends text-primary mr-2 text-lg"></i>
                                                         <div>
-                                                            <div class="font-medium">Capacidade</div>
+                                                            <div class="font-medium">{{ __('Capacidade') }}</div>
                                                             <div class="text-gray-600">{{ $room['capacity'] }} hóspedes</div>
                                                         </div>
                                                     </div>
@@ -722,7 +722,7 @@
                                                     <div class="flex items-center">
                                                         <i class="fas fa-bed text-primary mr-2 text-lg"></i>
                                                         <div>
-                                                            <div class="font-medium">Camas</div>
+                                                            <div class="font-medium">{{ __('Camas') }}</div>
                                                             <div class="text-gray-600">{{ $room['beds'] }} {{ $room['beds'] == 1 ? 'cama' : 'camas' }} ({{ $room['bed_type'] }})</div>
                                                         </div>
                                                     </div>
@@ -730,13 +730,13 @@
                                                     <div class="flex items-center">
                                                         <i class="fas fa-expand-arrows-alt text-primary mr-2 text-lg"></i>
                                                         <div>
-                                                            <div class="font-medium">Tamanho</div>
+                                                            <div class="font-medium">{{ __('Tamanho') }}</div>
                                                             <div class="text-gray-600">{{ $room['size'] }} m²</div>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 
-                                                <h4 class="font-bold text-lg mb-3">Comodidades</h4>
+                                                <h4 class="font-bold text-lg mb-3">{{ __('Comodidades') }}</h4>
                                                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                                                     @foreach($room['amenities'] as $amenity)
                                                         <div class="flex items-center">
@@ -753,7 +753,7 @@
                         @empty
                             <div class="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
                                 <i class="fas fa-bed text-5xl text-gray-300 mb-4"></i>
-                                <h3 class="text-xl font-bold text-gray-700 mb-2">Nenhum quarto disponível</h3>
+                                <h3 class="text-xl font-bold text-gray-700 mb-2">{{ __('Nenhum quarto disponível') }}</h3>
                                 <p class="text-gray-600">Não há quartos disponíveis para as datas selecionadas. Tente alterar as datas ou entrar em contato diretamente com o hotel.</p>
                             </div>
                         @endforelse
@@ -766,7 +766,7 @@
                             <div class="bg-gradient-to-r from-red-50 to-orange-50 rounded-xl p-6 mb-6 border-2 border-red-200">
                                 <div class="flex items-center gap-3 mb-3">
                                     <i class="fas fa-concierge-bell text-3xl text-red-600"></i>
-                                    <h2 class="text-2xl font-bold text-gray-900">Gastronomia de Excelência</h2>
+                                    <h2 class="text-2xl font-bold text-gray-900">{{ __('Gastronomia de Excelência') }}</h2>
                                 </div>
                                 <p class="text-gray-700">
                                     Delicie-se com nossa seleção gastronómica cuidadosamente elaborada pelos nossos chefs. 
@@ -774,11 +774,11 @@
                                 </p>
                             </div>
                         @else
-                            <h2 class="text-2xl font-bold mb-6">Menu do Restaurante</h2>
+                            <h2 class="text-2xl font-bold mb-6">{{ __('Menu do Restaurante') }}</h2>
                         @endif
                         
                         <h3 class="text-xl font-bold mb-4">
-                            <i class="fas fa-utensils text-primary mr-2"></i> Menu do Restaurante
+                            <i class="fas fa-utensils text-primary mr-2"></i> {{ __('Menu do Restaurante') }}
                         </h2>
                         
                         @if(isset($hotel->restaurantItems) && $hotel->restaurantItems->count() > 0)
@@ -815,12 +815,12 @@
                                                             @endif
                                                             @if($item->is_gluten_free)
                                                                 <span class="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full" title="Sem Glúten">
-                                                                    <i class="fas fa-wheat"></i> S/Glúten
+                                                                    <i class="fas fa-wheat"></i> {{ __('S/Glúten') }}
                                                                 </span>
                                                             @endif
                                                             @if($item->is_spicy)
                                                                 <span class="text-xs bg-red-100 text-red-800 px-2 py-0.5 rounded-full" title="Picante">
-                                                                    <i class="fas fa-pepper-hot"></i> Picante
+                                                                    <i class="fas fa-pepper-hot"></i> {{ __('Picante') }}
                                                                 </span>
                                                             @endif
                                                         </h4>
@@ -874,7 +874,7 @@
                             <div class="bg-gradient-to-r from-blue-50 to-teal-50 rounded-xl p-6 mb-6 border-2 border-blue-200">
                                 <div class="flex items-center gap-3 mb-3">
                                     <i class="fas fa-water text-3xl text-blue-600"></i>
-                                    <h2 class="text-2xl font-bold text-gray-900">Instalações de Lazer Premium</h2>
+                                    <h2 class="text-2xl font-bold text-gray-900">{{ __('Instalações de Lazer Premium') }}</h2>
                                 </div>
                                 <p class="text-gray-700">
                                     Explore nossas instalações de lazer de classe mundial. Desde piscinas deslumbrantes até áreas de fitness completas, 
@@ -882,11 +882,11 @@
                                 </p>
                             </div>
                         @else
-                            <h2 class="text-2xl font-bold mb-6">Instalações de Lazer</h2>
+                            <h2 class="text-2xl font-bold mb-6">{{ __('Instalações de Lazer') }}</h2>
                         @endif
                         
                         <h3 class="text-xl font-bold mb-4">
-                            <i class="fas fa-swimming-pool text-primary mr-2"></i> Instalações de Lazer
+                            <i class="fas fa-swimming-pool text-primary mr-2"></i> {{ __('Instalações de Lazer') }}
                         </h2>
                         
                         <div class="grid md:grid-cols-2 gap-6">
@@ -922,7 +922,7 @@
                                         <div class="flex items-center gap-2 mb-3">
                                             @if($facility->is_free)
                                                 <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full font-medium">
-                                                    <i class="fas fa-check-circle mr-1"></i> Grátis para hóspedes
+                                                    <i class="fas fa-check-circle mr-1"></i> {{ __('Grátis para hóspedes') }}
                                                 </span>
                                             @else
                                                 <div class="text-sm">
@@ -965,7 +965,7 @@
                                             @if($facility->requires_booking)
                                                 <div class="flex items-center text-orange-600">
                                                     <i class="fas fa-calendar-check w-5"></i>
-                                                    <span class="font-medium">Reserva necessária</span>
+                                                    <span class="font-medium">{{ __('Reserva necessária') }}</span>
                                                 </div>
                                             @endif
                                         </div>
@@ -993,7 +993,7 @@
                 @elseif($activeTab == 'location')
                     <!-- Localização -->
                     <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-                        <h2 class="text-2xl font-bold mb-4">Localização</h2>
+                        <h2 class="text-2xl font-bold mb-4">{{ __('Localização') }}</h2>
                         
                         <p class="text-gray-600 mb-4">
                             <i class="fas fa-map-marker-alt mr-2 text-primary"></i>
@@ -1004,14 +1004,14 @@
                         <div class="h-80 bg-gray-200 rounded-lg flex items-center justify-center mb-4">
                             <div class="text-center">
                                 <i class="fas fa-map-marked-alt text-5xl text-gray-400 mb-2"></i>
-                                <p>Mapa estará disponível em breve</p>
+                                <p>{{ __('Mapa estará disponível em breve') }}</p>
                             </div>
                         </div>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
                             <!-- Coordenadas -->
                             <div class="border border-gray-200 rounded-lg p-4">
-                                <h3 class="font-bold mb-2">Coordenadas</h3>
+                                <h3 class="font-bold mb-2">{{ __('Coordenadas') }}</h3>
                                 <p class="text-gray-600">Latitude: {{ $hotel->latitude ?? 'N/A' }}</p>
                                 <p class="text-gray-600">Longitude: {{ $hotel->longitude ?? 'N/A' }}</p>
                             </div>
@@ -1033,24 +1033,24 @@
             <div class="w-full lg:w-4/12">
                 <!-- Reserva rápida -->
                 <div class="bg-white rounded-lg shadow-md p-6 mb-6 sticky top-4">
-                    <h2 class="text-xl font-bold mb-4">Detalhes da reserva</h2>
+                    <h2 class="text-xl font-bold mb-4">{{ __('Detalhes da reserva') }}</h2>
                     
                     <!-- Datas e hóspedes -->
                     <div class="mb-4">
                         <div class="flex justify-between py-2 border-b border-gray-100">
-                            <span class="text-gray-600">Check-in</span>
+                            <span class="text-gray-600">{{ __('Check-in') }}</span>
                             <span class="font-medium">{{ \Carbon\Carbon::parse($checkIn)->format('d/m/Y') }}</span>
                         </div>
                         <div class="flex justify-between py-2 border-b border-gray-100">
-                            <span class="text-gray-600">Check-out</span>
+                            <span class="text-gray-600">{{ __('Check-out') }}</span>
                             <span class="font-medium">{{ \Carbon\Carbon::parse($checkOut)->format('d/m/Y') }}</span>
                         </div>
                         <div class="flex justify-between py-2 border-b border-gray-100">
-                            <span class="text-gray-600">Duração</span>
+                            <span class="text-gray-600">{{ __('Duração') }}</span>
                             <span class="font-medium">{{ $nights }} {{ $nights == 1 ? 'noite' : 'noites' }}</span>
                         </div>
                         <div class="flex justify-between py-2">
-                            <span class="text-gray-600">Hóspedes</span>
+                            <span class="text-gray-600">{{ __('Hóspedes') }}</span>
                             <span class="font-medium">{{ $guests }} {{ $guests == 1 ? 'hóspede' : 'hóspedes' }}</span>
                         </div>
                     </div>
@@ -1059,7 +1059,7 @@
                     @if(count($roomTypes) > 0 && isset($roomTypes[0]['lowest_price']))
                         <div class="mt-6 pt-4 border-t border-gray-200">
                             <div class="flex justify-between mb-2">
-                                <span class="text-gray-600">Melhor preço:</span>
+                                <span class="text-gray-600">{{ __('Melhor preço:') }}</span>
                                 <div class="text-right">
                                     <div class="font-bold text-primary">AKZ {{ number_format($roomTypes[0]['lowest_price'], 0, ',', '.') }}</div>
                                     <div class="text-xs text-gray-500">por {{ $nights }} {{ $nights == 1 ? 'noite' : 'noites' }}</div>
@@ -1073,14 +1073,14 @@
                                 onclick="setTimeout(() => document.getElementById('rooms')?.scrollIntoView({behavior: 'smooth'}), 100)"
                                 class="block w-full text-center bg-primary hover:bg-blue-700 text-white font-bold py-3 px-4 rounded transition duration-300 cursor-pointer"
                             >
-                                Ver quartos e preços
+                                {{ __('Ver quartos e preços') }}
                             </button>
                         </div>
                     @endif
                     
                     <!-- Contato do hotel -->
                     <div class="mt-6 pt-4 border-t border-gray-200">
-                        <h3 class="font-bold mb-2">Contato</h3>
+                        <h3 class="font-bold mb-2">{{ __('Contato') }}</h3>
                         @if($hotel->phone)
                             <div class="flex items-center mb-2">
                                 <i class="fas fa-phone-alt text-gray-500 mr-2"></i>
@@ -1096,7 +1096,7 @@
                         @if($hotel->website)
                             <div class="flex items-center">
                                 <i class="fas fa-globe text-gray-500 mr-2"></i>
-                                <a href="{{ $hotel->website }}" target="_blank" class="text-primary hover:underline">Website oficial</a>
+                                <a href="{{ $hotel->website }}" target="_blank" class="text-primary hover:underline">{{ __('Website oficial') }}</a>
                             </div>
                         @endif
                     </div>

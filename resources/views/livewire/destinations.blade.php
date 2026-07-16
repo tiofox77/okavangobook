@@ -16,7 +16,7 @@
             </div>
             <div class="container mx-auto px-4 py-16 relative z-10">
                 <div class="text-center text-white">
-                    <h1 class="text-4xl md:text-5xl font-bold mb-4 animate-fade-in-down">Províncias de Angola</h1>
+                    <h1 class="text-4xl md:text-5xl font-bold mb-4 animate-fade-in-down">{{ __('Províncias de Angola') }}</h1>
                     <p class="text-lg md:text-xl max-w-3xl mx-auto opacity-90 mb-8 animate-fade-in-up">
                         Explore as 18 províncias de Angola, cada uma com sua cultura única, paisagens deslumbrantes e experiências incríveis.
                     </p>
@@ -35,13 +35,13 @@
             <!-- Filter Section -->
             <div class="mb-12 flex flex-col md:flex-row justify-between items-center bg-white p-6 rounded-xl shadow-sm animate-fade-in">
                 <div class="mb-4 md:mb-0">
-                    <h2 class="text-2xl font-bold text-gray-800">Descubra Angola</h2>
-                    <p class="text-gray-600">Encontre o seu próximo destino entre as 18 províncias</p>
+                    <h2 class="text-2xl font-bold text-gray-800">{{ __('Descubra Angola') }}</h2>
+                    <p class="text-gray-600">{{ __('Encontre o seu próximo destino entre as 18 províncias') }}</p>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <span class="text-gray-600">Ordenar por:</span>
-                    <button class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition">Popularidade</button>
-                    <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">Alfabética</button>
+                    <span class="text-gray-600">{{ __('Ordenar por:') }}</span>
+                    <button class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition">{{ __('Popularidade') }}</button>
+                    <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">{{ __('Alfabética') }}</button>
                 </div>
             </div>
 
@@ -73,7 +73,7 @@
                                         <span class="text-gray-700">{{ $location->hotels_count }} hotéis</span>
                                     </div>
                                     <div class="flex items-center text-sm font-medium text-primary">
-                                        <span>Explorar</span>
+                                        <span>{{ __('Explorar') }}</span>
                                         <i class="fas fa-arrow-right ml-2 group-hover:ml-3 transition-all"></i>
                                     </div>
                                 </div>
@@ -86,10 +86,10 @@
 
             <!-- Call to Action -->
             <div class="mt-16 text-center animate-fade-in">
-                <h3 class="text-2xl font-bold text-gray-800 mb-4">Não sabe por onde começar?</h3>
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">{{ __('Não sabe por onde começar?') }}</h3>
                 <p class="text-gray-600 max-w-2xl mx-auto mb-6">Nossa equipe selecionou roteiros especiais para você conhecer o melhor de Angola.</p>
                 <a href="{{ route('search.results') }}" class="inline-block px-8 py-4 bg-primary text-white rounded-lg hover:bg-primary-dark transition transform hover:scale-105">
-                    Ver Hotéis Recomendados
+                    {{ __('Ver Hotéis Recomendados') }}
                 </a>
             </div>
         </div>

@@ -9,7 +9,7 @@
         </div>
         <div class="relative container mx-auto px-4 py-16 text-center">
             <h1 class="text-4xl md:text-5xl font-extrabold mb-4">
-                Escolha o Plano Ideal para o Seu Negócio
+                {{ __('Escolha o Plano Ideal para o Seu Negócio') }}
             </h1>
             <p class="text-lg md:text-xl text-purple-100 max-w-2xl mx-auto mb-8">
                 Comece gratuitamente e faça upgrade quando precisar. Planos flexíveis para proprietários de todos os tamanhos.
@@ -20,12 +20,12 @@
                 <button wire:click="switchCycle('monthly')"
                     class="px-6 py-2.5 rounded-full text-sm font-semibold transition-all duration-300
                     {{ $billingCycle === 'monthly' ? 'bg-white text-indigo-700 shadow-lg' : 'text-white hover:text-indigo-200' }}">
-                    Mensal
+                    {{ __('Mensal') }}
                 </button>
                 <button wire:click="switchCycle('yearly')"
                     class="px-6 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 flex items-center
                     {{ $billingCycle === 'yearly' ? 'bg-white text-indigo-700 shadow-lg' : 'text-white hover:text-indigo-200' }}">
-                    Anual
+                    {{ __('Anual') }}
                     <span class="ml-2 bg-green-500 text-white text-xs px-2 py-0.5 rounded-full font-bold">-17%</span>
                 </button>
             </div>
@@ -58,17 +58,17 @@
                             <i class="fas fa-hourglass-half text-xl"></i>
                         </div>
                         <div>
-                            <p class="font-bold text-amber-800">Pagamento Pendente de Validação</p>
+                            <p class="font-bold text-amber-800">{{ __('Pagamento Pendente de Validação') }}</p>
                             <p class="text-sm text-amber-700 mt-1">
-                                Plano <strong>{{ $pendingPayment->plan->name }}</strong> &mdash;
+                                {{ __('Plano') }} <strong>{{ $pendingPayment->plan->name }}</strong> &mdash;
                                 {{ number_format($pendingPayment->amount, 0, ',', '.') }} {{ $pendingPayment->currency }}
                             </p>
                             <p class="text-xs text-amber-600 mt-1">
-                                <i class="fas fa-hashtag mr-1"></i>Referência: <strong class="font-mono">{{ $pendingPayment->reference_code }}</strong>
+                                <i class="fas fa-hashtag mr-1"></i>{{ __('Referência:') }} <strong class="font-mono">{{ $pendingPayment->reference_code }}</strong>
                                 &mdash; Enviado em {{ $pendingPayment->created_at->format('d/m/Y H:i') }}
                             </p>
                             <p class="text-xs text-amber-600 mt-0.5">
-                                <i class="fas fa-clock mr-1"></i>A nossa equipa irá validar o pagamento em até 24h úteis.
+                                <i class="fas fa-clock mr-1"></i>{{ __('A nossa equipa irá validar o pagamento em até 24h úteis.') }}
                             </p>
                         </div>
                     </div>
@@ -99,7 +99,7 @@
                     </div>
                 </div>
                 <a href="{{ route('admin.my-subscription') }}" class="px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors text-sm">
-                    <i class="fas fa-gem mr-1"></i> Gerir Plano
+                    <i class="fas fa-gem mr-1"></i> {{ __('Gerir Plano') }}
                 </a>
             </div>
         </div>
@@ -116,7 +116,7 @@
                     @if($plan->is_popular && (!$currentPlan || $currentPlan->id !== $plan->id))
                         <div class="absolute -top-4 left-1/2 transform -translate-x-1/2">
                             <span class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-1.5 rounded-full text-xs font-bold uppercase shadow-lg">
-                                <i class="fas fa-fire mr-1"></i> Mais Popular
+                                <i class="fas fa-fire mr-1"></i> {{ __('Mais Popular') }}
                             </span>
                         </div>
                     @endif
@@ -124,7 +124,7 @@
                     @if($currentPlan && $currentPlan->id === $plan->id)
                         <div class="absolute -top-4 left-1/2 transform -translate-x-1/2">
                             <span class="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-1.5 rounded-full text-xs font-bold uppercase shadow-lg">
-                                <i class="fas fa-check mr-1"></i> Plano Actual
+                                <i class="fas fa-check mr-1"></i> {{ __('Plano Actual') }}
                             </span>
                         </div>
                     @endif
@@ -146,18 +146,18 @@
 
                         <div class="mb-2">
                             @if($plan->is_free)
-                                <div class="text-4xl font-extrabold text-green-600">Grátis</div>
+                                <div class="text-4xl font-extrabold text-green-600">{{ __('Grátis') }}</div>
                                 <p class="text-sm text-gray-500 mt-1">durante 1 ano completo</p>
                             @else
                                 @if($billingCycle === 'monthly')
                                     <div class="flex items-baseline justify-center">
                                         <span class="text-4xl font-extrabold text-gray-900">{{ number_format($plan->price_monthly, 0, ',', '.') }}</span>
-                                        <span class="text-gray-500 ml-1">AOA/mês</span>
+                                        <span class="text-gray-500 ml-1">{{ __('AOA/mês') }}</span>
                                     </div>
                                 @else
                                     <div class="flex items-baseline justify-center">
                                         <span class="text-4xl font-extrabold text-gray-900">{{ number_format($plan->price_yearly / 12, 0, ',', '.') }}</span>
-                                        <span class="text-gray-500 ml-1">AOA/mês</span>
+                                        <span class="text-gray-500 ml-1">{{ __('AOA/mês') }}</span>
                                     </div>
                                     <p class="text-sm text-gray-500 mt-1">
                                         {{ number_format($plan->price_yearly, 0, ',', '.') }} AOA/ano
@@ -174,7 +174,7 @@
 
                     <!-- Features / Benefits List -->
                     <div class="p-6 flex-1">
-                        <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Benefícios incluídos:</p>
+                        <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">{{ __('Benefícios incluídos:') }}</p>
                         <ul class="space-y-2.5">
                             @foreach($plan->features_list as $feature)
                                 <li class="flex items-start text-sm">
@@ -198,22 +198,22 @@
                     <div class="p-6 pt-0">
                         @if($currentPlan && $currentPlan->id === $plan->id)
                             <button disabled class="w-full py-3 px-6 rounded-xl font-semibold text-green-700 bg-green-100 cursor-not-allowed">
-                                <i class="fas fa-check mr-2"></i> Plano Actual
+                                <i class="fas fa-check mr-2"></i> {{ __('Plano Actual') }}
                             </button>
                         @elseif($plan->is_free)
                             <button wire:click="selectPlan({{ $plan->id }})"
                                 class="w-full py-3 px-6 rounded-xl font-semibold text-white bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02]">
-                                <i class="fas fa-gift mr-2"></i> Começar Grátis
+                                <i class="fas fa-gift mr-2"></i> {{ __('Começar Grátis') }}
                             </button>
                         @elseif($plan->is_popular)
                             <button wire:click="selectPlan({{ $plan->id }})"
                                 class="w-full py-3 px-6 rounded-xl font-semibold text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02]">
-                                <i class="fas fa-rocket mr-2"></i> Escolher Plano
+                                <i class="fas fa-rocket mr-2"></i> {{ __('Escolher Plano') }}
                             </button>
                         @else
                             <button wire:click="selectPlan({{ $plan->id }})"
                                 class="w-full py-3 px-6 rounded-xl font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 border-2 border-gray-200 hover:border-gray-300 transition-all duration-300">
-                                Escolher Plano
+                                {{ __('Escolher Plano') }}
                             </button>
                         @endif
                     </div>
@@ -224,12 +224,12 @@
 
     <!-- Comparison Table -->
     <div class="container mx-auto px-4 pb-12 max-w-6xl">
-        <h2 class="text-3xl font-bold text-center text-gray-900 mb-8">Comparação Detalhada de Planos</h2>
+        <h2 class="text-3xl font-bold text-center text-gray-900 mb-8">{{ __('Comparação Detalhada de Planos') }}</h2>
         <div class="overflow-x-auto bg-white rounded-2xl shadow-lg border border-gray-100">
             <table class="w-full text-sm">
                 <thead>
                     <tr class="bg-gray-50 border-b border-gray-200">
-                        <th class="px-6 py-4 text-left text-gray-700 font-bold">Funcionalidade</th>
+                        <th class="px-6 py-4 text-left text-gray-700 font-bold">{{ __('Funcionalidade') }}</th>
                         @foreach($plans as $plan)
                             <th class="px-4 py-4 text-center {{ $plan->is_popular ? 'bg-indigo-50' : '' }}">
                                 <span class="font-bold text-gray-800">{{ $plan->name }}</span>
@@ -239,19 +239,19 @@
                 </thead>
                 <tbody class="divide-y divide-gray-100">
                     <tr>
-                        <td class="px-6 py-3 text-gray-700 font-medium"><i class="fas fa-hotel text-blue-500 mr-2 w-5 text-center"></i>Propriedades</td>
+                        <td class="px-6 py-3 text-gray-700 font-medium"><i class="fas fa-hotel text-blue-500 mr-2 w-5 text-center"></i>{{ __('Propriedades') }}</td>
                         @foreach($plans as $plan)
                             <td class="px-4 py-3 text-center font-semibold {{ $plan->is_popular ? 'bg-indigo-50/50' : '' }}">{{ $plan->max_hotels >= 999 ? 'Ilimitadas' : $plan->max_hotels }}</td>
                         @endforeach
                     </tr>
                     <tr>
-                        <td class="px-6 py-3 text-gray-700 font-medium"><i class="fas fa-door-open text-green-500 mr-2 w-5 text-center"></i>Tipos de quarto / hotel</td>
+                        <td class="px-6 py-3 text-gray-700 font-medium"><i class="fas fa-door-open text-green-500 mr-2 w-5 text-center"></i>{{ __('Tipos de quarto / hotel') }}</td>
                         @foreach($plans as $plan)
                             <td class="px-4 py-3 text-center font-semibold {{ $plan->is_popular ? 'bg-indigo-50/50' : '' }}">{{ $plan->max_room_types_per_hotel >= 999 ? 'Ilimitados' : $plan->max_room_types_per_hotel }}</td>
                         @endforeach
                     </tr>
                     <tr>
-                        <td class="px-6 py-3 text-gray-700 font-medium"><i class="fas fa-camera text-purple-500 mr-2 w-5 text-center"></i>Fotos / hotel</td>
+                        <td class="px-6 py-3 text-gray-700 font-medium"><i class="fas fa-camera text-purple-500 mr-2 w-5 text-center"></i>{{ __('Fotos / hotel') }}</td>
                         @foreach($plans as $plan)
                             <td class="px-4 py-3 text-center font-semibold {{ $plan->is_popular ? 'bg-indigo-50/50' : '' }}">{{ $plan->max_images_per_hotel >= 999 ? 'Ilimitadas' : $plan->max_images_per_hotel }}</td>
                         @endforeach
@@ -289,13 +289,13 @@
 
     <!-- Payment Methods Section -->
     <div class="container mx-auto px-4 pb-12 max-w-4xl">
-        <h2 class="text-3xl font-bold text-center text-gray-900 mb-8">Métodos de Pagamento</h2>
+        <h2 class="text-3xl font-bold text-center text-gray-900 mb-8">{{ __('Métodos de Pagamento') }}</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="bg-white rounded-xl border border-gray-200 p-6 text-center hover:shadow-md transition-shadow">
                 <div class="w-14 h-14 mx-auto rounded-2xl bg-blue-100 flex items-center justify-center mb-4">
                     <i class="fas fa-university text-2xl text-blue-600"></i>
                 </div>
-                <h3 class="font-bold text-gray-800 mb-2">Transferência Bancária</h3>
+                <h3 class="font-bold text-gray-800 mb-2">{{ __('Transferência Bancária') }}</h3>
                 <p class="text-sm text-gray-500">Faça transferência para a nossa conta e envie o comprovativo. Validação em até 24h.</p>
             </div>
             <div class="bg-white rounded-xl border border-gray-200 p-6 text-center hover:shadow-md transition-shadow">
@@ -309,7 +309,7 @@
                 <div class="w-14 h-14 mx-auto rounded-2xl bg-purple-100 flex items-center justify-center mb-4">
                     <i class="fas fa-barcode text-2xl text-purple-600"></i>
                 </div>
-                <h3 class="font-bold text-gray-800 mb-2">Referência de Pagamento</h3>
+                <h3 class="font-bold text-gray-800 mb-2">{{ __('Referência de Pagamento') }}</h3>
                 <p class="text-sm text-gray-500">Gere uma referência e pague em qualquer caixa automática ou banco. (Em breve)</p>
             </div>
         </div>
@@ -317,7 +317,7 @@
 
     <!-- FAQ Section -->
     <div class="container mx-auto px-4 pb-16 max-w-4xl" x-data="{ openFaq: null }">
-        <h2 class="text-3xl font-bold text-center text-gray-900 mb-10">Perguntas Frequentes</h2>
+        <h2 class="text-3xl font-bold text-center text-gray-900 mb-10">{{ __('Perguntas Frequentes') }}</h2>
         <div class="space-y-3">
             @foreach([
                 ['q' => 'Posso mudar de plano a qualquer momento?', 'a' => 'Sim! Pode fazer upgrade do seu plano a qualquer momento. Basta escolher o novo plano, realizar a transferência e aguardar a validação do admin.'],
@@ -359,14 +359,14 @@
                         <h3 class="text-2xl font-bold">{{ $selectedPlan->name }}</h3>
                         <div class="mt-2">
                             @if($selectedPlan->is_free)
-                                <span class="text-3xl font-extrabold">Grátis</span>
+                                <span class="text-3xl font-extrabold">{{ __('Grátis') }}</span>
                                 <span class="text-purple-200"> / 1 ano</span>
                             @elseif($selectedCycle === 'yearly')
                                 <span class="text-3xl font-extrabold">{{ number_format($selectedPlan->price_yearly, 0, ',', '.') }}</span>
-                                <span class="text-purple-200"> AOA/ano</span>
+                                <span class="text-purple-200"> {{ __('AOA/ano') }}</span>
                             @else
                                 <span class="text-3xl font-extrabold">{{ number_format($selectedPlan->price_monthly, 0, ',', '.') }}</span>
-                                <span class="text-purple-200"> AOA/mês</span>
+                                <span class="text-purple-200"> {{ __('AOA/mês') }}</span>
                             @endif
                         </div>
                     </div>
@@ -374,7 +374,7 @@
                     <div class="p-6">
                         <!-- Key Benefits -->
                         <div class="mb-5">
-                            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">O que está incluído:</p>
+                            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">{{ __('O que está incluído:') }}</p>
                             <div class="space-y-1.5">
                                 @foreach(collect($selectedPlan->features_list)->where('included', true)->take(6) as $feat)
                                     <div class="flex items-center text-sm text-gray-700">
@@ -387,17 +387,17 @@
                         <div class="bg-gray-50 rounded-xl p-4 mb-5">
                             <div class="space-y-1.5 text-sm text-gray-600">
                                 <div class="flex justify-between">
-                                    <span>Plano</span>
+                                    <span>{{ __('Plano') }}</span>
                                     <span class="font-medium text-gray-800">{{ $selectedPlan->name }}</span>
                                 </div>
                                 <div class="flex justify-between">
-                                    <span>Ciclo</span>
+                                    <span>{{ __('Ciclo') }}</span>
                                     <span class="font-medium text-gray-800">
                                         {{ $selectedPlan->is_free ? '1 Ano (gratuito)' : ($selectedCycle === 'yearly' ? 'Anual' : 'Mensal') }}
                                     </span>
                                 </div>
                                 <div class="flex justify-between border-t border-gray-200 pt-1.5 mt-1.5">
-                                    <span class="font-bold text-gray-800">Total a pagar</span>
+                                    <span class="font-bold text-gray-800">{{ __('Total a pagar') }}</span>
                                     <span class="font-bold text-indigo-600 text-lg">
                                         @if($selectedPlan->is_free)
                                             0 AOA
@@ -421,7 +421,7 @@
                         <div class="flex gap-3">
                             <button wire:click="closeAllModals"
                                 class="flex-1 py-3 px-4 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl font-semibold transition-colors">
-                                Cancelar
+                                {{ __('Cancelar') }}
                             </button>
                             <button wire:click="confirmSubscription" wire:loading.attr="disabled"
                                 class="flex-1 py-3 px-4 text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 rounded-xl font-semibold shadow-md transition-all">
@@ -433,7 +433,7 @@
                                     @endif
                                 </span>
                                 <span wire:loading wire:target="confirmSubscription">
-                                    <i class="fas fa-spinner fa-spin mr-1"></i> Processando...
+                                    <i class="fas fa-spinner fa-spin mr-1"></i> {{ __('Processando...') }}
                                 </span>
                             </button>
                         </div>
@@ -455,7 +455,7 @@
                     <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-5 text-white">
                         <div class="flex items-center justify-between">
                             <div>
-                                <h3 class="text-lg font-bold">Pagamento por Transferência</h3>
+                                <h3 class="text-lg font-bold">{{ __('Pagamento por Transferência') }}</h3>
                                 <p class="text-blue-200 text-sm">{{ $transferPlan->name }} &mdash; {{ $selectedCycle === 'yearly' ? 'Anual' : 'Mensal' }}</p>
                             </div>
                             <div class="text-right">
@@ -471,15 +471,15 @@
                         <!-- Bank Details to Transfer To -->
                         <div class="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 mb-5">
                             <h4 class="text-sm font-bold text-blue-800 mb-3">
-                                <i class="fas fa-university mr-1"></i> Dados Bancários para Transferência
+                                <i class="fas fa-university mr-1"></i> {{ __('Dados Bancários para Transferência') }}
                             </h4>
                             <div class="space-y-2 text-sm">
                                 <div class="flex justify-between">
-                                    <span class="text-blue-600">Banco:</span>
+                                    <span class="text-blue-600">{{ __('Banco:') }}</span>
                                     <span class="font-bold text-blue-900">{{ \App\Models\Setting::get('bank_name', 'BAI - Banco Angolano de Investimentos') }}</span>
                                 </div>
                                 <div class="flex justify-between">
-                                    <span class="text-blue-600">Titular:</span>
+                                    <span class="text-blue-600">{{ __('Titular:') }}</span>
                                     <span class="font-bold text-blue-900">{{ \App\Models\Setting::get('bank_holder', \App\Models\Setting::get('app_name', 'KiandaStay') . ' Lda') }}</span>
                                 </div>
                                 <div class="flex justify-between">
@@ -491,7 +491,7 @@
                                     <span class="font-mono font-bold text-blue-900">{{ \App\Models\Setting::get('bank_account', '0000.0000.0000.0000.0') }}</span>
                                 </div>
                                 <div class="flex justify-between border-t border-blue-200 pt-2 mt-2">
-                                    <span class="text-blue-600 font-medium">Valor a transferir:</span>
+                                    <span class="text-blue-600 font-medium">{{ __('Valor a transferir:') }}</span>
                                     <span class="font-extrabold text-blue-900 text-lg">
                                         {{ number_format($selectedCycle === 'yearly' ? $transferPlan->price_yearly : $transferPlan->price_monthly, 0, ',', '.') }} AOA
                                     </span>
@@ -507,33 +507,33 @@
                         <!-- Transfer Form -->
                         <form wire:submit="submitTransfer" class="space-y-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Banco de Origem *</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Banco de Origem *') }}</label>
                                 <input type="text" wire:model="bankName" placeholder="Ex: BAI, BFA, BIC, BMA..."
                                     class="w-full rounded-xl border-gray-300 focus:ring-blue-500 focus:border-blue-500 shadow-sm text-sm">
                                 @error('bankName') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Nome do Titular *</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Nome do Titular *') }}</label>
                                 <input type="text" wire:model="accountHolder" placeholder="Nome completo do titular da conta"
                                     class="w-full rounded-xl border-gray-300 focus:ring-blue-500 focus:border-blue-500 shadow-sm text-sm">
                                 @error('accountHolder') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                             </div>
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Ref. da Transferência *</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Ref. da Transferência *') }}</label>
                                     <input type="text" wire:model="transferReference" placeholder="Nº do comprovativo"
                                         class="w-full rounded-xl border-gray-300 focus:ring-blue-500 focus:border-blue-500 shadow-sm text-sm">
                                     @error('transferReference') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Data da Transferência *</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Data da Transferência *') }}</label>
                                     <input type="date" wire:model="transferDate" max="{{ date('Y-m-d') }}"
                                         class="w-full rounded-xl border-gray-300 focus:ring-blue-500 focus:border-blue-500 shadow-sm text-sm">
                                     @error('transferDate') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                                 </div>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Comprovativo de Transferência *</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Comprovativo de Transferência *') }}</label>
                                 <div class="relative">
                                     <input type="file" wire:model="proofFile" accept=".jpg,.jpeg,.png,.pdf"
                                         class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 border border-gray-300 rounded-xl cursor-pointer">
@@ -541,14 +541,14 @@
                                         <i class="fas fa-spinner fa-spin text-blue-500"></i>
                                     </div>
                                 </div>
-                                <p class="text-xs text-gray-400 mt-1">JPG, PNG ou PDF (máx. 5MB)</p>
+                                <p class="text-xs text-gray-400 mt-1">{{ __('JPG, PNG ou PDF (máx. 5MB)') }}</p>
                                 @if($proofFile && !$errors->has('proofFile'))
                                     <p class="text-xs text-green-600 mt-1"><i class="fas fa-check-circle mr-1"></i>{{ $proofFile->getClientOriginalName() }}</p>
                                 @endif
                                 @error('proofFile') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Notas adicionais (opcional)</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Notas adicionais (opcional)') }}</label>
                                 <textarea wire:model="userNotes" rows="2" placeholder="Informação adicional sobre a transferência..."
                                     class="w-full rounded-xl border-gray-300 focus:ring-blue-500 focus:border-blue-500 shadow-sm text-sm"></textarea>
                             </div>
@@ -556,12 +556,12 @@
                             <div class="flex gap-3 pt-2">
                                 <button type="button" wire:click="closeAllModals"
                                     class="flex-1 py-3 px-4 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl font-semibold transition-colors">
-                                    Cancelar
+                                    {{ __('Cancelar') }}
                                 </button>
                                 <button type="submit" wire:loading.attr="disabled"
                                     class="flex-1 py-3 px-4 text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl font-semibold shadow-md transition-all">
                                     <span wire:loading.remove wire:target="submitTransfer">
-                                        <i class="fas fa-paper-plane mr-1"></i> Enviar Comprovativo
+                                        <i class="fas fa-paper-plane mr-1"></i> {{ __('Enviar Comprovativo') }}
                                     </span>
                                     <span wire:loading wire:target="submitTransfer">
                                         <i class="fas fa-spinner fa-spin mr-1"></i> Enviando...

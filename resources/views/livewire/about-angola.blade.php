@@ -296,7 +296,7 @@
                         >
                     </div>
                     <div class="p-6">
-                        <h3 class="text-2xl font-bold text-gray-800 mb-3">Gastronomia</h3>
+                        <h3 class="text-2xl font-bold text-gray-800 mb-3">{{ __('Gastronomia') }}</h3>
                         <p class="text-gray-600 mb-4">
                             A cozinha angolana é uma fusão de influências portuguesas e africanas. 
                             Pratos como o calulu, mufete de peixe e a moamba de galinha são 
@@ -335,7 +335,7 @@
                  :class="{'opacity-0 -translate-y-10': !show, 'opacity-100 translate-y-0': show}"
                  class="transition-all duration-1000 ease-out">
                 <div class="w-20 h-2 bg-primary rounded-full mb-6 mx-auto"></div>
-                <h2 class="text-4xl font-bold text-gray-800 mb-4">Destinos Populares</h2>
+                <h2 class="text-4xl font-bold text-gray-800 mb-4">{{ __('Destinos Populares') }}</h2>
                 <p class="text-gray-600 text-lg max-w-3xl mx-auto">
                     Descubra os destinos mais procurados e encontre o hotel perfeito para sua próxima aventura em Angola.
                 </p>
@@ -381,7 +381,7 @@
             
             <div class="text-center mt-12">
                 <a href="{{ route('destinations') }}" class="inline-block px-8 py-4 bg-primary text-white rounded-lg hover:bg-primary-dark transition transform hover:scale-105 shadow-lg">
-                    Ver Todos os Destinos <i class="fas fa-globe-africa ml-2"></i>
+                    {{ __('Ver Todos os Destinos') }} <i class="fas fa-globe-africa ml-2"></i>
                 </a>
             </div>
         </div>

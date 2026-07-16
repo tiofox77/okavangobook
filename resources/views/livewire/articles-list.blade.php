@@ -5,18 +5,18 @@
         <div class="mb-8">
             <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-2">
                 <i class="fas fa-book-open text-blue-600 mr-3"></i>
-                Blog & Guias de Viagem
+                {{ __('Blog & Guias de Viagem') }}
             </h1>
-            <p class="text-gray-600 dark:text-gray-400">Descubra destinos, dicas e guias personalizados</p>
+            <p class="text-gray-600 dark:text-gray-400">{{ __('Descubra destinos, dicas e guias personalizados') }}</p>
         </div>
 
         <div class="flex flex-col md:flex-row gap-4 mb-6">
             <input wire:model.live="search" type="text" placeholder="Buscar artigos..." class="flex-1 px-4 py-2 border rounded-lg">
             <select wire:model.live="category" class="px-4 py-2 border rounded-lg">
-                <option value="all">Todas Categorias</option>
-                <option value="destino">Destinos</option>
-                <option value="guia">Guias de Viagem</option>
-                <option value="dica">Dicas</option>
+                <option value="all">{{ __('Todas Categorias') }}</option>
+                <option value="destino">{{ __('Destinos') }}</option>
+                <option value="guia">{{ __('Guias de Viagem') }}</option>
+                <option value="dica">{{ __('Dicas') }}</option>
             </select>
         </div>
 
@@ -69,7 +69,7 @@
             @empty
                 <div class="col-span-3 text-center py-12">
                     <i class="fas fa-newspaper text-gray-400 text-6xl mb-4"></i>
-                    <p class="text-gray-600 dark:text-gray-400">Nenhum artigo encontrado</p>
+                    <p class="text-gray-600 dark:text-gray-400">{{ __('Nenhum artigo encontrado') }}</p>
                 </div>
             @endforelse
         </div>

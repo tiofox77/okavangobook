@@ -11,7 +11,7 @@
         </div>
         <div class="container mx-auto px-4 relative z-10">
             <div class="text-center text-white">
-                <h1 class="text-4xl md:text-5xl font-bold mb-4 animate-fade-in-down">Entre em Contacto</h1>
+                <h1 class="text-4xl md:text-5xl font-bold mb-4 animate-fade-in-down">{{ __('Entre em Contacto') }}</h1>
                 <p class="text-lg md:text-xl max-w-2xl mx-auto opacity-90 animate-fade-in-up">
                     Estamos aqui para ajudar a planejar sua viagem perfeita em Angola. 
                     Pergunte-nos sobre destinos, hotéis ou qualquer dúvida sobre sua próxima aventura.
@@ -25,7 +25,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
             <!-- Formulário de Contacto -->
             <div class="bg-white rounded-xl shadow-lg p-8 transform transition duration-500 hover:shadow-2xl opacity-100 animate-fade-in-left">
-                <h2 class="text-3xl font-bold text-gray-800 mb-6">Envie-nos uma mensagem</h2>
+                <h2 class="text-3xl font-bold text-gray-800 mb-6">{{ __('Envie-nos uma mensagem') }}</h2>
                 
                 @if($success)
                 <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6 animate-fade-in">
@@ -35,7 +35,7 @@
                 
                 <form wire:submit.prevent="submitForm" class="space-y-6">
                     <div>
-                        <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nome completo</label>
+                        <label for="name" class="block text-sm font-medium text-gray-700 mb-1">{{ __('Nome completo') }}</label>
                         <input 
                             type="text" 
                             id="name" 
@@ -59,7 +59,7 @@
                     </div>
                     
                     <div>
-                        <label for="subject" class="block text-sm font-medium text-gray-700 mb-1">Assunto</label>
+                        <label for="subject" class="block text-sm font-medium text-gray-700 mb-1">{{ __('Assunto') }}</label>
                         <input 
                             type="text" 
                             id="subject" 
@@ -71,7 +71,7 @@
                     </div>
                     
                     <div>
-                        <label for="message" class="block text-sm font-medium text-gray-700 mb-1">Mensagem</label>
+                        <label for="message" class="block text-sm font-medium text-gray-700 mb-1">{{ __('Mensagem') }}</label>
                         <textarea 
                             id="message" 
                             wire:model="message" 
@@ -87,7 +87,7 @@
                             type="submit" 
                             class="w-full px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition transform hover:scale-105 flex items-center justify-center"
                         >
-                            <span>Enviar Mensagem</span>
+                            <span>{{ __('Enviar Mensagem') }}</span>
                             <i class="fas fa-paper-plane ml-2" wire:loading.remove wire:target="submitForm"></i>
                             <svg wire:loading wire:target="submitForm" class="animate-spin ml-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -115,7 +115,7 @@
                 
                 <!-- Detalhes de Contacto -->
                 <div class="bg-white rounded-xl shadow-lg p-8">
-                    <h3 class="text-2xl font-bold text-gray-800 mb-6">Informações de Contacto</h3>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6">{{ __('Informações de Contacto') }}</h3>
                     
                     <div class="space-y-6">
                         <div class="flex items-start">
@@ -123,7 +123,7 @@
                                 <i class="fas fa-map-marker-alt text-primary text-xl"></i>
                             </div>
                             <div>
-                                <h4 class="font-medium text-gray-800 mb-1">Endereço</h4>
+                                <h4 class="font-medium text-gray-800 mb-1">{{ __('Endereço') }}</h4>
                                 <p class="text-gray-600">Av. 4 de Fevereiro, Luanda, Angola</p>
                             </div>
                         </div>
@@ -143,7 +143,7 @@
                                 <i class="fas fa-phone text-primary text-xl"></i>
                             </div>
                             <div>
-                                <h4 class="font-medium text-gray-800 mb-1">Telefone</h4>
+                                <h4 class="font-medium text-gray-800 mb-1">{{ __('Telefone') }}</h4>
                                 <p class="text-gray-600">+244 923 456 789</p>
                             </div>
                         </div>
@@ -153,7 +153,7 @@
                                 <i class="fas fa-clock text-primary text-xl"></i>
                             </div>
                             <div>
-                                <h4 class="font-medium text-gray-800 mb-1">Horário de Atendimento</h4>
+                                <h4 class="font-medium text-gray-800 mb-1">{{ __('Horário de Atendimento') }}</h4>
                                 <p class="text-gray-600">Segunda à Sexta: 8:00 - 18:00</p>
                                 <p class="text-gray-600">Sábado: 9:00 - 14:00</p>
                             </div>
@@ -189,7 +189,7 @@
         <div class="container mx-auto px-4">
             <div class="text-center mb-12 opacity-100 animate-fade-in-down">
                 <div class="w-20 h-2 bg-primary rounded-full mb-6 mx-auto"></div>
-                <h2 class="text-3xl font-bold text-gray-800 mb-4">Perguntas Frequentes</h2>
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">{{ __('Perguntas Frequentes') }}</h2>
                 <p class="text-gray-600 max-w-2xl mx-auto">
                     Encontre respostas para as perguntas mais comuns sobre viagens e hospedagem em Angola.
                 </p>
@@ -202,7 +202,7 @@
                         <button 
                             onclick="toggleFaq(1)" 
                             class="flex justify-between items-center w-full px-6 py-4 text-left">
-                            <span class="text-lg font-medium text-gray-800">Qual é a melhor época para visitar Angola?</span>
+                            <span class="text-lg font-medium text-gray-800">{{ __('Qual é a melhor época para visitar Angola?') }}</span>
                             <i class="fas fa-chevron-down text-gray-400" id="faq-icon-1"></i>
                         </button>
                         <div class="hidden" id="faq-content-1">
@@ -219,7 +219,7 @@
                         <button 
                             onclick="toggleFaq(2)" 
                             class="flex justify-between items-center w-full px-6 py-4 text-left">
-                            <span class="text-lg font-medium text-gray-800">Preciso de visto para entrar em Angola?</span>
+                            <span class="text-lg font-medium text-gray-800">{{ __('Preciso de visto para entrar em Angola?') }}</span>
                             <i class="fas fa-chevron-down text-gray-400" id="faq-icon-2"></i>
                         </button>
                         <div class="hidden" id="faq-content-2">
@@ -237,7 +237,7 @@
                         <button 
                             onclick="toggleFaq(3)" 
                             class="flex justify-between items-center w-full px-6 py-4 text-left">
-                            <span class="text-lg font-medium text-gray-800">Qual moeda é utilizada em Angola?</span>
+                            <span class="text-lg font-medium text-gray-800">{{ __('Qual moeda é utilizada em Angola?') }}</span>
                             <i class="fas fa-chevron-down text-gray-400" id="faq-icon-3"></i>
                         </button>
                         <div class="hidden" id="faq-content-3">
@@ -255,7 +255,7 @@
                         <button 
                             onclick="toggleFaq(4)" 
                             class="flex justify-between items-center w-full px-6 py-4 text-left">
-                            <span class="text-lg font-medium text-gray-800">É seguro viajar por Angola?</span>
+                            <span class="text-lg font-medium text-gray-800">{{ __('É seguro viajar por Angola?') }}</span>
                             <i class="fas fa-chevron-down text-gray-400" id="faq-icon-4"></i>
                         </button>
                         <div class="hidden" id="faq-content-4">
@@ -274,7 +274,7 @@
                         <button 
                             onclick="toggleFaq(5)" 
                             class="flex justify-between items-center w-full px-6 py-4 text-left">
-                            <span class="text-lg font-medium text-gray-800">Como posso me deslocar dentro de Angola?</span>
+                            <span class="text-lg font-medium text-gray-800">{{ __('Como posso me deslocar dentro de Angola?') }}</span>
                             <i class="fas fa-chevron-down text-gray-400" id="faq-icon-5"></i>
                         </button>
                         <div class="hidden" id="faq-content-5">
@@ -306,12 +306,12 @@
                         <div class="absolute inset-0 flex items-center justify-center">
                             <div class="text-center text-white p-6">
                                 <i class="fas fa-envelope-open-text text-4xl mb-4"></i>
-                                <h3 class="text-2xl font-bold">Fique por dentro!</h3>
+                                <h3 class="text-2xl font-bold">{{ __('Fique por dentro!') }}</h3>
                             </div>
                         </div>
                     </div>
                     <div class="md:w-2/3 p-8 md:p-12">
-                        <h3 class="text-2xl font-bold text-white mb-2">Inscreva-se na nossa newsletter</h3>
+                        <h3 class="text-2xl font-bold text-white mb-2">{{ __('Inscreva-se na nossa newsletter') }}</h3>
                         <p class="text-white/80 mb-6">
                             Receba dicas de viagem, ofertas exclusivas e novidades sobre Angola diretamente no seu email.
                         </p>
@@ -323,7 +323,7 @@
                                     class="flex-grow px-4 py-3 rounded-lg focus:ring-2 focus:ring-white focus:outline-none"
                                 >
                                 <button type="submit" class="px-6 py-3 bg-white text-primary font-medium rounded-lg hover:bg-gray-100 transition transform hover:scale-105">
-                                    Inscrever-se
+                                    {{ __('Inscrever-se') }}
                                 </button>
                             </div>
                             <p class="text-white/70 text-sm">
