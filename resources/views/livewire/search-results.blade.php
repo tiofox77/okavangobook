@@ -15,7 +15,7 @@
                     </div>
                 </div>
                 <div class="flex-1">
-                    <h3 class="text-gray-800 text-lg font-medium">Buscando hospedagens</h3>
+                    <h3 class="text-gray-800 text-lg font-medium">{{ __('Buscando hospedagens') }}</h3>
                     <p class="text-gray-500 text-sm">Aguarde enquanto encontramos as melhores opções para você...</p>
                 </div>
             </div>
@@ -41,7 +41,7 @@
                     <div class="w-6 h-6 rounded-full border-2 border-t-primary border-r-transparent border-b-transparent border-l-transparent animate-spin absolute top-0 left-0"></div>
                 </div>
             </div>
-            <p class="text-gray-700 text-sm font-medium">Atualizando resultados...</p>
+            <p class="text-gray-700 text-sm font-medium">{{ __('Atualizando resultados...') }}</p>
         </div>
     </div>
     <!-- Barra de pesquisa compacta para refinar a busca -->
@@ -49,7 +49,7 @@
         <div class="container mx-auto px-4">
             <form wire:submit.prevent="search" class="flex flex-wrap items-end gap-2">
                 <div class="flex-1 min-w-[200px]">
-                    <label for="location" class="block text-sm font-medium text-gray-700 mb-1">Destino</label>
+                    <label for="location" class="block text-sm font-medium text-gray-700 mb-1">{{ __('Destino') }}</label>
                     <input 
                         type="text" 
                         id="location" 
@@ -60,7 +60,7 @@
                 </div>
                 
                 <div class="flex-1 min-w-[150px]">
-                    <label for="check_in" class="block text-sm font-medium text-gray-700 mb-1">Check-in</label>
+                    <label for="check_in" class="block text-sm font-medium text-gray-700 mb-1">{{ __('Check-in') }}</label>
                     <input 
                         type="date" 
                         id="check_in" 
@@ -70,7 +70,7 @@
                 </div>
                 
                 <div class="flex-1 min-w-[150px]">
-                    <label for="check_out" class="block text-sm font-medium text-gray-700 mb-1">Check-out</label>
+                    <label for="check_out" class="block text-sm font-medium text-gray-700 mb-1">{{ __('Check-out') }}</label>
                     <input 
                         type="date" 
                         id="check_out" 
@@ -80,7 +80,7 @@
                 </div>
                 
                 <div class="flex-1 min-w-[100px]">
-                    <label for="guests" class="block text-sm font-medium text-gray-700 mb-1">Hóspedes</label>
+                    <label for="guests" class="block text-sm font-medium text-gray-700 mb-1">{{ __('Hóspedes') }}</label>
                     <input 
                         type="number" 
                         id="guests" 
@@ -91,7 +91,7 @@
                 </div>
                 
                 <div class="flex-1 min-w-[100px]">
-                    <label for="rooms" class="block text-sm font-medium text-gray-700 mb-1">Quartos</label>
+                    <label for="rooms" class="block text-sm font-medium text-gray-700 mb-1">{{ __('Quartos') }}</label>
                     <input 
                         type="number" 
                         id="rooms" 
@@ -110,9 +110,9 @@
                     >
                         <div class="flex items-center space-x-2 relative">
                             <i class="fas fa-search"></i>
-                            <span wire:loading.remove wire:target="search">Buscar</span>
+                            <span wire:loading.remove wire:target="search">{{ __('Buscar') }}</span>
                             <span wire:loading wire:target="search" class="flex items-center space-x-2">
-                                <span>Buscando</span>
+                                <span>{{ __('Buscando') }}</span>
                                 <span class="flex space-x-0.5">
                                     <span class="animate-[bounce_1s_infinite_200ms] inline-block w-1 h-1 bg-white rounded-full"></span>
                                     <span class="animate-[bounce_1s_infinite_400ms] inline-block w-1 h-1 bg-white rounded-full"></span>
@@ -154,21 +154,21 @@
             <div class="w-full md:w-1/4 md:min-w-[280px] md:max-w-[300px] mb-6" wire:loading.class="opacity-75">
                 <div class="bg-white rounded-xl shadow-lg p-5 mb-4 border border-gray-100 hover:border-primary/20 transition-all duration-300">
                     <div class="flex items-center justify-between mb-4">
-                        <h2 class="text-lg font-bold text-gray-800">Filtros de Busca</h2>
+                        <h2 class="text-lg font-bold text-gray-800">{{ __('Filtros de Busca') }}</h2>
                         <button 
                             wire:click="clearFilters" 
                             wire:loading.attr="disabled"
                             wire:loading.class="opacity-50 cursor-wait"
                             class="text-sm text-primary hover:text-primary-dark transition-colors duration-300 flex items-center gap-1">
                             <i class="fas fa-redo-alt" wire:loading.class="animate-spin"></i>
-                            <span wire:loading.remove>Limpar</span>
-                            <span wire:loading>Limpando...</span>
+                            <span wire:loading.remove>{{ __('Limpar') }}</span>
+                            <span wire:loading>{{ __('Limpando...') }}</span>
                     </div>
                     
                     <!-- Filtro de destino -->
                     <div class="mb-6">
                         <h3 class="font-medium text-gray-700 mb-2 flex items-center">
-                            <i class="fas fa-map-marker-alt text-primary mr-2"></i> Destino
+                            <i class="fas fa-map-marker-alt text-primary mr-2"></i> {{ __('Destino') }}
                         </h3>
                         <div class="relative">
                             <input 
@@ -184,7 +184,7 @@
                         
                         @if($popularDestinations && count($popularDestinations) > 0)
                         <div class="mt-2">
-                            <p class="text-xs text-gray-500 mb-1">Destinos populares:</p>
+                            <p class="text-xs text-gray-500 mb-1">{{ __('Destinos populares:') }}</p>
                             <div class="flex flex-wrap gap-1">
                                 @foreach($popularDestinations as $dest)
                                 <button 
@@ -229,7 +229,7 @@
                                         @endif
                                     </div>
                                     <i class="fas fa-hotel text-blue-500 mr-2"></i>
-                                    <span class="text-sm {{ in_array('hotel', $propertyTypes) ? 'text-primary font-medium' : 'text-gray-700' }}">Hotel</span>
+                                    <span class="text-sm {{ in_array('hotel', $propertyTypes) ? 'text-primary font-medium' : 'text-gray-700' }}">{{ __('Hotel') }}</span>
                                 </div>
                                 <span class="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">{{ $propertyTypeCounts['hotel'] ?? 0 }}</span>
                             </div>
@@ -247,7 +247,7 @@
                                         @endif
                                     </div>
                                     <i class="fas fa-umbrella-beach text-orange-500 mr-2"></i>
-                                    <span class="text-sm {{ in_array('resort', $propertyTypes) ? 'text-primary font-medium' : 'text-gray-700' }}">Resort</span>
+                                    <span class="text-sm {{ in_array('resort', $propertyTypes) ? 'text-primary font-medium' : 'text-gray-700' }}">{{ __('Resort') }}</span>
                                 </div>
                                 <span class="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">{{ $propertyTypeCounts['resort'] ?? 0 }}</span>
                             </div>
@@ -265,7 +265,7 @@
                                         @endif
                                     </div>
                                     <i class="fas fa-home text-teal-500 mr-2"></i>
-                                    <span class="text-sm {{ in_array('hospedaria', $propertyTypes) ? 'text-primary font-medium' : 'text-gray-700' }}">Hospedaria</span>
+                                    <span class="text-sm {{ in_array('hospedaria', $propertyTypes) ? 'text-primary font-medium' : 'text-gray-700' }}">{{ __('Hospedaria') }}</span>
                                 </div>
                                 <span class="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">{{ $propertyTypeCounts['hospedaria'] ?? 0 }}</span>
                             </div>
@@ -299,7 +299,7 @@
                                     wire:click="clearProvinceFilters" 
                                     class="text-xs text-gray-500 hover:text-primary underline focus:outline-none ml-1"
                                 >
-                                    Limpar todos
+                                    {{ __('Limpar todos') }}
                                 </button>
                             </div>
                         @endif
@@ -334,7 +334,7 @@
                                 </div>
                                 @endforeach
                             @else
-                                <div class="text-sm text-gray-500 py-2">Nenhuma província disponível</div>
+                                <div class="text-sm text-gray-500 py-2">{{ __('Nenhuma província disponível') }}</div>
                             @endif
                         </div>
                     </div>
@@ -343,7 +343,7 @@
                     <div class="mb-6" x-data="{open: true}">
                         <div class="flex items-center justify-between cursor-pointer" @click="open = !open">
                             <h3 class="font-medium text-gray-700 flex items-center">
-                                <i class="fas fa-tag text-primary mr-2"></i> Preço por noite
+                                <i class="fas fa-tag text-primary mr-2"></i> {{ __('Preço por noite') }}
                             </h3>
                             <i class="fas" :class="open ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                         </div>
@@ -352,7 +352,7 @@
                             <!-- Inputs de preço -->
                             <div class="grid grid-cols-2 gap-4 mb-4">
                                 <div class="relative">
-                                    <label for="min-price" class="block text-xs text-gray-500 mb-1">Preço mínimo</label>
+                                    <label for="min-price" class="block text-xs text-gray-500 mb-1">{{ __('Preço mínimo') }}</label>
                                     <div class="relative">
                                         <input type="number" 
                                             id="min-price"
@@ -369,7 +369,7 @@
                                     </div>
                                 </div>
                                 <div class="relative">
-                                    <label for="max-price" class="block text-xs text-gray-500 mb-1">Preço máximo</label>
+                                    <label for="max-price" class="block text-xs text-gray-500 mb-1">{{ __('Preço máximo') }}</label>
                                     <div class="relative">
                                         <input type="number" 
                                             id="max-price"
@@ -389,7 +389,7 @@
                             
                             <!-- Preço atual aplicado -->
                             <div class="text-sm text-gray-700 mt-3 mb-3 flex items-center justify-between">
-                                <div>Faixa atual:</div>
+                                <div>{{ __('Faixa atual:') }}</div>
                                 <div class="font-medium">
                                     <span wire:loading.class="opacity-50" wire:target="applyPriceFilter">
                                         AKZ {{ number_format($minPrice, 0, ',', '.') }} - AKZ {{ number_format($maxPrice, 0, ',', '.') }}
@@ -409,9 +409,9 @@
                             >
                                 <div class="flex items-center justify-center space-x-1">
                                     <i class="fas fa-filter text-primary text-xs"></i>
-                                    <span wire:loading.remove wire:target="applyPriceFilter">Aplicar filtro de preço</span>
+                                    <span wire:loading.remove wire:target="applyPriceFilter">{{ __('Aplicar filtro de preço') }}</span>
                                     <span wire:loading wire:target="applyPriceFilter" class="flex items-center space-x-2">
-                                        <span>Aplicando...</span>
+                                        <span>{{ __('Aplicando...') }}</span>
                                     </span>
                                 </div>
                                 <!-- Indicador de progresso na borda inferior -->
@@ -424,7 +424,7 @@
                     <div class="mb-6" x-data="{open: true}">
                         <div class="flex items-center justify-between cursor-pointer" @click="open = !open">
                             <h3 class="font-medium text-gray-700 flex items-center">
-                                <i class="fas fa-star text-primary mr-2"></i> Classificação
+                                <i class="fas fa-star text-primary mr-2"></i> {{ __('Classificação') }}
                             </h3>
                             <i class="fas" :class="open ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                         </div>
@@ -469,7 +469,7 @@
                     <div class="mb-6" x-data="{open: true}">
                         <div class="flex items-center justify-between cursor-pointer" @click="open = !open">
                             <h3 class="font-medium text-gray-700 flex items-center">
-                                <i class="fas fa-thumbs-up text-primary mr-2"></i> Avaliação de Hóspedes
+                                <i class="fas fa-thumbs-up text-primary mr-2"></i> {{ __('Avaliação de Hóspedes') }}
                             </h3>
                             <i class="fas" :class="open ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                         </div>
@@ -522,7 +522,7 @@
                     <div class="mb-6" x-data="{open: true}">
                         <div class="flex items-center justify-between cursor-pointer" @click="open = !open">
                             <h3 class="font-medium text-gray-700 flex items-center">
-                                <i class="fas fa-concierge-bell text-primary mr-2"></i> Comodidades
+                                <i class="fas fa-concierge-bell text-primary mr-2"></i> {{ __('Comodidades') }}
                             </h3>
                             <i class="fas" :class="open ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                         </div>
@@ -556,7 +556,7 @@
                                     <span class="ml-auto text-xs text-gray-500">({{ $amenityCount }})</span>
                                 </div>
                             @empty
-                                <p class="text-sm text-gray-500 px-2">Sem comodidades disponíveis.</p>
+                                <p class="text-sm text-gray-500 px-2">{{ __('Sem comodidades disponíveis.') }}</p>
                             @endforelse
                         </div>
                     </div>
@@ -570,9 +570,9 @@
                     >
                         <div class="flex items-center justify-center space-x-1">
                             <i class="fas fa-eraser text-gray-600 text-xs"></i>
-                            <span wire:loading.remove wire:target="clearFilters">Limpar filtros</span>
+                            <span wire:loading.remove wire:target="clearFilters">{{ __('Limpar filtros') }}</span>
                             <span wire:loading wire:target="clearFilters" class="flex items-center space-x-2">
-                                <span>Limpando...</span>
+                                <span>{{ __('Limpando...') }}</span>
                                 <div class="w-4 h-4 border-2 border-t-primary border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin"></div>
                             </span>
                         </div>
@@ -594,7 +594,7 @@
                                     <div class="w-8 h-8 rounded-full border-3 border-t-primary border-r-transparent border-b-transparent border-l-transparent animate-spin absolute top-0 left-0"></div>
                                 </div>
                             </div>
-                            <p class="text-gray-700 font-medium">Atualizando...</p>
+                            <p class="text-gray-700 font-medium">{{ __('Atualizando...') }}</p>
                         </div>
                     </div>
                     <!-- Grade de pulso para os resultados -->
@@ -609,7 +609,7 @@
                 @if(!empty($nearbyHotels))
                     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 mb-6">
                         <h2 class="font-bold text-lg text-gray-800 dark:text-white mb-3 flex items-center">
-                            <i class="fas fa-location-crosshairs text-primary mr-2"></i> Hotéis perto de si
+                            <i class="fas fa-location-crosshairs text-primary mr-2"></i> {{ __('Hotéis perto de si') }}
                         </h2>
                         <div class="flex gap-4 overflow-x-auto pb-2 -mx-1 px-1">
                             @foreach($nearbyHotels as $nh)
@@ -640,7 +640,7 @@
                 <div class="bg-white rounded-lg shadow-md p-4 mb-6">
                     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
                         <div>
-                            <span class="font-medium text-gray-700 block mb-2">Ordenar por:</span>
+                            <span class="font-medium text-gray-700 block mb-2">{{ __('Ordenar por:') }}</span>
                             <div class="flex flex-wrap gap-2">
                                 <button 
                                     wire:click="setSorting('recommended')" 
@@ -650,7 +650,7 @@
                                 >
                                     <div class="flex items-center space-x-1 relative">
                                         <i class="fas fa-thumbs-up {{ $sortBy == 'recommended' ? 'text-white' : 'text-gray-600' }} text-xs"></i>
-                                        <span>Recomendados</span>
+                                        <span>{{ __('Recomendados') }}</span>
                                         
                                         <!-- Indicador de carregamento elegante inline -->
                                         <div wire:loading wire:target="setSorting('recommended')" class="absolute right-0 ml-1">
@@ -666,7 +666,7 @@
                                 >
                                     <div class="flex items-center space-x-1 relative">
                                         <i class="fas fa-sort-amount-down-alt {{ $sortBy == 'price_asc' ? 'text-white' : 'text-gray-600' }} text-xs"></i>
-                                        <span>Menor preço</span>
+                                        <span>{{ __('Menor preço') }}</span>
                                         
                                         <!-- Indicador de carregamento -->
                                         <div wire:loading wire:target="setSorting('price_asc')" class="absolute right-0 ml-1">
@@ -682,7 +682,7 @@
                                 >
                                     <div class="flex items-center space-x-1 relative">
                                         <i class="fas fa-sort-amount-up {{ $sortBy == 'price_desc' ? 'text-white' : 'text-gray-600' }} text-xs"></i>
-                                        <span>Maior preço</span>
+                                        <span>{{ __('Maior preço') }}</span>
                                         
                                         <!-- Indicador de carregamento -->
                                         <div wire:loading wire:target="setSorting('price_desc')" class="absolute right-0 ml-1">
@@ -698,7 +698,7 @@
                                 >
                                     <div class="flex items-center space-x-1 relative">
                                         <i class="fas fa-star {{ $sortBy == 'rating' ? 'text-white' : 'text-yellow-500' }} text-xs"></i>
-                                        <span>Melhor avaliação</span>
+                                        <span>{{ __('Melhor avaliação') }}</span>
                                         
                                         <!-- Indicador de carregamento -->
                                         <div wire:loading wire:target="setSorting('rating')" class="absolute right-0 ml-1">
@@ -714,7 +714,7 @@
                                 >
                                     <div class="flex items-center space-x-1 relative">
                                         <i class="fas fa-star {{ $sortBy == 'stars_desc' ? 'text-white' : 'text-yellow-400' }} text-xs"></i>
-                                        <span>Mais estrelas</span>
+                                        <span>{{ __('Mais estrelas') }}</span>
                                         
                                         <!-- Indicador de carregamento -->
                                         <div wire:loading wire:target="setSorting('stars_desc')" class="absolute right-0 ml-1">
@@ -726,7 +726,7 @@
                         </div>
                         
                         <div class="md:flex items-center space-x-2">
-                            <span class="text-sm text-gray-700 font-medium">Mostrar:</span>
+                            <span class="text-sm text-gray-700 font-medium">{{ __('Mostrar:') }}</span>
                             <select 
                                 wire:model="perPage" 
                                 class="text-sm border rounded-lg px-3 py-1.5 bg-white focus:ring-primary focus:border-primary text-gray-700 cursor-pointer shadow-sm">
@@ -797,7 +797,7 @@
                                     <!-- Selo de destaque (se aplicável) -->
                                     @if($hotel->featured)
                                     <div class="absolute top-0 left-0 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white m-3 px-3 py-1 rounded-md flex items-center shadow-md text-xs font-bold">
-                                        <i class="fas fa-certificate mr-1"></i> Destaque
+                                        <i class="fas fa-certificate mr-1"></i> {{ __('Destaque') }}
                                     </div>
                                     @endif
                                 </div>
@@ -815,7 +815,7 @@
                                                     <span class="text-xs ml-1">/5</span>
                                                 </div>
                                             @else
-                                                <span class="bg-gray-100 text-gray-600 font-semibold text-xs px-2 py-1 rounded-lg whitespace-nowrap">Novo</span>
+                                                <span class="bg-gray-100 text-gray-600 font-semibold text-xs px-2 py-1 rounded-lg whitespace-nowrap">{{ __('Novo') }}</span>
                                             @endif
                                         </div>
                                         
@@ -939,7 +939,7 @@
                                             href="{{ route('hotel.details', ['slug' => $hotel->slug, 'check_in' => $checkIn, 'check_out' => $checkOut, 'guests' => $guests, 'rooms' => $rooms]) }}" 
                                             class="inline-flex items-center justify-center bg-primary hover:bg-primary-dark text-white font-medium py-2 px-4 rounded-lg transition-all duration-300 gap-1 hover:gap-2 {{ $viewMode == 'grid' ? 'w-full' : '' }}"
                                         >
-                                            <span>Ver detalhes</span>
+                                            <span>{{ __('Ver detalhes') }}</span>
                                             <i class="fas fa-arrow-right transition-transform group-hover:translate-x-1"></i>
                                         </a>
                                     </div>
@@ -962,7 +962,7 @@
                                 wire:click="clearFilters" 
                                 class="bg-primary hover:bg-primary-dark text-white font-bold py-2 px-4 rounded transition duration-300"
                             >
-                                Limpar filtros
+                                {{ __('Limpar filtros') }}
                             </button>
                         </div>
                     @endforelse

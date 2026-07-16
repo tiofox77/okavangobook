@@ -58,13 +58,13 @@
             <!-- Cabeçalho da seção -->
             <div class="text-center mb-12 relative">
                 <div class="inline-block px-4 py-1 bg-blue-50 dark:bg-blue-900/30 rounded-full text-primary dark:text-blue-300 font-medium text-sm mb-3">
-                    <span class="mr-2">📍</span>Personalizado para si<span class="ml-2">📍</span>
+                    <span class="mr-2">📍</span>{{ __('Personalizado para si') }}<span class="ml-2">📍</span>
                 </div>
                 <h2 class="text-4xl md:text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-600 dark:from-blue-400 dark:to-blue-300">
-                    Hotéis Perto de Ti
+                    {{ __('Hotéis Perto de Ti') }}
                 </h2>
                 <p class="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-                    Descubra acomodações próximas à sua localização atual
+                    {{ __('Descubra acomodações próximas à sua localização atual') }}
                 </p>
             </div>
 
@@ -72,7 +72,7 @@
             <div wire:loading.class.remove="hidden" class="hidden text-center py-12">
                 <div class="inline-block">
                     <i class="fas fa-spinner fa-spin text-4xl text-primary mb-4"></i>
-                    <p class="text-gray-600 dark:text-gray-300">A procurar hotéis próximos...</p>
+                    <p class="text-gray-600 dark:text-gray-300">{{ __('A procurar hotéis próximos...') }}</p>
                 </div>
             </div>
 
@@ -82,7 +82,7 @@
                     <div class="flex items-start">
                         <i class="fas fa-info-circle text-yellow-600 dark:text-yellow-400 text-xl mr-3 mt-1"></i>
                         <div>
-                            <h3 class="font-semibold text-yellow-800 dark:text-yellow-300 mb-1">Localização não disponível</h3>
+                            <h3 class="font-semibold text-yellow-800 dark:text-yellow-300 mb-1">{{ __('Localização não disponível') }}</h3>
                             <p class="text-sm text-yellow-700 dark:text-yellow-400">
                                 Ative a localização para ver hotéis próximos a si. Entretanto, mostramos os nossos hotéis em destaque.
                             </p>
@@ -113,7 +113,7 @@
                                 <!-- Badge de destaque -->
                                 @if(!isset($hotel['distance']))
                                     <div class="absolute top-3 right-3 bg-amber-500 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg">
-                                        <i class="fas fa-star mr-1"></i>Destaque
+                                        <i class="fas fa-star mr-1"></i>{{ __('Destaque') }}
                                     </div>
                                 @endif
                             </div>
@@ -150,14 +150,14 @@
                                 <!-- Preço e botão -->
                                 <div class="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
                                     <div>
-                                        <span class="text-sm text-gray-500 dark:text-gray-400">A partir de</span>
+                                        <span class="text-sm text-gray-500 dark:text-gray-400">{{ __('A partir de') }}</span>
                                         <div class="text-2xl font-bold text-primary dark:text-blue-400">
                                             {{ number_format($hotel['price'], 0, ',', '.') }} Kz
                                         </div>
                                     </div>
                                     <a href="{{ route('hotel.details', $hotel['slug']) }}" 
                                        class="bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors duration-300 flex items-center">
-                                        Ver <i class="fas fa-arrow-right ml-2"></i>
+                                        {{ __('Ver') }} <i class="fas fa-arrow-right ml-2"></i>
                                     </a>
                                 </div>
                             </div>
@@ -170,14 +170,14 @@
                     <div class="max-w-md mx-auto">
                         <i class="fas fa-map-marked-alt text-6xl text-gray-300 dark:text-gray-600 mb-4"></i>
                         <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                            Permita o acesso à localização
+                            {{ __('Permita o acesso à localização') }}
                         </h3>
                         <p class="text-gray-600 dark:text-gray-400 mb-4">
                             Para mostrar hotéis próximos a si, precisamos da sua permissão para aceder à sua localização.
                         </p>
                         <button onclick="requestGeolocation()" 
                                 class="bg-primary hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-300">
-                            <i class="fas fa-map-marker-alt mr-2"></i>Ativar Localização
+                            <i class="fas fa-map-marker-alt mr-2"></i>{{ __('Ativar Localização') }}
                         </button>
                     </div>
                 </div>
@@ -240,10 +240,10 @@
         <div class="container mx-auto px-4 relative z-10">
             <div class="text-center mb-16">
                 <span class="inline-block px-5 py-2 rounded-full bg-primary/10 text-primary dark:bg-primary/20 text-sm font-medium mb-6 animate-pulse shadow-sm border border-primary/20 dark:border-primary/30">
-                    <i class="fas fa-map-marker-alt mr-2"></i>Explore Angola
+                    <i class="fas fa-map-marker-alt mr-2"></i>{{ __('Explore Angola') }}
                 </span>
                 <h2 class="text-4xl md:text-5xl font-extrabold mb-6 text-gray-800 dark:text-white">
-                    Províncias de Angola
+                    {{ __('Províncias de Angola') }}
                     <div class="w-24 h-1.5 bg-gradient-to-r from-primary to-blue-500 mx-auto mt-5 rounded-full"></div>
                 </h2>
                 <p class="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto text-lg font-normal leading-relaxed">
@@ -272,7 +272,7 @@
                     <div class="absolute top-4 left-4 z-20 bg-white/90 dark:bg-black/70 py-1 px-3 rounded-full shadow-lg backdrop-blur-sm">
                         <div class="flex items-center">
                             <div class="w-2 h-2 rounded-full bg-primary animate-pulse mr-2"></div>
-                            <span class="text-xs font-semibold text-primary dark:text-blue-400">Província</span>
+                            <span class="text-xs font-semibold text-primary dark:text-blue-400">{{ __('Província') }}</span>
                         </div>
                     </div>
                     
@@ -322,15 +322,15 @@
                 @empty
                 <div class="col-span-3 text-center py-12 bg-white dark:bg-gray-800 rounded-2xl shadow">
                     <i class="fas fa-map-signs text-5xl text-gray-300 mb-4"></i>
-                    <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-2">Nenhum destino encontrado</h3>
-                    <p class="text-gray-500 dark:text-gray-400">No momento não há destinos populares disponíveis.</p>
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-2">{{ __('Nenhum destino encontrado') }}</h3>
+                    <p class="text-gray-500 dark:text-gray-400">{{ __('No momento não há destinos populares disponíveis.') }}</p>
                 </div>
                 @endforelse
             </div>
             
             <div class="text-center mt-16">
                 <a href="{{ route('destinations') }}" class="inline-flex items-center px-8 py-4 rounded-full bg-gradient-to-r from-blue-600 to-blue-800 text-white font-semibold hover:shadow-lg hover:shadow-blue-500/40 transition-all duration-300 transform hover:scale-105 hover:brightness-110">
-                    <span>Ver Todos os Destinos</span>
+                    <span>{{ __('Ver Todos os Destinos') }}</span>
                     <i class="fas fa-compass ml-2"></i>
                 </a>
             </div>
@@ -349,7 +349,7 @@
         <div class="container mx-auto px-4 relative z-10">
             <div class="text-center mb-20">
                 <span class="inline-block px-4 py-1 rounded-full bg-primary/10 text-primary dark:bg-primary/20 text-sm font-medium mb-4">Tecnologia de {{ date('Y') }}</span>
-                <h2 class="text-4xl md:text-5xl font-extrabold mb-6">Por que escolher o <span class="text-primary">KiandaStay</span></h2>
+                <h2 class="text-4xl md:text-5xl font-extrabold mb-6">{{ __('Por que escolher o') }} <span class="text-primary">KiandaStay</span></h2>
                 <p class="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">Nosso sistema utiliza tecnologia de ponta com inteligência artificial para proporcionar a melhor experiência de reserva</p>
             </div>
             
@@ -363,7 +363,7 @@
                         <i class="fas fa-search-dollar text-2xl"></i>
                     </div>
                     
-                    <h3 class="text-xl font-bold mb-4 text-gray-800 dark:text-white">Comparação Inteligente</h3>
+                    <h3 class="text-xl font-bold mb-4 text-gray-800 dark:text-white">{{ __('Comparação Inteligente') }}</h3>
                     <p class="text-gray-600 dark:text-gray-300">Nossa IA analisa e compara preços em tempo real para garantir as melhores ofertas para sua viagem.</p>
                 </div>
                 
@@ -375,7 +375,7 @@
                         <i class="fas fa-shield-check text-2xl"></i>
                     </div>
                     
-                    <h3 class="text-xl font-bold mb-4 text-gray-800 dark:text-white">Avaliações Autenticadas</h3>
+                    <h3 class="text-xl font-bold mb-4 text-gray-800 dark:text-white">{{ __('Avaliações Autenticadas') }}</h3>
                     <p class="text-gray-600 dark:text-gray-300">Sistema de verificação biométrica garante que todas as avaliações sejam de hóspedes reais.</p>
                 </div>
                 
@@ -387,7 +387,7 @@
                         <i class="fas fa-globe-africa text-2xl"></i>
                     </div>
                     
-                    <h3 class="text-xl font-bold mb-4 text-gray-800 dark:text-white">Conhecimento Local</h3>
+                    <h3 class="text-xl font-bold mb-4 text-gray-800 dark:text-white">{{ __('Conhecimento Local') }}</h3>
                     <p class="text-gray-600 dark:text-gray-300">Nossa equipe de especialistas locais atualiza constantemente informações sobre cada região de Angola.</p>
                 </div>
                 
@@ -399,7 +399,7 @@
                         <i class="fas fa-fingerprint text-2xl"></i>
                     </div>
                     
-                    <h3 class="text-xl font-bold mb-4 text-gray-800 dark:text-white">Segurança Avançada</h3>
+                    <h3 class="text-xl font-bold mb-4 text-gray-800 dark:text-white">{{ __('Segurança Avançada') }}</h3>
                     <p class="text-gray-600 dark:text-gray-300">Tecnologia blockchain e autenticação em vários fatores para proteção total dos seus dados.</p>
                 </div>
             </div>
@@ -411,13 +411,13 @@
         <div class="container mx-auto px-4">
             <div class="text-center mb-14">
                 <span class="inline-block px-5 py-2 rounded-full text-sm font-semibold mb-4" style="background: #eef2ff; color: #4f46e5;">
-                    Para Todos os Gostos
+                    {{ __('Para Todos os Gostos') }}
                 </span>
                 <h2 class="text-3xl md:text-4xl font-bold mb-4" style="color: #1e293b;">
-                    Encontre a Estadia Perfeita
+                    {{ __('Encontre a Estadia Perfeita') }}
                 </h2>
                 <p class="max-w-2xl mx-auto text-lg" style="color: #64748b;">
-                    De hotéis urbanos a resorts de luxo e hospedarias acolhedoras
+                    {{ __('De hotéis urbanos a resorts de luxo e hospedarias acolhedoras') }}
                 </p>
             </div>
             
@@ -441,12 +441,12 @@
                         </div>
                         
                         <div class="mt-auto">
-                            <h3 class="text-2xl font-bold mb-2" style="color: #ffffff;">Hotéis Urbanos</h3>
+                            <h3 class="text-2xl font-bold mb-2" style="color: #ffffff;">{{ __('Hotéis Urbanos') }}</h3>
                             <p class="text-base mb-5" style="color: rgba(255,255,255,0.85);">
-                                Conforto e praticidade no coração das cidades
+                                {{ __('Conforto e praticidade no coração das cidades') }}
                             </p>
                             <div class="inline-flex items-center px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 group-hover:shadow-lg" style="background: #ffffff; color: #1e40af;">
-                                <span>Explorar Hotéis</span>
+                                <span>{{ __('Explorar Hotéis') }}</span>
                                 <i class="fas fa-arrow-right ml-2 transition-transform duration-300 group-hover:translate-x-1"></i>
                             </div>
                         </div>
@@ -472,12 +472,12 @@
                         </div>
                         
                         <div class="mt-auto">
-                            <h3 class="text-2xl font-bold mb-2" style="color: #ffffff;">Resorts de Luxo</h3>
+                            <h3 class="text-2xl font-bold mb-2" style="color: #ffffff;">{{ __('Resorts de Luxo') }}</h3>
                             <p class="text-base mb-5" style="color: rgba(255,255,255,0.85);">
-                                Experiências premium à beira-mar e nas montanhas
+                                {{ __('Experiências premium à beira-mar e nas montanhas') }}
                             </p>
                             <div class="inline-flex items-center px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 group-hover:shadow-lg" style="background: #ffffff; color: #c2410c;">
-                                <span>Descobrir Resorts</span>
+                                <span>{{ __('Descobrir Resorts') }}</span>
                                 <i class="fas fa-arrow-right ml-2 transition-transform duration-300 group-hover:translate-x-1"></i>
                             </div>
                         </div>
@@ -498,17 +498,17 @@
                                 <i class="fas fa-home text-2xl" style="color: #ffffff;"></i>
                             </div>
                             <span class="px-4 py-1.5 rounded-full text-xs font-bold flex items-center" style="background: #ffffff; color: #0f766e;">
-                                <i class="fas fa-heart mr-1.5"></i> AUTÊNTICO
+                                <i class="fas fa-heart mr-1.5"></i> {{ __('AUTÊNTICO') }}
                             </span>
                         </div>
                         
                         <div class="mt-auto">
-                            <h3 class="text-2xl font-bold mb-2" style="color: #ffffff;">Hospedarias Locais</h3>
+                            <h3 class="text-2xl font-bold mb-2" style="color: #ffffff;">{{ __('Hospedarias Locais') }}</h3>
                             <p class="text-base mb-5" style="color: rgba(255,255,255,0.85);">
-                                Acolhimento familiar e experiências autênticas
+                                {{ __('Acolhimento familiar e experiências autênticas') }}
                             </p>
                             <div class="inline-flex items-center px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 group-hover:shadow-lg" style="background: #ffffff; color: #0f766e;">
-                                <span>Ver Hospedarias</span>
+                                <span>{{ __('Ver Hospedarias') }}</span>
                                 <i class="fas fa-arrow-right ml-2 transition-transform duration-300 group-hover:translate-x-1"></i>
                             </div>
                         </div>
@@ -525,16 +525,16 @@
             <div class="flex flex-col md:flex-row md:items-end md:justify-between mb-10">
                 <div>
                     <span class="inline-flex items-center px-4 py-1.5 rounded-full text-sm font-semibold mb-3" style="background: linear-gradient(135deg, #ea580c, #f59e0b); color: #ffffff;">
-                        <i class="fas fa-crown mr-2"></i> Experiências Premium
+                        <i class="fas fa-crown mr-2"></i> {{ __('Experiências Premium') }}
                     </span>
                     <h2 class="text-3xl md:text-4xl font-bold" style="color: #1e293b;">
-                        Resorts em <span style="color: #ea580c;">Destaque</span>
+                        {{ __('Resorts em') }} <span style="color: #ea580c;">{{ __('Destaque') }}</span>
                     </h2>
-                    <p class="mt-2" style="color: #64748b;">Luxo e conforto em locais paradisíacos de Angola</p>
+                    <p class="mt-2" style="color: #64748b;">{{ __('Luxo e conforto em locais paradisíacos de Angola') }}</p>
                 </div>
                 <a href="{{ route('search.results', ['property_types' => ['resort']]) }}" 
                    class="mt-4 md:mt-0 inline-flex items-center px-6 py-3 rounded-full font-semibold text-sm hover:shadow-lg transition-all duration-300 hover:scale-105" style="background: linear-gradient(135deg, #ea580c, #f59e0b); color: #ffffff;">
-                    Ver Todos os Resorts
+                    {{ __('Ver Todos os Resorts') }}
                     <i class="fas fa-arrow-right ml-2"></i>
                 </a>
             </div>
@@ -565,7 +565,7 @@
                         <!-- Badge -->
                         <div class="absolute top-3 right-3 z-10">
                             <span class="px-3 py-1 rounded-full text-xs font-bold shadow-md" style="background: linear-gradient(135deg, #f59e0b, #ea580c); color: #ffffff;">
-                                <i class="fas fa-crown mr-1"></i>Resort
+                                <i class="fas fa-crown mr-1"></i>{{ __('Resort') }}
                             </span>
                         </div>
                         
@@ -606,16 +606,16 @@
             <div class="flex flex-col md:flex-row md:items-end md:justify-between mb-10">
                 <div>
                     <span class="inline-flex items-center px-4 py-1.5 rounded-full text-sm font-semibold mb-3" style="background: linear-gradient(135deg, #0f766e, #14b8a6); color: #ffffff;">
-                        <i class="fas fa-heart mr-2"></i> Experiências Autênticas
+                        <i class="fas fa-heart mr-2"></i> {{ __('Experiências Autênticas') }}
                     </span>
                     <h2 class="text-3xl md:text-4xl font-bold" style="color: #1e293b;">
-                        Hospedarias <span style="color: #0f766e;">Acolhedoras</span>
+                        {{ __('Hospedarias') }} <span style="color: #0f766e;">{{ __('Acolhedoras') }}</span>
                     </h2>
-                    <p class="mt-2" style="color: #64748b;">Conforto familiar e preços acessíveis em toda Angola</p>
+                    <p class="mt-2" style="color: #64748b;">{{ __('Conforto familiar e preços acessíveis em toda Angola') }}</p>
                 </div>
                 <a href="{{ route('search.results', ['property_types' => ['hospedaria']]) }}" 
                    class="mt-4 md:mt-0 inline-flex items-center px-6 py-3 rounded-full font-semibold text-sm hover:shadow-lg transition-all duration-300 hover:scale-105" style="background: linear-gradient(135deg, #0f766e, #14b8a6); color: #ffffff;">
-                    Ver Todas as Hospedarias
+                    {{ __('Ver Todas as Hospedarias') }}
                     <i class="fas fa-arrow-right ml-2"></i>
                 </a>
             </div>
@@ -646,7 +646,7 @@
                         <!-- Badge -->
                         <div class="absolute top-3 right-3 z-10">
                             <span class="px-3 py-1 rounded-full text-xs font-bold shadow-md" style="background: linear-gradient(135deg, #0f766e, #14b8a6); color: #ffffff;">
-                                <i class="fas fa-heart mr-1"></i>Hospedaria
+                                <i class="fas fa-heart mr-1"></i>{{ __('Hospedaria') }}
                             </span>
                         </div>
                         
@@ -729,9 +729,9 @@
             <!-- Cabeçalho da seção com badge moderna -->
             <div class="text-center mb-16 relative">
                 <div class="inline-block px-4 py-1 bg-primary/10 dark:bg-primary/20 rounded-full text-primary dark:text-blue-300 font-medium text-sm mb-3">
-                    <span class="mr-2">💎</span>Promoções Exclusivas<span class="ml-2">💎</span>
+                    <span class="mr-2">💎</span>{{ __('Promoções Exclusivas') }}<span class="ml-2">💎</span>
                 </div>
-                <h2 class="text-4xl md:text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-600 dark:from-blue-400 dark:to-blue-300">Ofertas Especiais</h2>
+                <h2 class="text-4xl md:text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-600 dark:from-blue-400 dark:to-blue-300">{{ __('Ofertas Especiais') }}</h2>
                 <p class="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">Descubra nossas melhores ofertas e promoções para sua próxima aventura em Angola.</p>
                 <div class="absolute w-20 h-1 bg-primary rounded-full left-1/2 transform -translate-x-1/2 bottom-[-1rem]"></div>
             </div>
@@ -784,7 +784,7 @@
                             <div class="absolute bottom-4 left-4 z-10">
                                 <div class="flex items-center bg-white text-gray-800 text-xs px-3 py-1.5 rounded-full shadow-md border border-gray-100">
                                     <i class="far fa-clock mr-1.5 text-yellow-500"></i>
-                                    <span class="font-medium">Oferta por tempo limitado</span>
+                                    <span class="font-medium">{{ __('Oferta por tempo limitado') }}</span>
                                 </div>
                             </div>
                         </div>
@@ -821,7 +821,7 @@
                             <div class="absolute -inset-0.5 rounded-xl opacity-75 group-hover/button:opacity-100 blur transition duration-500 group-hover/button:duration-200 animate-tilt {{ str_contains($offerButtonClass, 'text-white') ? 'from-blue-500 to-blue-700' : 'from-yellow-400 to-yellow-600' }}"></div>
                             <a href="{{ route('hotel.details', $offer['slug']) }}" 
                                class="relative w-full py-3 px-6 flex items-center justify-between {{ $offerButtonClass }} rounded-xl font-bold hover:shadow-xl hover:shadow-primary/30 transition-all duration-300 transform group-hover/button:-translate-y-0.5">
-                                <span>Reservar Agora</span>
+                                <span>{{ __('Reservar Agora') }}</span>
                                 <i class="fas fa-arrow-right ml-2 transition-transform group-hover/button:translate-x-1 group-hover/button:scale-110"></i>
                             </a>
                         </div>
@@ -832,10 +832,10 @@
                     <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-blue-50 dark:bg-blue-900/30 text-primary dark:text-blue-300 mb-6">
                         <i class="fas fa-tag text-3xl"></i>
                     </div>
-                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">Nenhuma oferta disponível no momento</h3>
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">{{ __('Nenhuma oferta disponível no momento') }}</h3>
                     <p class="text-gray-600 dark:text-gray-300 max-w-md mx-auto mb-6">Nossas ofertas especiais estão temporariamente esgotadas. Volte em breve para não perder as próximas promoções!</p>
                     <a href="{{ route('search.results') }}" class="inline-flex items-center px-6 py-3 rounded-full bg-gradient-to-r from-primary to-blue-600 text-white font-medium hover:shadow-lg hover:shadow-primary/20 transition-all duration-300">
-                        <span>Explorar Hotéis</span>
+                        <span>{{ __('Explorar Hotéis') }}</span>
                         <i class="fas fa-arrow-right ml-2"></i>
                     </a>
                 </div>
@@ -865,10 +865,10 @@
                 <div class="mb-14" data-aos="fade-up">
                     <span class="inline-flex items-center px-5 py-2 rounded-full bg-white/10 backdrop-blur-sm text-yellow-300 text-sm font-semibold tracking-wider mb-6 border border-yellow-300/30">
                         <i class="fas fa-gem mr-2 text-yellow-300"></i>
-                        CONTEÚDO EXCLUSIVO
+                        {{ __('CONTEÚDO EXCLUSIVO') }}
                     </span>
                     <h2 class="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 text-white leading-tight">
-                        Desperte o viajante em si com ofertas especiais
+                        {{ __('Desperte o viajante em si com ofertas especiais') }}
                     </h2>
                     <p class="text-xl text-blue-100 max-w-2xl mx-auto leading-relaxed">
                         Seja o primeiro a receber ofertas exclusivas, descontos especiais e dicas de viagem personalizadas diretamente na sua caixa de entrada.
@@ -892,7 +892,7 @@
                             class="group relative overflow-hidden bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-bold px-8 py-5 rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-yellow-400/30 transform hover:-translate-y-0.5"
                         >
                             <span class="relative z-10 flex items-center justify-center">
-                                <span class="mr-3">Quero me inscrever</span>
+                                <span class="mr-3">{{ __('Quero me inscrever') }}</span>
                                 <i class="fas fa-arrow-right transition-transform group-hover:translate-x-1"></i>
                             </span>
                             <div class="absolute inset-0 bg-gradient-to-r from-yellow-400 to-yellow-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -910,7 +910,7 @@
                         <div class="w-12 h-12 bg-yellow-400/10 rounded-lg flex items-center justify-center mb-4 text-yellow-300 text-xl group-hover:scale-110 transition-transform duration-300">
                             <i class="fas fa-gift"></i>
                         </div>
-                        <h4 class="text-white text-lg font-semibold mb-2">Ofertas Exclusivas</h4>
+                        <h4 class="text-white text-lg font-semibold mb-2">{{ __('Ofertas Exclusivas') }}</h4>
                         <p class="text-blue-100/80 text-sm">Acesso antecipado a promoções especiais e pacotes com desconto.</p>
                     </div>
                     
@@ -918,7 +918,7 @@
                         <div class="w-12 h-12 bg-yellow-400/10 rounded-lg flex items-center justify-center mb-4 text-yellow-300 text-xl group-hover:scale-110 transition-transform duration-300">
                             <i class="fas fa-map-marked-alt"></i>
                         </div>
-                        <h4 class="text-white text-lg font-semibold mb-2">Guias de Viagem</h4>
+                        <h4 class="text-white text-lg font-semibold mb-2">{{ __('Guias de Viagem') }}</h4>
                         <p class="text-blue-100/80 text-sm">Dicas e roteiros exclusivos para explorar Angola como um local.</p>
                     </div>
                     
@@ -926,7 +926,7 @@
                         <div class="w-12 h-12 bg-yellow-400/10 rounded-lg flex items-center justify-center mb-4 text-yellow-300 text-xl group-hover:scale-110 transition-transform duration-300">
                             <i class="fas fa-bell"></i>
                         </div>
-                        <h4 class="text-white text-lg font-semibold mb-2">Alertas de Preço</h4>
+                        <h4 class="text-white text-lg font-semibold mb-2">{{ __('Alertas de Preço') }}</h4>
                         <p class="text-blue-100/80 text-sm">Seja notificado quando os preços caírem para seus destinos favoritos.</p>
                     </div>
                 </div>
