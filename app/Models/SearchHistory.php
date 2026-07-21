@@ -9,6 +9,10 @@ class SearchHistory extends Model
 {
     use HasFactory;
 
+    // A tabela é 'search_history' (singular); sem isto o Eloquent
+    // inferia 'search_histories' e as queries falhavam (ex.: Analytics).
+    protected $table = 'search_history';
+
     protected $fillable = [
         'user_id',
         'session_id',
