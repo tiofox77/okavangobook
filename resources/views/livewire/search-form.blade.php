@@ -29,7 +29,7 @@
                         wire:model.live="selectedProvince"
                         class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent appearance-none"
                     >
-                        <option value="" selected class="font-bold">Todas as províncias</option>
+                        <option value="" selected class="font-bold">{{ __('Todas as províncias') }}</option>
                         @foreach($provinces as $provinceName => $hotelCount)
                             <option value="{{ $provinceName }}">
                                 {{ ucfirst($provinceName) }} ({{ $hotelCount }} {{ $hotelCount == 1 ? 'hotel' : 'hotéis' }})
@@ -60,7 +60,7 @@
                         type="text" 
                         id="location" 
                         wire:model.live.debounce.300ms="location" 
-                        placeholder="Hotel ou localidade específica" 
+                        placeholder="{{ __('Hotel ou localidade específica') }}"
                         class="w-full pl-10 pr-4 py-3 border @error('location') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                         autocomplete="off"
                     >
@@ -92,7 +92,7 @@
                                                 <span class="text-gray-500 text-sm block">{{ $suggestion['province'] }}</span>
                                             @endif
                                         </div>
-                                        <span class="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full">Cidade</span>
+                                        <span class="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full">{{ __('Cidade') }}</span>
                                     @endif
                                 </div>
                             </div>
@@ -105,7 +105,7 @@
         <!-- Datas de Check-in e Check-out -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-                <label for="check-in" class="block text-gray-700 font-medium mb-2">Check-in</label>
+                <label for="check-in" class="block text-gray-700 font-medium mb-2">{{ __('Check-in') }}</label>
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <i class="far fa-calendar-alt text-gray-400"></i>
@@ -121,7 +121,7 @@
                 </div>
             </div>
             <div>
-                <label for="check-out" class="block text-gray-700 font-medium mb-2">Check-out</label>
+                <label for="check-out" class="block text-gray-700 font-medium mb-2">{{ __('Check-out') }}</label>
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <i class="far fa-calendar-alt text-gray-400"></i>
@@ -141,7 +141,7 @@
         <!-- Número de hóspedes e quartos -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-                <label for="guests" class="block text-gray-700 font-medium mb-2">Hóspedes</label>
+                <label for="guests" class="block text-gray-700 font-medium mb-2">{{ __('Hóspedes') }}</label>
                 <div class="flex items-center border border-gray-300 rounded-lg">
                     <button 
                         type="button" 
@@ -166,7 +166,7 @@
                 <input type="hidden" wire:model.defer="guests" min="1" max="10" required>
             </div>
             <div>
-                <label for="rooms" class="block text-gray-700 font-medium mb-2">Quartos</label>
+                <label for="rooms" class="block text-gray-700 font-medium mb-2">{{ __('Quartos') }}</label>
                 <div class="flex items-center border border-gray-300 rounded-lg">
                     <button 
                         type="button" 
@@ -202,8 +202,8 @@
                 wire:target="search"
                 x-data="{}"
             >
-                <span wire:loading.remove wire:target="search"><i class="fas fa-search mr-2"></i> Pesquisar</span>
-                <span wire:loading wire:target="search"><i class="fas fa-spinner fa-spin mr-2"></i> Pesquisando...</span>
+                <span wire:loading.remove wire:target="search"><i class="fas fa-search mr-2"></i> {{ __('Pesquisar') }}</span>
+                <span wire:loading wire:target="search"><i class="fas fa-spinner fa-spin mr-2"></i> {{ __('Pesquisando...') }}</span>
             </button>
         </div>
         
