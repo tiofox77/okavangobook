@@ -424,6 +424,7 @@ class HotelManagement extends Component
         // Preparar dados para salvar
         $hotelData = [
             'name' => $this->name,
+            'property_type' => $this->property_type,
             'description' => $this->description,
             'location_id' => $this->locationId,
             'user_id' => $this->userId,
