@@ -5,6 +5,13 @@ Todos os itens abaixo foram **confirmados no site live** e já estão **corrigid
 
 ## 🔴 Críticos (afetam utilizadores agora)
 
+0. **Painel Admin → Analytics dá 500** (backend) — CORRIGIDO
+   - O modelo `SearchHistory` não definia `$table`, pelo que o Eloquent inferia
+     `search_histories` (plural) mas a tabela real é `search_history`.
+   - Qualquer query (ex.: `SearchHistory::count()` no Analytics) rebentava.
+   - Fix: `protected $table = 'search_history';` + `AdminSmokeTest`.
+
+
 1. **Filtro de preço devolve 0 resultados** — CONFIRMADO no live
    - `/search?max_price=30000` → "0 hotéis encontrados / Nenhum resultado encontrado".
    - Causa: condição de datas na tabela `prices` exige preços válidos para hoje, mas os dados têm janelas expiradas.
