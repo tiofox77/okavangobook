@@ -5,6 +5,12 @@ Todos os itens abaixo foram **confirmados no site live** e já estão **corrigid
 
 ## 🔴 Críticos (afetam utilizadores agora)
 
+00. **Admin: criar hotel ignora o tipo (resort/hospedaria)** — CORRIGIDO
+   - `HotelManagement::save()` não gravava `property_type` → todos os hotéis
+     criados/editados no painel ficavam como "hotel". Impossível criar Resorts
+     ou Hospedarias pelo admin (secções/filtros ficavam vazios de novos).
+   - Fix: incluir `property_type` nos dados a gravar + `HotelCreationTest`.
+
 0. **Painel Admin → Analytics dá 500** (backend) — CORRIGIDO
    - O modelo `SearchHistory` não definia `$table`, pelo que o Eloquent inferia
      `search_histories` (plural) mas a tabela real é `search_history`.
