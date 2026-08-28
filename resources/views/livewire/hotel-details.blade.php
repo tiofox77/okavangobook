@@ -320,7 +320,7 @@
             @endphp
             
             @if($hasImages)
-            <div class="mt-6 grid grid-cols-4 grid-rows-2 gap-2 h-[300px] sm:h-[380px] lg:h-[460px]">
+            <div class="mt-6 grid grid-cols-4 grid-rows-2 gap-2 h-64 sm:h-80 lg:h-96">
                 <!-- Imagem de destaque (dimensão fixa, recortada com object-cover) -->
                 <div class="col-span-2 row-span-2 relative rounded-lg overflow-hidden">
                     <div
