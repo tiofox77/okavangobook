@@ -14,7 +14,20 @@
         'image' => $hotel->thumbnail ? \App\Helpers\ImageHelper::getValidImage($hotel->thumbnail, 'hotel') : null,
         'url' => url()->current(),
         'telephone' => $hotel->phone ?: null,
+        'email' => $hotel->email ?: null,
+        'sameAs' => $hotel->website ?: null,
+        'hasMap' => ($hotel->latitude && $hotel->longitude)
+            ? ('https://www.google.com/maps/search/?api=1&query=' . $hotel->latitude . ',' . $hotel->longitude)
+            : null,
+        'checkinTime' => $hotel->check_in_time ?: null,
+        'checkoutTime' => $hotel->check_out_time ?: null,
+        'currenciesAccepted' => 'AOA',
         'priceRange' => $hotel->min_price ? ('AKZ ' . number_format($hotel->min_price, 0, ',', '.')) : null,
+        'amenityFeature' => collect($hotel->amenities ?? [])->map(fn ($amenity) => [
+            '@type' => 'LocationFeatureSpecification',
+            'name' => $amenity,
+            'value' => true,
+        ])->values()->all() ?: null,
         'address' => array_filter([
             '@type' => 'PostalAddress',
             'streetAddress' => $hotel->address ?: null,
@@ -33,6 +46,17 @@
 @endphp
 <script type="application/ld+json">
 {!! json_encode($hotelLd, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+</script>
+<script type="application/ld+json">
+{!! json_encode([
+    '@context' => 'https://schema.org',
+    '@type' => 'BreadcrumbList',
+    'itemListElement' => [
+        ['@type' => 'ListItem', 'position' => 1, 'name' => __('Início'), 'item' => route('home')],
+        ['@type' => 'ListItem', 'position' => 2, 'name' => __('Hotéis'), 'item' => route('search.results')],
+        ['@type' => 'ListItem', 'position' => 3, 'name' => $hotel->name, 'item' => url()->current()],
+    ],
+], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
 </script>
 @endsection
 
@@ -266,16 +290,12 @@
                 
                 // Adicionar thumbnail
                 if (!empty($hotel->thumbnail)) {
-                    $allHotelImages[] = str_starts_with($hotel->thumbnail, 'http') 
-                        ? $hotel->thumbnail 
-                        : asset('storage/' . $hotel->thumbnail);
+                    $allHotelImages[] = \App\Helpers\ImageHelper::getValidImage($hotel->thumbnail, 'hotel');
                 }
                 
                 // Adicionar imagem de destaque
                 if (!empty($hotel->featured_image)) {
-                    $featImg = str_starts_with($hotel->featured_image, 'http') 
-                        ? $hotel->featured_image 
-                        : asset('storage/' . $hotel->featured_image);
+                    $featImg = \App\Helpers\ImageHelper::getValidImage($hotel->featured_image, 'hotel');
                     if (!in_array($featImg, $allHotelImages)) {
                         $allHotelImages[] = $featImg;
                     }
@@ -286,7 +306,7 @@
                 if (is_array($hotelImages)) {
                     foreach ($hotelImages as $img) {
                         if (!empty($img) && is_string($img)) {
-                            $imageUrl = str_starts_with($img, 'http') ? $img : asset('storage/' . $img);
+                            $imageUrl = \App\Helpers\ImageHelper::getValidImage($img, 'hotel');
                             if (!in_array($imageUrl, $allHotelImages)) {
                                 $allHotelImages[] = $imageUrl;
                             }
@@ -300,13 +320,13 @@
             @endphp
             
             @if($hasImages)
-            <div class="mt-6 grid grid-cols-4 gap-2">
-                <!-- Imagem de destaque -->
+            <div class="mt-6 grid grid-cols-4 grid-rows-2 gap-2 h-[300px] sm:h-[380px] lg:h-[460px]">
+                <!-- Imagem de destaque (dimensão fixa, recortada com object-cover) -->
                 <div class="col-span-2 row-span-2 relative rounded-lg overflow-hidden">
-                    <div 
-                        class="w-full h-full cursor-pointer" 
+                    <div
+                        class="w-full h-full cursor-pointer"
                         @click="openImageViewer('{{ $featuredImageUrl }}', {{ $allHotelImagesJson }}, 0)">
-                        <img src="{{ $featuredImageUrl }}" alt="{{ $hotel->name }}" class="w-full h-full object-cover rounded-lg"
+                        <img src="{{ $featuredImageUrl }}" alt="{{ $hotel->name }}" loading="lazy" class="absolute inset-0 w-full h-full object-cover rounded-lg"
                              onerror="this.onerror=null; this.src='{{ $defaultPlaceholder }}'">
                         <div class="absolute inset-0 bg-black bg-opacity-10 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
                             <div class="bg-white bg-opacity-80 rounded-full p-4 shadow-lg">
@@ -316,20 +336,25 @@
                     </div>
                 </div>
                 
-                <!-- Galeria de imagens adicionais -->
-                @foreach(array_slice($allHotelImages, 1, 4) as $index => $imageUrl)
-                    <div class="relative rounded-lg overflow-hidden">
-                        <div 
-                            class="w-full h-full cursor-pointer" 
-                            @click="openImageViewer('{{ $imageUrl }}', {{ $allHotelImagesJson }}, {{ $index + 1 }})">
-                            <img src="{{ $imageUrl }}" alt="{{ $hotel->name }} - Imagem {{ $index + 1 }}" class="w-full h-full object-cover rounded-lg"
-                                 onerror="this.onerror=null; this.src='{{ $defaultPlaceholder }}'">
-                            <div class="absolute inset-0 bg-black bg-opacity-10 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                                <i class="fas fa-search-plus text-white text-xl"></i>
-                            </div>
+                <!-- Galeria de imagens adicionais (até 4, dimensão fixa) -->
+                @php $extraImages = array_slice($allHotelImages, 1, 4); @endphp
+                @foreach($extraImages as $index => $imageUrl)
+                    <div class="relative rounded-lg overflow-hidden cursor-pointer"
+                         @click="openImageViewer('{{ $imageUrl }}', {{ $allHotelImagesJson }}, {{ $index + 1 }})">
+                        <img src="{{ $imageUrl }}" alt="{{ $hotel->name }} - Imagem {{ $index + 1 }}" loading="lazy" class="absolute inset-0 w-full h-full object-cover rounded-lg"
+                             onerror="this.onerror=null; this.src='{{ $defaultPlaceholder }}'">
+                        <div class="absolute inset-0 bg-black bg-opacity-10 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                            <i class="fas fa-search-plus text-white text-xl"></i>
                         </div>
                     </div>
                 @endforeach
+
+                {{-- Preenche as células que faltam para manter a grelha 4x2 estável --}}
+                @for($i = count($extraImages); $i < 4; $i++)
+                    <div class="relative rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                        <i class="fas fa-image text-gray-300 dark:text-gray-600 text-2xl"></i>
+                    </div>
+                @endfor
             </div>
             @else
             <!-- Placeholder quando não há imagens -->
@@ -344,23 +369,23 @@
             
             <!-- Navegação por tabs -->
             <div class="mt-8 border-b border-gray-200">
-                <nav class="flex flex-wrap -mb-px">
+                <nav class="flex flex-nowrap -mb-px overflow-x-auto overscroll-x-contain" style="scrollbar-width:none">
                     <button 
                         wire:click="changeTab('info')" 
-                        class="py-4 px-6 font-medium {{ $activeTab == 'info' ? 'text-primary border-b-2 border-primary' : 'text-gray-500 hover:text-gray-700' }}"
+                        class="flex-none whitespace-nowrap py-3 px-4 sm:py-4 sm:px-6 font-medium {{ $activeTab == 'info' ? 'text-primary border-b-2 border-primary' : 'text-gray-500 hover:text-gray-700' }}"
                     >
                         <i class="fas fa-info-circle mr-2"></i> {{ __('Informações') }}
                     </button>
                     <button 
                         wire:click="changeTab('rooms')" 
-                        class="py-4 px-6 font-medium {{ $activeTab == 'rooms' ? 'text-primary border-b-2 border-primary' : 'text-gray-500 hover:text-gray-700' }}"
+                        class="flex-none whitespace-nowrap py-3 px-4 sm:py-4 sm:px-6 font-medium {{ $activeTab == 'rooms' ? 'text-primary border-b-2 border-primary' : 'text-gray-500 hover:text-gray-700' }}"
                     >
                         <i class="fas fa-bed mr-2"></i> {{ __('Quartos') }}
                     </button>
                     @if(isset($hotel->restaurantItems) && $hotel->restaurantItems->count() > 0)
                         <button 
                             wire:click="changeTab('restaurant')" 
-                            class="py-4 px-6 font-medium {{ $activeTab == 'restaurant' ? 'text-primary border-b-2 border-primary' : 'text-gray-500 hover:text-gray-700' }}"
+                            class="flex-none whitespace-nowrap py-3 px-4 sm:py-4 sm:px-6 font-medium {{ $activeTab == 'restaurant' ? 'text-primary border-b-2 border-primary' : 'text-gray-500 hover:text-gray-700' }}"
                         >
                             <i class="fas fa-utensils mr-2"></i> {{ __('Restaurante') }}
                         </button>
@@ -368,20 +393,20 @@
                     @if(isset($hotel->leisureFacilities) && $hotel->leisureFacilities->count() > 0)
                         <button 
                             wire:click="changeTab('leisure')" 
-                            class="py-4 px-6 font-medium {{ $activeTab == 'leisure' ? 'text-primary border-b-2 border-primary' : 'text-gray-500 hover:text-gray-700' }}"
+                            class="flex-none whitespace-nowrap py-3 px-4 sm:py-4 sm:px-6 font-medium {{ $activeTab == 'leisure' ? 'text-primary border-b-2 border-primary' : 'text-gray-500 hover:text-gray-700' }}"
                         >
                             <i class="fas fa-swimming-pool mr-2"></i> {{ __('Lazer') }}
                         </button>
                     @endif
                     <button 
                         wire:click="changeTab('location')" 
-                        class="py-4 px-6 font-medium {{ $activeTab == 'location' ? 'text-primary border-b-2 border-primary' : 'text-gray-500 hover:text-gray-700' }}"
+                        class="flex-none whitespace-nowrap py-3 px-4 sm:py-4 sm:px-6 font-medium {{ $activeTab == 'location' ? 'text-primary border-b-2 border-primary' : 'text-gray-500 hover:text-gray-700' }}"
                     >
                         <i class="fas fa-map-marker-alt mr-2"></i> {{ __('Localização') }}
                     </button>
                     <button 
                         wire:click="changeTab('reviews')" 
-                        class="py-4 px-6 font-medium {{ $activeTab == 'reviews' ? 'text-primary border-b-2 border-primary' : 'text-gray-500 hover:text-gray-700' }}"
+                        class="flex-none whitespace-nowrap py-3 px-4 sm:py-4 sm:px-6 font-medium {{ $activeTab == 'reviews' ? 'text-primary border-b-2 border-primary' : 'text-gray-500 hover:text-gray-700' }}"
                     >
                         <i class="fas fa-star mr-2"></i> {{ __('Avaliações') }}
                     </button>
@@ -494,13 +519,13 @@
                     </div>
                 @elseif($activeTab == 'rooms')
                     <!-- Quartos disponíveis -->
-                    <div id="rooms" class="bg-white rounded-lg shadow-md p-6 mb-8">
-                        <div class="flex justify-between items-center mb-6">
-                            <h2 class="text-2xl font-bold">{{ __('Quartos disponíveis') }}</h2>
+                    <div id="rooms" class="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-8">
+                        <div class="flex flex-col gap-4 mb-6 xl:flex-row xl:items-end xl:justify-between">
+                            <h2 class="text-xl sm:text-2xl font-bold">{{ __('Quartos disponíveis') }}</h2>
                             
                             <!-- Formulário para alterar datas -->
-                            <div class="flex items-center space-x-2">
-                                <div>
+                            <div class="grid w-full grid-cols-2 gap-3 xl:w-auto xl:grid-cols-[140px_140px_auto]">
+                                <div class="min-w-0">
                                     <label for="check_in" class="block text-sm font-medium text-gray-700">{{ __('Check-in') }}</label>
                                     <input 
                                         type="date" 
@@ -509,7 +534,7 @@
                                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
                                     >
                                 </div>
-                                <div>
+                                <div class="min-w-0">
                                     <label for="check_out" class="block text-sm font-medium text-gray-700">{{ __('Check-out') }}</label>
                                     <input 
                                         type="date" 
@@ -518,10 +543,10 @@
                                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
                                     >
                                 </div>
-                                <div class="pt-6">
+                                <div class="col-span-2 xl:col-span-1 xl:pt-6">
                                     <button 
                                         wire:click="updateDates" 
-                                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                                        class="inline-flex min-h-[44px] w-full items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
                                     >
                                         <i class="fas fa-search mr-2"></i> {{ __('Atualizar') }}
                                     </button>
@@ -534,7 +559,7 @@
                             <div class="border border-gray-200 rounded-lg overflow-hidden mb-6 {{ $selectedRoomId == $room['id'] ? 'ring-2 ring-primary' : '' }}">
                                 <div class="flex flex-col md:flex-row">
                                     <!-- Imagem do quarto -->
-                                    <div class="w-full md:w-1/3">
+                                    <div class="w-full h-52 md:h-auto md:w-1/3">
                                         @php
                                             $roomImages = $room['images'] ?? [];
                                             $mainImage = '';
@@ -579,7 +604,7 @@
                                     </div>
                                     
                                     <!-- Informações do quarto -->
-                                    <div class="w-full md:w-2/3 p-6">
+                                    <div class="w-full md:w-2/3 p-4 sm:p-6">
                                         <h3 class="text-xl font-bold text-gray-800">{{ $room['name'] }}</h3>
                                         
                                         <!-- Características do quarto -->
@@ -618,7 +643,7 @@
                                         @endif
                                         
                                         <!-- Ações -->
-                                        <div class="flex justify-between items-end mt-4">
+                                        <div class="flex flex-col gap-4 mt-4 sm:flex-row sm:items-end sm:justify-between">
                                             <!-- Preço -->
                                             <div>
                                                 @if($room['is_available'])
@@ -635,17 +660,17 @@
                                             </div>
                                             
                                             <!-- Botões -->
-                                            <div class="space-x-2">
+                                            <div class="grid grid-cols-2 gap-2 sm:flex">
                                                 <button 
                                                     wire:click="selectRoom('{{ $room['id'] }}')" 
-                                                    class="px-4 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-100 transition-colors"
+                                                    class="min-h-[44px] px-3 sm:px-4 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-100 transition-colors"
                                                 >
                                                     {{ __('Detalhes') }}
                                                 </button>
                                                 @if($room['is_available'])
                                                     <button
                                                         wire:click="bookRoom('{{ $room['id'] }}')" 
-                                                        class="px-4 py-2 bg-primary text-white rounded hover:bg-blue-700 transition-colors"
+                                                        class="min-h-[44px] px-3 sm:px-4 py-2 bg-primary text-white rounded hover:bg-blue-700 transition-colors"
                                                     >
                                                         {{ __('Reservar agora') }}
                                                     </button>
@@ -1144,16 +1169,19 @@
         
         <!-- Imagem com zoom e arrastar -->
         <div class="w-full h-full flex items-center justify-center overflow-hidden">
-            <img 
-                :src="currentImage" 
-                class="max-h-screen transition-transform cursor-move" 
-                :style="`transform: translate(${imageX}px, ${imageY}px) scale(${zoomLevel})`"
-                @mousedown="startDrag($event)"
-                @mousemove="drag($event)"
-                @mouseup="stopDrag()"
-                @mouseleave="stopDrag()"
-                draggable="false"
-            />
+            <template x-if="currentImage">
+                <img
+                    :src="currentImage"
+                    alt="{{ __('Imagem ampliada de :hotel', ['hotel' => $hotel->name]) }}"
+                    class="max-h-screen transition-transform cursor-move"
+                    :style="`transform: translate(${imageX}px, ${imageY}px) scale(${zoomLevel})`"
+                    @mousedown="startDrag($event)"
+                    @mousemove="drag($event)"
+                    @mouseup="stopDrag()"
+                    @mouseleave="stopDrag()"
+                    draggable="false"
+                />
+            </template>
         </div>
         
         <!-- Botão de navegação direita -->
