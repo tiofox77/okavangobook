@@ -131,7 +131,7 @@
                         </p>
                     </div>
                     <div class="flex flex-shrink-0 gap-2">
-                        <button wire:click="editScopes({{ $token->id }})"
+                        <button wire:click="openScopeEditor({{ $token->id }})"
                                 class="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg text-sm hover:bg-gray-200 dark:hover:bg-gray-600">
                             <i class="fas fa-sliders-h mr-1"></i> Escopos
                         </button>

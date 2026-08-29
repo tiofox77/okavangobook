@@ -35,8 +35,8 @@ class AgentTokenManagement extends Component
         ])->layout('layouts.admin');
     }
 
-    /** Abre o editor de escopos para um token. */
-    public function editScopes(int $id): void
+    /** Abre o editor de escopos para um token. (nome != da propriedade $editScopes) */
+    public function openScopeEditor(int $id): void
     {
         $token = AgentToken::findOrFail($id);
         $this->editingId = $id;
