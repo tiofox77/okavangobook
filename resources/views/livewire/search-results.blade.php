@@ -910,6 +910,16 @@
                                                         }
                                                     }
                                                 }
+                                                // Fallback: sem registos de preço, usar o menor base_price
+                                                // dos quartos disponíveis (senão mostra "Sem disponibilidade").
+                                                if ($lowestPrice === null) {
+                                                    foreach($hotel->roomTypes as $roomType) {
+                                                        if ($roomType->is_available && (float) $roomType->base_price > 0
+                                                            && ($lowestPrice === null || $roomType->base_price < $lowestPrice)) {
+                                                            $lowestPrice = (float) $roomType->base_price;
+                                                        }
+                                                    }
+                                                }
                                                 $totalPrice = $lowestPrice * $nights;
                                                 
                                                 // Calcular desconto se houver
