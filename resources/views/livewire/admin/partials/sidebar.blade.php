@@ -34,13 +34,35 @@
         </a>
         
         @role('Admin')
-        <a href="{{ route('admin.analytics') }}" class="menu-item flex items-center py-3 px-3 rounded-lg mb-1 {{ request()->routeIs('admin.analytics') ? 'active bg-gray-700' : '' }} tooltip">
-            <div class="icon-container bg-indigo-500 bg-opacity-20 text-indigo-400">
-                <i class="fas fa-chart-bar"></i>
+        <!-- Menu Analytics (com submenu) -->
+        <div class="mb-1" x-data="{ open: {{ request()->routeIs('admin.analytics') || request()->routeIs('admin.analytics.visits') ? 'true' : 'false' }} }">
+            <a href="#" @click.prevent="open = !open" class="menu-item flex items-center py-3 px-3 rounded-lg mb-1 {{ request()->routeIs('admin.analytics*') ? 'active bg-gray-700' : '' }} tooltip">
+                <div class="icon-container bg-indigo-500 bg-opacity-20 text-indigo-400">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <span class="sidebar-link-text transition-opacity duration-300 flex-1">Analytics</span>
+                <i class="fas fa-chevron-down text-gray-400 transition-transform duration-200 sidebar-link-text" :class="{ 'rotate-180': open }"></i>
+                <span class="tooltip-text">Relatórios e Analytics</span>
+            </a>
+
+            <div x-show="open" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-2" class="ml-8 space-y-1">
+                <a href="{{ route('admin.analytics') }}" class="menu-item flex items-center py-2 px-3 rounded-lg mb-1 {{ request()->routeIs('admin.analytics') ? 'active bg-gray-700' : '' }} tooltip text-sm">
+                    <div class="icon-container bg-indigo-500 bg-opacity-20 text-indigo-400 w-8 h-8">
+                        <i class="fas fa-chart-pie text-sm"></i>
+                    </div>
+                    <span class="sidebar-link-text transition-opacity duration-300 ml-2">Resumo</span>
+                    <span class="tooltip-text">Resumo &amp; Relatórios</span>
+                </a>
+
+                <a href="{{ route('admin.analytics.visits') }}" class="menu-item flex items-center py-2 px-3 rounded-lg mb-1 {{ request()->routeIs('admin.analytics.visits') ? 'active bg-gray-700' : '' }} tooltip text-sm">
+                    <div class="icon-container bg-green-500 bg-opacity-20 text-green-400 w-8 h-8">
+                        <i class="fas fa-chart-line text-sm"></i>
+                    </div>
+                    <span class="sidebar-link-text transition-opacity duration-300 ml-2">Visitas &amp; Tráfego</span>
+                    <span class="tooltip-text">Visitas, Dispositivos, Localização</span>
+                </a>
             </div>
-            <span class="sidebar-link-text transition-opacity duration-300">Analytics</span>
-            <span class="tooltip-text">Relatórios e Analytics</span>
-        </a>
+        </div>
         
         <a href="{{ route('admin.articles') }}" class="menu-item flex items-center py-3 px-3 rounded-lg mb-1 {{ request()->routeIs('admin.articles') ? 'active bg-gray-700' : '' }} tooltip">
             <div class="icon-container bg-purple-500 bg-opacity-20 text-purple-400">
