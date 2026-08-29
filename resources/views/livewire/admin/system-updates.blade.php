@@ -22,10 +22,15 @@
                            {{ $activeTab === 'requirements' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
                 <i class="fas fa-check-circle mr-2"></i>Requisitos do Sistema
             </button>
-            <button wire:click="setActiveTab('history')" 
+            <button wire:click="setActiveTab('history')"
                     class="py-2 px-1 border-b-2 font-medium text-sm transition-colors
                            {{ $activeTab === 'history' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
                 <i class="fas fa-history mr-2"></i>Histórico de Updates
+            </button>
+            <button wire:click="setActiveTab('database')"
+                    class="py-2 px-1 border-b-2 font-medium text-sm transition-colors
+                           {{ $activeTab === 'database' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                <i class="fas fa-database mr-2"></i>Base de Dados
             </button>
         </nav>
     </div>
@@ -501,6 +506,53 @@
                         <p class="text-sm text-gray-400 mt-1">
                             O histórico será preenchido automaticamente após a primeira atualização via sistema.
                         </p>
+                    </div>
+                @endif
+            </div>
+        </div>
+    @endif
+
+    <!-- Database / Migrations Tab -->
+    @if($activeTab === 'database')
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div class="p-6">
+                <div class="mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900"><i class="fas fa-database text-blue-500 mr-2"></i>Migrações de Base de Dados</h3>
+                    <p class="text-sm text-gray-500 mt-1">Aplica novas tabelas/colunas em produção sem SSH. Só corre migrações pendentes; é seguro e aditivo.</p>
+                </div>
+
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-800 mb-4">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    "Executar migrações pendentes" corre <code>migrate --force</code> e depois limpa as caches de rotas/config/vistas.
+                    As migrações já executadas são ignoradas. Recomenda-se um backup da base de dados antes.
+                </div>
+
+                <div class="flex flex-wrap gap-3 mb-4">
+                    <button wire:click="checkMigrations" wire:loading.attr="disabled" wire:target="checkMigrations"
+                            class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium">
+                        <i class="fas fa-list-check mr-1"></i> Verificar estado
+                    </button>
+                    <button wire:click="showConfirmation('runMigrations', 'Executar as migrações pendentes na base de dados? A ação é aditiva, mas faça um backup antes por precaução.')"
+                            wire:loading.attr="disabled" wire:target="runPendingMigrations"
+                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">
+                        <i class="fas fa-play mr-1"></i> Executar migrações pendentes
+                    </button>
+                    <span wire:loading wire:target="runPendingMigrations" class="text-sm text-gray-500 self-center">
+                        <i class="fas fa-circle-notch fa-spin mr-1"></i> A executar…
+                    </span>
+                </div>
+
+                @if($migrationStatus)
+                    <div class="mb-4">
+                        <p class="text-xs font-semibold text-gray-500 uppercase mb-1">Estado das migrações</p>
+                        <pre class="bg-gray-900 text-gray-100 text-xs rounded-lg p-4 overflow-x-auto max-h-80 whitespace-pre-wrap">{{ $migrationStatus }}</pre>
+                    </div>
+                @endif
+
+                @if($migrationOutput)
+                    <div>
+                        <p class="text-xs font-semibold text-gray-500 uppercase mb-1">Resultado da última execução</p>
+                        <pre class="bg-gray-900 text-green-300 text-xs rounded-lg p-4 overflow-x-auto max-h-80 whitespace-pre-wrap">{{ $migrationOutput }}</pre>
                     </div>
                 @endif
             </div>

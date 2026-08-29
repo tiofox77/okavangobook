@@ -22,6 +22,11 @@ class SystemUpdates extends Component
 {
     // Active tab
     public string $activeTab = 'settings';
+
+    // Painel "Base de Dados" — execução manual de migrações (alternativa ao SSH).
+    public ?string $migrationStatus = null;
+    public ?string $migrationOutput = null;
+    public bool $runningMigrations = false;
     
     // GitHub Settings
     public string $githubRepo = '';
@@ -1267,6 +1272,9 @@ class SystemUpdates extends Component
             case 'checkUpdates':
                 $this->checkForUpdates();
                 break;
+            case 'runMigrations':
+                $this->runPendingMigrations();
+                break;
         }
 
         $this->confirmAction = '';
@@ -1281,6 +1289,54 @@ class SystemUpdates extends Component
         $this->showConfirmModal = false;
         $this->confirmAction = '';
         $this->confirmMessage = '';
+    }
+
+    /**
+     * Mostra o estado das migrações (executadas / pendentes).
+     */
+    public function checkMigrations(): void
+    {
+        abort_unless(auth()->user()?->hasRole('Admin'), 403);
+
+        try {
+            Artisan::call('migrate:status');
+            $this->migrationStatus = trim(Artisan::output()) ?: 'Sem informação de migrações.';
+        } catch (\Throwable $e) {
+            $this->migrationStatus = 'Erro ao obter estado: ' . $e->getMessage();
+        }
+    }
+
+    /**
+     * Executa as migrações pendentes (migrate --force) e limpa as caches.
+     * Permite aplicar novas tabelas em produção pelo painel, sem SSH.
+     * Protegido: só Admin (a rota já é role:Admin) + confirmação no ecrã.
+     */
+    public function runPendingMigrations(): void
+    {
+        abort_unless(auth()->user()?->hasRole('Admin'), 403);
+
+        $this->runningMigrations = true;
+
+        try {
+            Artisan::call('migrate', ['--force' => true]);
+            $output = trim(Artisan::output());
+
+            // Limpar caches para novas rotas/config/vistas entrarem.
+            Artisan::call('config:clear');
+            Artisan::call('route:clear');
+            Artisan::call('view:clear');
+
+            $this->migrationOutput = $output !== '' ? $output : 'Nada a migrar (base de dados já atualizada).';
+            session()->flash('success', 'Migrações executadas e caches limpas com sucesso.');
+            Log::info('Migrações executadas manualmente pelo admin (#' . (auth()->id() ?? '?') . ').');
+        } catch (\Throwable $e) {
+            $this->migrationOutput = 'ERRO: ' . $e->getMessage();
+            session()->flash('error', 'Falha ao executar migrações: ' . $e->getMessage());
+            Log::error('Falha ao executar migrações manuais: ' . $e->getMessage());
+        }
+
+        $this->runningMigrations = false;
+        $this->checkMigrations();
     }
 
     /**
