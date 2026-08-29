@@ -3,7 +3,13 @@
         <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
             <!-- Coluna 1: Logo e Descrição -->
             <div>
-                <div class="text-2xl font-bold mb-4">Kianda<span class="text-secondary">Stay</span></div>
+                <a href="{{ route('home') }}" class="inline-flex rounded-xl bg-white p-2 mb-4" aria-label="KiandaStay — página inicial">
+                    <img src="{{ asset('assets/img/branding/kiandastay-logo.png') }}?v=20260813"
+                         alt="KiandaStay"
+                         width="144" height="98"
+                         class="h-20 w-auto object-contain"
+                         loading="lazy" decoding="async">
+                </a>
                 <p class="text-gray-300 mb-4">
                     {{ __('Encontre as melhores acomodações em toda Angola com os melhores preços garantidos.') }}
                 </p>

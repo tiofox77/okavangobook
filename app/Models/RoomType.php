@@ -21,6 +21,8 @@ class RoomType extends Model
         'name',
         'description',
         'capacity',
+        'adult_capacity',
+        'children_capacity',
         'beds',
         'bed_type',
         'size',
@@ -29,7 +31,9 @@ class RoomType extends Model
         'is_available',
         'base_price',
         'rooms_count',
-        'is_featured'
+        'is_featured',
+        'position',
+        'source_url',
     ];
     
     /**
@@ -41,12 +45,15 @@ class RoomType extends Model
         'amenities' => 'array',
         'images' => 'array',
         'capacity' => 'integer',
+        'adult_capacity' => 'integer',
+        'children_capacity' => 'integer',
         'beds' => 'integer',
         'size' => 'integer',
         'is_available' => 'boolean',
         'base_price' => 'decimal:2',
         'rooms_count' => 'integer',
         'is_featured' => 'boolean',
+        'position' => 'integer',
     ];
     
     /**
@@ -63,6 +70,16 @@ class RoomType extends Model
     public function prices(): HasMany
     {
         return $this->hasMany(Price::class);
+    }
+
+    public function rooms(): HasMany
+    {
+        return $this->hasMany(Room::class);
+    }
+
+    public function reservations(): HasMany
+    {
+        return $this->hasMany(Reservation::class);
     }
     
     /**

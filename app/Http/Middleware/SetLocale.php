@@ -18,14 +18,14 @@ class SetLocale
     {
         $locale = Session::get('locale');
 
-        // Sem preferência na sessão: usa o idioma padrão definido no admin,
-        // caindo para o config (por padrão inglês).
+        // Sem preferência explícita do visitante, o primeiro acesso é sempre
+        // em português. A escolha PT/EN continua guardada na sessão.
         if (!$locale) {
-            $locale = \App\Models\Setting::get('default_language', config('app.locale', 'en'));
+            $locale = config('app.locale', 'pt');
         }
 
         if (!in_array($locale, self::SUPPORTED, true)) {
-            $locale = config('app.locale', 'en');
+            $locale = config('app.locale', 'pt');
         }
 
         App::setLocale($locale);

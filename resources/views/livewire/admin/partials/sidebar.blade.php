@@ -1,14 +1,16 @@
 <div id="sidebar" class="sidebar bg-gray-800 text-white h-screen fixed top-0 left-0 z-30 transition-all duration-300 shadow-xl flex flex-col">
-    <div class="p-4 flex justify-between items-center border-b border-gray-700">
-        <div class="flex items-center space-x-2">
-            <div class="flex-shrink-0 w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center rotate-12 transform transition-all duration-300 hover:rotate-0">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
-                </svg>
-            </div>
-            <h1 class="text-xl font-bold sidebar-title transition-opacity duration-300">{{ \App\Models\Setting::get('app_name', 'KiandaStay') }} Admin</h1>
-        </div>
-        <button id="sidebar-toggle" class="text-gray-300 hover:text-white transition-colors duration-200 p-1 rounded-md hover:bg-gray-700">
+    <div class="admin-brand-header px-3 py-2 flex justify-between items-center gap-2 border-b border-gray-700">
+        <a href="{{ route('admin.dashboard') }}" class="admin-brand-link flex min-w-0 items-center rounded-xl bg-white p-1.5 shadow-sm" aria-label="KiandaStay Admin">
+            <img src="{{ asset('assets/img/branding/kiandastay-logo.png') }}?v=20260813"
+                 alt="KiandaStay Admin"
+                 width="150" height="102"
+                 class="admin-brand-full h-14 w-auto object-contain">
+            <img src="{{ asset('assets/img/branding/kiandastay-mark.png') }}?v=20260813"
+                 alt=""
+                 width="44" height="44"
+                 class="admin-brand-mark hidden h-10 w-10 object-contain">
+        </a>
+        <button id="sidebar-toggle" aria-label="Recolher menu lateral" title="Recolher menu" class="sidebar-toggle-button flex-shrink-0 text-gray-300 hover:text-white transition-colors duration-200 p-1 rounded-md hover:bg-gray-700">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
             </svg>

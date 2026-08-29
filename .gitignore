@@ -17,3 +17,9 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+
+# Pastas temporárias/locais (não versionar)
+/.codex-tmp/
+/output/
+/tmp/
+/.claude/settings.local.json

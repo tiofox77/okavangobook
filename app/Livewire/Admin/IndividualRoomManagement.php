@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire\Admin;
 
+use App\Livewire\Admin\Concerns\AuthorizesManagedHotels;
 use App\Models\Hotel;
 use App\Models\Room;
 use App\Models\RoomType;
@@ -14,6 +15,7 @@ use Livewire\WithPagination;
 
 class IndividualRoomManagement extends Component
 {
+    use AuthorizesManagedHotels;
     use WithPagination;
     
     protected $paginationTheme = 'tailwind';
@@ -118,6 +120,7 @@ class IndividualRoomManagement extends Component
         if ($roomId) {
             $room = Room::with('roomType.hotel')->find($roomId);
             if ($room) {
+                $this->authorizeHotelResource($room);
                 $this->room_id = $room->id;
                 $this->form_hotel_id = $room->hotel_id;
                 $this->form_room_type_id = $room->room_type_id;
@@ -227,6 +230,15 @@ class IndividualRoomManagement extends Component
             'notes' => 'nullable|string|max:1000',
             'available_from' => 'nullable|date|after_or_equal:today',
         ]);
+
+        $this->authorizeManagedHotel((int) $this->form_hotel_id);
+        abort_unless(
+            RoomType::whereKey($this->form_room_type_id)
+                ->where('hotel_id', $this->form_hotel_id)
+                ->exists(),
+            422,
+            'O tipo de quarto não pertence ao hotel selecionado.'
+        );
         
         $data = [
             'hotel_id' => $this->form_hotel_id,
@@ -242,7 +254,9 @@ class IndividualRoomManagement extends Component
         ];
         
         if ($this->room_id) {
-            Room::find($this->room_id)->update($data);
+            $room = Room::findOrFail($this->room_id);
+            $this->authorizeHotelResource($room);
+            $room->update($data);
             session()->flash('message', 'Quarto atualizado com sucesso!');
         } else {
             Room::create($data);
@@ -265,6 +279,15 @@ class IndividualRoomManagement extends Component
             'bulkData.end_number' => 'required|integer|min:1|gte:bulkData.start_number',
             'bulkData.prefix' => 'nullable|string|max:5',
         ]);
+
+        $this->authorizeManagedHotel((int) $this->bulkData['hotel_id']);
+        abort_unless(
+            RoomType::whereKey($this->bulkData['room_type_id'])
+                ->where('hotel_id', $this->bulkData['hotel_id'])
+                ->exists(),
+            422,
+            'O tipo de quarto não pertence ao hotel selecionado.'
+        );
         
         $createdCount = 0;
         $skippedCount = 0;
@@ -318,6 +341,7 @@ class IndividualRoomManagement extends Component
     {
         $room = Room::find($roomId);
         if ($room) {
+            $this->authorizeHotelResource($room);
             // Verificar se tem reservas ativas
             if ($room->reservations()->whereIn('status', ['confirmed', 'checked_in'])->exists()) {
                 session()->flash('error', 'Não é possível eliminar um quarto com reservas ativas.');

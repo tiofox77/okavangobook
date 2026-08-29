@@ -1,7 +1,7 @@
-<div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-    <form wire:submit.prevent="search" class="space-y-4">
+<div class="bg-white rounded-xl shadow-lg p-3 md:p-4">
+    <form wire:submit.prevent="search" class="space-y-2">
         <!-- Título do formulário -->
-        <h2 class="text-2xl font-bold text-gray-800 mb-4">Encontre as melhores acomodações em Angola</h2>
+        <h2 class="text-lg md:text-xl font-bold text-gray-800 mb-2">{{ __('Encontre as melhores acomodações em Angola') }}</h2>
         
         <!-- Mensagens de erro -->
         @error('location') <div class="text-red-600 text-sm mb-2">{{ $message }}</div> @enderror
@@ -9,14 +9,14 @@
         @error('checkOut') <div class="text-red-600 text-sm mb-2">{{ $message }}</div> @enderror
         
         <!-- Filtro de Províncias e Campo de localização -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
             <!-- Seletor de Províncias -->
             <div>
-                <label for="province" class="block text-gray-700 font-medium mb-2">
-                    Província
+                <label for="province" class="block text-sm text-gray-700 font-medium mb-1">
+                    {{ __('Província') }}
                     @if(!empty($selectedProvince))
                         <span class="ml-2 text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
-                            <i class="fas fa-check-circle mr-1"></i>Filtro ativo
+                            <i class="fas fa-check-circle mr-1"></i>{{ __('Filtro ativo') }}
                         </span>
                     @endif
                 </label>
@@ -27,12 +27,12 @@
                     <select 
                         id="province" 
                         wire:model.live="selectedProvince"
-                        class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent appearance-none"
+                        class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent appearance-none"
                     >
                         <option value="" selected class="font-bold">{{ __('Todas as províncias') }}</option>
                         @foreach($provinces as $provinceName => $hotelCount)
                             <option value="{{ $provinceName }}">
-                                {{ ucfirst($provinceName) }} ({{ $hotelCount }} {{ $hotelCount == 1 ? 'hotel' : 'hotéis' }})
+                                {{ ucfirst($provinceName) }} ({{ trans_choice(':count hotel|:count hotéis', $hotelCount, ['count' => $hotelCount]) }})
                             </option>
                         @endforeach
                     </select>
@@ -44,11 +44,11 @@
             
             <!-- Campo de localização com sugestões -->
             <div class="relative">
-                <label for="location" class="block text-gray-700 font-medium mb-2">
-                    Destino específico (opcional)
+                <label for="location" class="block text-sm text-gray-700 font-medium mb-1">
+                    {{ __('Destino específico (opcional)') }}
                     @if(!empty($location) && !empty($locationId))
                         <span class="ml-2 text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
-                            <i class="fas fa-map-pin mr-1"></i>Selecionado
+                            <i class="fas fa-map-pin mr-1"></i>{{ __('Selecionado') }}
                         </span>
                     @endif
                 </label>
@@ -61,7 +61,7 @@
                         id="location" 
                         wire:model.live.debounce.300ms="location" 
                         placeholder="{{ __('Hotel ou localidade específica') }}"
-                        class="w-full pl-10 pr-4 py-3 border @error('location') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        class="w-full pl-10 pr-4 py-2.5 border @error('location') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                         autocomplete="off"
                     >
                 </div>
@@ -83,7 +83,7 @@
                                                 <span class="text-gray-500 text-sm block">{{ $suggestion['location_name'] }}, {{ $suggestion['province'] }}</span>
                                             @endif
                                         </div>
-                                        <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">Hotel</span>
+                                        <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">{{ __('Hotel') }}</span>
                                     @else
                                         <i class="fas fa-map-marker-alt text-orange-500 mr-3 text-lg"></i>
                                         <div class="flex-1">
@@ -103,9 +103,9 @@
         </div>
         
         <!-- Datas de Check-in e Check-out -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
             <div>
-                <label for="check-in" class="block text-gray-700 font-medium mb-2">{{ __('Check-in') }}</label>
+                <label for="check-in" class="block text-sm text-gray-700 font-medium mb-1">{{ __('Check-in') }}</label>
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <i class="far fa-calendar-alt text-gray-400"></i>
@@ -114,14 +114,14 @@
                         type="date" 
                         id="check-in" 
                         wire:model="checkIn" 
-                        class="w-full pl-10 pr-4 py-3 border @error('checkIn') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        class="w-full pl-10 pr-4 py-2.5 border @error('checkIn') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                         min="{{ date('Y-m-d') }}"
                         required
                     >
                 </div>
             </div>
             <div>
-                <label for="check-out" class="block text-gray-700 font-medium mb-2">{{ __('Check-out') }}</label>
+                <label for="check-out" class="block text-sm text-gray-700 font-medium mb-1">{{ __('Check-out') }}</label>
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <i class="far fa-calendar-alt text-gray-400"></i>
@@ -130,7 +130,7 @@
                         type="date" 
                         id="check-out" 
                         wire:model="checkOut" 
-                        class="w-full pl-10 pr-4 py-3 border @error('checkOut') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        class="w-full pl-10 pr-4 py-2.5 border @error('checkOut') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                         min="{{ $checkIn }}"
                         required
                     >
@@ -139,24 +139,24 @@
         </div>
         
         <!-- Número de hóspedes e quartos -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
             <div>
-                <label for="guests" class="block text-gray-700 font-medium mb-2">{{ __('Hóspedes') }}</label>
+                <label for="guests" class="block text-sm text-gray-700 font-medium mb-1">{{ __('Hóspedes') }}</label>
                 <div class="flex items-center border border-gray-300 rounded-lg">
                     <button 
                         type="button" 
-                        class="px-4 py-3 bg-gray-100 text-gray-600 hover:bg-gray-200 focus:outline-none transition-colors {{ $guests <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}"
+                        class="px-4 py-2.5 bg-gray-100 text-gray-600 hover:bg-gray-200 focus:outline-none transition-colors {{ $guests <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}"
                         wire:click="decrementGuests"
                         {{ $guests <= 1 ? 'disabled' : '' }}
                     >
                         <i class="fas fa-minus"></i>
                     </button>
-                    <div class="flex-1 text-center py-3 font-medium">
+                    <div class="flex-1 text-center py-2.5 font-medium">
                         {{ $guestLabel }}
                     </div>
                     <button 
                         type="button" 
-                        class="px-4 py-3 bg-gray-100 text-gray-600 hover:bg-gray-200 focus:outline-none transition-colors {{ $guests >= 10 ? 'opacity-50 cursor-not-allowed' : '' }}"
+                        class="px-4 py-2.5 bg-gray-100 text-gray-600 hover:bg-gray-200 focus:outline-none transition-colors {{ $guests >= 10 ? 'opacity-50 cursor-not-allowed' : '' }}"
                         wire:click="incrementGuests"
                         {{ $guests >= 10 ? 'disabled' : '' }}
                     >
@@ -166,22 +166,22 @@
                 <input type="hidden" wire:model.defer="guests" min="1" max="10" required>
             </div>
             <div>
-                <label for="rooms" class="block text-gray-700 font-medium mb-2">{{ __('Quartos') }}</label>
+                <label for="rooms" class="block text-sm text-gray-700 font-medium mb-1">{{ __('Quartos') }}</label>
                 <div class="flex items-center border border-gray-300 rounded-lg">
                     <button 
                         type="button" 
-                        class="px-4 py-3 bg-gray-100 text-gray-600 hover:bg-gray-200 focus:outline-none transition-colors {{ $rooms <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}"
+                        class="px-4 py-2.5 bg-gray-100 text-gray-600 hover:bg-gray-200 focus:outline-none transition-colors {{ $rooms <= 1 ? 'opacity-50 cursor-not-allowed' : '' }}"
                         wire:click="decrementRooms"
                         {{ $rooms <= 1 ? 'disabled' : '' }}
                     >
                         <i class="fas fa-minus"></i>
                     </button>
-                    <div class="flex-1 text-center py-3 font-medium">
+                    <div class="flex-1 text-center py-2.5 font-medium">
                         {{ $roomLabel }}
                     </div>
                     <button 
                         type="button" 
-                        class="px-4 py-3 bg-gray-100 text-gray-600 hover:bg-gray-200 focus:outline-none transition-colors {{ $rooms >= 5 ? 'opacity-50 cursor-not-allowed' : '' }}"
+                        class="px-4 py-2.5 bg-gray-100 text-gray-600 hover:bg-gray-200 focus:outline-none transition-colors {{ $rooms >= 5 ? 'opacity-50 cursor-not-allowed' : '' }}"
                         wire:click="incrementRooms"
                         {{ $rooms >= 5 ? 'disabled' : '' }}
                     >
@@ -196,7 +196,7 @@
         <div class="pt-2">
             <button 
                 type="submit" 
-                class="w-full bg-primary hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300 flex items-center justify-center"
+                class="w-full bg-primary hover:bg-blue-700 text-white font-bold py-2.5 px-4 rounded-lg transition duration-300 flex items-center justify-center"
                 wire:loading.class="opacity-75 cursor-wait"
                 wire:loading.attr="disabled"
                 wire:target="search"

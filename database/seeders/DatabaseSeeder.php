@@ -43,6 +43,10 @@ class DatabaseSeeder extends Seeder
 
             // Hotéis reais de Angola — todas as 18 províncias
             AngolaHotelsSeeder::class,
+
+            // Resorts verificados e respetivas tipologias/tarifas públicas
+            VerifiedMussuloHotelsSeeder::class,
+            VerifiedResortRoomTypesSeeder::class,
         ]);
     }
 }

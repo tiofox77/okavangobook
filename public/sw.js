@@ -6,14 +6,21 @@
  *  - Estáticos (css/js/img/fonts): stale-while-revalidate.
  *  - Nunca faz cache de /admin, APIs ou pedidos não-GET.
  */
-const VERSION = 'v1';
+const VERSION = 'v3-branding';
 const STATIC_CACHE = `kianda-static-${VERSION}`;
 const RUNTIME_CACHE = `kianda-runtime-${VERSION}`;
 
 const PRECACHE = [
     '/offline.html',
+    '/assets/img/branding/kiandastay-logo.png',
+    '/assets/img/branding/kiandastay-mark.png',
+    '/assets/img/favicon-16.png',
+    '/assets/img/favicon-32.png',
     '/assets/img/icon-192.png',
     '/assets/img/icon-512.png',
+    '/assets/img/pwa/icon-192.png',
+    '/assets/img/pwa/icon-512.png',
+    '/assets/img/pwa/maskable-512.png',
 ];
 
 self.addEventListener('install', (event) => {

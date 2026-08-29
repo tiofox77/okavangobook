@@ -107,4 +107,26 @@ class ReservationFlowTest extends TestCase
         Http::assertSent(fn ($r) => $r->url() === 'https://ex.com/hook'
             && str_contains($r->body(), 'reservation.cancelled'));
     }
+
+    public function test_confirmation_page_accepts_route_model_binding(): void
+    {
+        $reservation = Reservation::create([
+            'user_id' => $this->customer->id,
+            'hotel_id' => $this->hotel->id,
+            'room_type_id' => $this->roomType->id,
+            'check_in' => now()->addDays(3),
+            'check_out' => now()->addDays(5),
+            'guests' => 2,
+            'total_price' => 60000,
+            'status' => 'pending',
+            'payment_status' => 'pending',
+            'confirmation_code' => 'OKB-CONFIRM',
+        ]);
+
+        $this->get(route('booking.confirm', $reservation))
+            ->assertSuccessful()
+            ->assertSee('OKB-CONFIRM')
+            ->assertDontSee('Teste de Debug');
+    }
+
 }

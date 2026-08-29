@@ -89,6 +89,7 @@ class SearchResults extends Component
         $this->checkOut = request()->input('check_out', $check_out) ?? Carbon::now()->addDay()->format('Y-m-d');
         $this->guests = request()->input('guests', $guests) ?? 2;
         $this->rooms = request()->input('rooms', $rooms) ?? 1;
+        $this->normalizeOccupancy();
         $this->allHotels = request()->input('all_hotels', $all_hotels) ?? false;
         $this->perPage = request()->input('per_page', $per_page) ?? 10;
         
@@ -155,6 +156,9 @@ class SearchResults extends Component
     // Método para limpar os filtros
     public function clearFilters()
     {
+        $this->location = null;
+        $this->locationId = null;
+        $this->province = null;
         $this->minPrice = 0;
         $this->maxPrice = 1000000;
         $this->stars = [];
@@ -162,6 +166,9 @@ class SearchResults extends Component
         $this->amenities = [];
         $this->propertyTypes = [];
         $this->selectedProvinces = [];
+        $this->sortBy = 'recommended';
+        $this->loadProvinces();
+        $this->loadPopularDestinations();
         $this->resetPage();
     }
     
@@ -202,8 +209,12 @@ class SearchResults extends Component
     // Método para alternar a seleção de uma província individual
     public function toggleProvinceFilter($province)
     {
+        $this->location = null;
+        $this->locationId = null;
+        $this->province = null;
+
         if (in_array($province, $this->selectedProvinces)) {
-            $this->selectedProvinces = array_diff($this->selectedProvinces, [$province]);
+            $this->selectedProvinces = array_values(array_diff($this->selectedProvinces, [$province]));
         } else {
             $this->selectedProvinces[] = $province;
         }
@@ -219,6 +230,7 @@ class SearchResults extends Component
     // Método para limpar todas as províncias selecionadas
     public function clearProvinceFilters()
     {
+        $this->province = null;
         $this->selectedProvinces = [];
         $this->resetPage();
     }
@@ -226,6 +238,10 @@ class SearchResults extends Component
     // Método para processar o formulário de busca no topo da página
     public function search()
     {
+        $this->normalizeOccupancy();
+        $this->province = null;
+        $this->selectedProvinces = [];
+
         // Verifica se temos apenas o slug da localização, sem o ID
         if ($this->location && !$this->locationId) {
             $foundLocation = Location::where('slug', $this->location)
@@ -244,6 +260,8 @@ class SearchResults extends Component
     // Método para selecionar um destino popular
     public function selectDestination($id, $name)
     {
+        $this->province = null;
+        $this->selectedProvinces = [];
         $this->locationId = $id;
         $this->location = $name;
         $this->resetPage();
@@ -257,6 +275,17 @@ class SearchResults extends Component
         } else {
             $this->ratings[] = $rating;
         }
+        $this->resetPage();
+    }
+
+    public function updatedAmenities(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedPerPage($value): void
+    {
+        $this->perPage = in_array((int) $value, [10, 20, 50], true) ? (int) $value : 10;
         $this->resetPage();
     }
     
@@ -368,16 +397,18 @@ class SearchResults extends Component
         if (!empty($this->ratings)) {
             $query->where(function($q) {
                 foreach ($this->ratings as $rating) {
-                    if ($rating == 9) {
-                        $q->orWhereRaw('rating * 2 >= 9');
-                    } elseif ($rating == 8) {
-                        $q->orWhereRaw('rating * 2 >= 8 AND rating * 2 < 9');
-                    } elseif ($rating == 7) {
-                        $q->orWhereRaw('rating * 2 >= 7 AND rating * 2 < 8');
-                    } elseif ($rating == 6) {
-                        $q->orWhereRaw('rating * 2 >= 6 AND rating * 2 < 7');
-                    } elseif ($rating == 0) {
-                        $q->orWhereRaw('rating * 2 < 6 AND rating > 0');
+                    if ($rating == 5) {
+                        $q->orWhere('rating', '>=', 4.5);
+                    } elseif ($rating == 4) {
+                        $q->orWhereBetween('rating', [4.0, 4.49]);
+                    } elseif ($rating == 3) {
+                        $q->orWhereBetween('rating', [3.5, 3.99]);
+                    } elseif ($rating == 2) {
+                        $q->orWhereBetween('rating', [3.0, 3.49]);
+                    } elseif ($rating == 1) {
+                        $q->orWhere(function ($low) {
+                            $low->where('rating', '>', 0)->where('rating', '<', 3.0);
+                        });
                     }
                 }
             });
@@ -388,7 +419,10 @@ class SearchResults extends Component
         // Usa LIKE por substring (robusto ao JSON por vezes duplamente codificado).
         if (!empty($this->amenities)) {
             foreach ($this->amenities as $amenity) {
-                $query->where('amenities', 'like', '%' . $amenity . '%');
+                $query->whereRaw(
+                    'JSON_CONTAINS(JSON_UNQUOTE(amenities), JSON_QUOTE(?))',
+                    [$amenity]
+                );
             }
         }
         
@@ -396,15 +430,45 @@ class SearchResults extends Component
         if (!empty($this->propertyTypes)) {
             $query->whereIn('property_type', $this->propertyTypes);
         }
+
+        // ====== CAPACIDADE E QUANTIDADE DE QUARTOS ======
+        // Um hotel só é apresentado quando o inventário ativo dos seus tipos de
+        // quarto consegue fornecer simultaneamente a quantidade de quartos e a
+        // capacidade total de hóspedes pedidas na pesquisa.
+        $requiredRooms = max(1, min(5, (int) $this->rooms));
+        $requiredGuests = max(1, min(10, (int) $this->guests));
+
+        $query->whereRaw(
+            '(SELECT COALESCE(SUM(COALESCE(rt.rooms_count, 0)), 0)
+                FROM room_types rt
+               WHERE rt.hotel_id = hotels.id
+                 AND rt.is_available = ?) >= ?',
+            [true, $requiredRooms]
+        )->whereRaw(
+            '(SELECT COALESCE(SUM(COALESCE(rt.capacity, 0) * COALESCE(rt.rooms_count, 0)), 0)
+                FROM room_types rt
+               WHERE rt.hotel_id = hotels.id
+                 AND rt.is_available = ?) >= ?',
+            [true, $requiredGuests]
+        );
         
         // ====== FILTROS DE PREÇO ======
-        // Usamos apenas where para permitir hotéis que tenham pelo menos um tipo de quarto que atenda ao critério
         if ($this->minPrice > 0 || $this->maxPrice < 1000000) {
-            // Filtra por faixa de preço, de forma coerente com a listagem e a
-            // ordenação (que não restringem os preços por data de validade).
-            $query->whereHas('roomTypes.prices', function($q) {
-                $q->whereBetween('price', [$this->minPrice, $this->maxPrice]);
-            });
+            // O card apresenta o menor preço do hotel; o filtro usa exatamente
+            // esse valor para que o resultado visível corresponda à faixa.
+            $query->whereHas('roomTypes.prices');
+
+            if ($this->minPrice > 0) {
+                $query->whereDoesntHave('roomTypes.prices', function ($priceQuery) {
+                    $priceQuery->where('price', '<', $this->minPrice);
+                });
+            }
+
+            if ($this->maxPrice < 1000000) {
+                $query->whereHas('roomTypes.prices', function ($priceQuery) {
+                    $priceQuery->where('price', '<=', $this->maxPrice);
+                });
+            }
         }
         
         // ====== ORDENAÇÃO ======
@@ -484,6 +548,7 @@ class SearchResults extends Component
                 $query->orderBy('stars', 'desc');
                 break;
                 
+            case 'rating':
             case 'rating_desc':
                 // Ordenar pela maior avaliação dos hóspedes
                 $query->orderBy('rating', 'desc');
@@ -501,6 +566,12 @@ class SearchResults extends Component
         
         // Retornar os resultados paginados usando o valor perPage definido
         return $query->paginate($this->perPage);
+    }
+
+    private function normalizeOccupancy(): void
+    {
+        $this->guests = max(1, min(10, (int) $this->guests));
+        $this->rooms = max(1, min(5, (int) $this->rooms));
     }
     
     public function render()
@@ -533,11 +604,11 @@ class SearchResults extends Component
         // Contar hotéis por avaliação para mostrar nos filtros
         // Rating está numa escala 0-5; a UI usa 0-10 (rating * 2).
         $ratingCounts = [
-            9 => Hotel::whereRaw('rating * 2 >= 9')->count(),
-            8 => Hotel::whereRaw('rating * 2 >= 8 AND rating * 2 < 9')->count(),
-            7 => Hotel::whereRaw('rating * 2 >= 7 AND rating * 2 < 8')->count(),
-            6 => Hotel::whereRaw('rating * 2 >= 6 AND rating * 2 < 7')->count(),
-            0 => Hotel::whereRaw('rating * 2 < 6 AND rating > 0')->count(),
+            5 => Hotel::where('rating', '>=', 4.5)->count(),
+            4 => Hotel::whereBetween('rating', [4.0, 4.49])->count(),
+            3 => Hotel::whereBetween('rating', [3.5, 3.99])->count(),
+            2 => Hotel::whereBetween('rating', [3.0, 3.49])->count(),
+            1 => Hotel::where('rating', '>', 0)->where('rating', '<', 3.0)->count(),
         ];
 
         // Comodidades reais (descodificadas dos dados) com contagem, para

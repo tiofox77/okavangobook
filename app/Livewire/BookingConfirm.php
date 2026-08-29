@@ -15,10 +15,11 @@ class BookingConfirm extends Component
     /**
      * Inicializar componente
      */
-    public function mount(int $booking): void
+    public function mount(Reservation|int $booking): void
     {
+        $bookingId = $booking instanceof Reservation ? $booking->getKey() : $booking;
         $this->booking = Reservation::with(['hotel', 'roomType', 'room', 'user'])
-            ->findOrFail($booking);
+            ->findOrFail($bookingId);
     }
     
     /**
@@ -26,9 +27,6 @@ class BookingConfirm extends Component
      */
     public function confirmBooking(): void
     {
-        // Log para debug
-        \Log::info('confirmBooking method called for booking ID: ' . $this->booking->id);
-        
         try {
             $this->booking->update([
                 'status' => 'confirmed',
@@ -37,8 +35,7 @@ class BookingConfirm extends Component
             
             session()->flash('success', 'Reserva confirmada com sucesso!');
             
-            // Usar redirect sem route helper primeiro para testar
-            $this->redirect('/booking/success/' . $this->booking->id);
+            $this->redirect(route('booking.success', $this->booking));
             
         } catch (\Exception $e) {
             \Log::error('Error confirming booking: ' . $e->getMessage());
@@ -51,9 +48,6 @@ class BookingConfirm extends Component
      */
     public function cancelBooking(): void
     {
-        // Log para debug
-        \Log::info('cancelBooking method called for booking ID: ' . $this->booking->id);
-        
         try {
             $this->booking->update([
                 'status' => 'cancelled',
@@ -69,15 +63,6 @@ class BookingConfirm extends Component
             \Log::error('Error cancelling booking: ' . $e->getMessage());
             session()->flash('error', 'Erro ao cancelar reserva. Tente novamente.');
         }
-    }
-    
-    /**
-     * Método de teste para verificar se Livewire funciona
-     */
-    public function testLivewire(): void
-    {
-        \Log::info('testLivewire method called - Livewire is working!');
-        session()->flash('success', 'Teste Livewire: Funciona perfeitamente!');
     }
     
     /**

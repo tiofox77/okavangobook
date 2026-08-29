@@ -9,20 +9,54 @@ use Livewire\Component;
 class Destinations extends Component
 {
     public $locations;
+    public string $sortBy = 'popular';
     
     public function mount()
     {
         // Agrupar localizações por província, selecionando apenas uma localização por província
         // (geralmente a capital ou cidade principal)
-        $groupedLocations = Location::orderBy('province')
+        $groupedLocations = Location::withCount('hotels')
+            ->orderBy('province')
             ->get()
             ->groupBy('province')
             ->map(function ($group) {
-                // Retorna apenas o primeiro item de cada grupo (província)
-                return $group->first();
+                $location = $group->first();
+                $story = config('destination_stories.' . $location->province);
+                $localImage = 'locations/commons/' . $location->province . '.jpg';
+
+                if ($story) {
+                    $location->description = $story;
+                }
+                if (\Storage::disk('public')->exists($localImage)) {
+                    $location->image = $localImage;
+                }
+
+                return $location;
             });
             
         $this->locations = $groupedLocations->values();
+        $this->sortLocations();
+    }
+
+    public function setSorting(string $sort): void
+    {
+        if (!in_array($sort, ['popular', 'alphabetical'], true)) {
+            return;
+        }
+
+        $this->sortBy = $sort;
+        $this->sortLocations();
+    }
+
+    private function sortLocations(): void
+    {
+        $this->locations = $this->locations
+            ->when(
+                $this->sortBy === 'popular',
+                fn ($locations) => $locations->sortByDesc('hotels_count'),
+                fn ($locations) => $locations->sortBy('province')
+            )
+            ->values();
     }
     
     public function render()

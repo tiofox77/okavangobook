@@ -1,18 +1,34 @@
+@section('title', $provinceName . ' — hotéis, resorts e hospedarias')
+@section('meta_description', \Illuminate\Support\Str::limit($locationDescription, 155))
+@section('structured_data')
+<script type="application/ld+json">
+{!! json_encode([
+    '@context' => 'https://schema.org',
+    '@type' => 'TouristDestination',
+    'name' => $provinceName,
+    'description' => $locationDescription,
+    'url' => url()->current(),
+    'image' => \App\Helpers\ImageHelper::getValidImage($locations->first()->image, 'location'),
+    'includesAttraction' => $hotels->map(fn ($hotel) => [
+        '@type' => 'Hotel',
+        'name' => $hotel->name,
+        'url' => route('hotel.details', $hotel->slug),
+    ])->values()->all(),
+], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+</script>
+@endsection
+
 <div>
     <div class="bg-gray-50">
         <!-- Hero Section com paralaxe -->
         <div class="relative h-[70vh] overflow-hidden" x-data="{ scrolled: false }" x-init="window.addEventListener('scroll', () => { scrolled = window.scrollY > 50 })" x-effect="scrolled">
             @if($locations->isNotEmpty())
                 <div class="absolute inset-0 transform transition-transform duration-1000" :style="`transform: translateY(${window.scrollY * 0.3}px)`">
-                    <img 
-                        @if(filter_var($locations->first()->image, FILTER_VALIDATE_URL))
-                            src="{{ $locations->first()->image }}"
-                        @else
-                            src="{{ asset('storage/' . $locations->first()->image) }}"
-                        @endif
+                    <img
+                        src="{{ \App\Helpers\ImageHelper::getValidImage($locations->first()->image, 'location') }}"
                         alt="{{ $provinceName }}" 
                         class="w-full h-full object-cover"
-                        onerror="this.src='{{ asset('images/locations/default.jpg') }}'"
+                        onerror="this.onerror=null; this.src='{{ \App\Helpers\ImageHelper::getDefaultImage('location') }}'"
                     >
                     <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
                 </div>

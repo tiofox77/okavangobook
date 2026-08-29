@@ -3,10 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ \App\Models\Setting::get('app_name', config('app.name', 'KiandaStay')) }} - Painel Administrativo - @yield('title', 'Dashboard')</title>
+    @php
+        $adminPageTitle = match (request()->route()?->getName()) {
+            'admin.notifications' => 'Notificações',
+            'admin.analytics' => 'Analytics',
+            'admin.articles' => 'Artigos e Blog',
+            'admin.reports.reservations' => 'Relatórios de Reservas',
+            'admin.hotels' => 'Propriedades',
+            'admin.rooms' => 'Tipos de Quartos',
+            'admin.individual-rooms' => 'Quartos Individuais',
+            'admin.amenities' => 'Comodidades',
+            'admin.restaurant' => 'Restaurante',
+            'admin.leisure' => 'Instalações de Lazer',
+            'admin.locations' => 'Localizações',
+            'admin.reservations' => 'Reservas',
+            'admin.reservations.create' => 'Criar Reserva',
+            'admin.coupons' => 'Cupons',
+            'admin.newsletter' => 'Newsletter',
+            'admin.newsletter.send' => 'Enviar Newsletter',
+            'admin.users' => 'Utilizadores',
+            'admin.plans' => 'Planos',
+            'admin.payments' => 'Pagamentos',
+            'admin.settings' => 'Configurações',
+            'admin.updates' => 'Atualizações',
+            'admin.profile' => 'Meu Perfil',
+            'admin.my-subscription' => 'Meu Plano',
+            default => 'Dashboard',
+        };
+    @endphp
+    <title>{{ \App\Models\Setting::get('app_name', config('app.name', 'KiandaStay')) }} - {{ $adminPageTitle }}</title>
     
     <!-- Favicon -->
-    <link rel="icon" href="{{ asset('favicon.ico') }}">
+    <link rel="icon" href="{{ asset('favicon.ico') }}?v=20260813" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('assets/img/favicon-32.png') }}?v=20260813">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('assets/img/pwa/icon-180.png') }}?v=20260813">
+    <link rel="manifest" href="{{ asset('manifest.webmanifest') }}?v=20260813">
     
     <!-- Tailwind CSS local -->
     <link href="{{ asset('assets/css/tailwind.min.css') }}" rel="stylesheet">
@@ -78,6 +109,28 @@
         .sidebar-collapsed {
             min-width: 70px;
             width: 70px;
+        }
+
+        .sidebar-collapsed .admin-brand-header {
+            padding-left: 9px;
+            padding-right: 9px;
+            flex-direction: column;
+        }
+
+        .sidebar-collapsed .admin-brand-link {
+            padding: 4px;
+        }
+
+        .sidebar-collapsed .admin-brand-full {
+            display: none;
+        }
+
+        .sidebar-collapsed .admin-brand-mark {
+            display: block;
+        }
+
+        .sidebar-collapsed .sidebar-toggle-button svg {
+            transform: rotate(180deg);
         }
         
         .content-expanded {
@@ -271,7 +324,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                             </svg>
                         </button>
-                        <h2 class="text-xl font-semibold text-gray-800 dark:text-white animate__animated animate__fadeIn">@yield('header-title', 'Dashboard')</h2>
+                        <h2 class="text-xl font-semibold text-gray-800 dark:text-white animate__animated animate__fadeIn">@yield('header-title', $adminPageTitle)</h2>
                     </div>
                     
                     <div class="flex items-center space-x-4">

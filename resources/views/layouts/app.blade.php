@@ -20,18 +20,22 @@
     </script>
 
     <!-- Favicon & ícones -->
-    <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('assets/img/favicon-32.png') }}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/img/favicon-16.png') }}">
+    <link rel="icon" href="{{ asset('favicon.ico') }}?v=20260813" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('assets/img/favicon-32.png') }}?v=20260813">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/img/favicon-16.png') }}?v=20260813">
     <link rel="icon" type="image/svg+xml" href="{{ asset('assets/img/icon.svg') }}">
-    <link rel="apple-touch-icon" href="{{ asset('assets/img/apple-touch-icon.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('assets/img/pwa/icon-180.png') }}?v=20260813">
+    <link rel="mask-icon" href="{{ asset('assets/img/icon.svg') }}" color="#134e91">
 
     <!-- PWA -->
-    <link rel="manifest" href="{{ asset('manifest.webmanifest') }}">
+    <link rel="manifest" href="{{ asset('manifest.webmanifest') }}?v=20260813">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="KiandaStay">
     <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="KiandaStay">
+    <meta name="msapplication-TileColor" content="#134e91">
+    <meta name="msapplication-TileImage" content="{{ asset('assets/img/pwa/icon-144.png') }}">
 
     <!-- Tailwind CSS local -->
     <link href="{{ asset('assets/css/tailwind.min.css') }}" rel="stylesheet">
@@ -92,7 +96,7 @@
     <!-- Scripts adicionais -->
     @stack('styles')
 </head>
-<body class="bg-gray-100 dark:bg-gray-900 dark:text-gray-100 min-h-screen flex flex-col transition-colors duration-300">
+<body class="bg-gray-100 dark:bg-gray-900 dark:text-gray-100 min-h-screen flex flex-col overflow-x-hidden transition-colors duration-300">
     <!-- Header -->
     @include('partials.header')
     
@@ -153,6 +157,77 @@
         });
     </script>
     
+    <!-- Geolocalização partilhada: o pedido de permissão parte sempre de um gesto do utilizador -->
+    <script>
+        window.KiandaLocation = {
+            setState(state, message = '') {
+                document.querySelectorAll('[data-location-button]').forEach((button) => {
+                    button.disabled = state === 'loading';
+                    button.classList.toggle('opacity-70', state === 'loading');
+                    const label = button.querySelector('[data-location-label]');
+                    if (label) {
+                        label.textContent = state === 'loading'
+                            ? 'A obter localização...'
+                            : state === 'success'
+                                ? 'Localização ativada'
+                                : 'Usar a minha localização';
+                    }
+                });
+
+                document.querySelectorAll('[data-location-status]').forEach((status) => {
+                    status.textContent = message;
+                    status.hidden = !message;
+                });
+            },
+
+            request(componentId, deniedMethod = null) {
+                if (!window.isSecureContext && !['localhost', '127.0.0.1'].includes(location.hostname)) {
+                    this.setState('error', 'A localização só pode ser ativada numa ligação HTTPS segura.');
+                    return;
+                }
+
+                if (!('geolocation' in navigator)) {
+                    this.setState('error', 'Este dispositivo não disponibiliza geolocalização.');
+                    return;
+                }
+
+                this.setState('loading', 'Confirme a permissão de localização no seu telemóvel.');
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        window.Livewire?.find(componentId)?.call(
+                            'setUserLocation',
+                            position.coords.latitude,
+                            position.coords.longitude
+                        );
+                        this.setState('success', 'Hotéis próximos atualizados com a sua localização.');
+                    },
+                    (error) => {
+                        const messages = {
+                            1: 'Permissão negada. Ative Localização nas definições do navegador ou da aplicação.',
+                            2: 'Não foi possível determinar a sua localização. Confirme se o GPS está ligado.',
+                            3: 'O GPS demorou demasiado. Tente novamente num local com melhor sinal.',
+                        };
+                        this.setState('error', messages[error.code] || 'Não foi possível obter a sua localização.');
+                        if (deniedMethod) {
+                            window.Livewire?.find(componentId)?.call(deniedMethod);
+                        }
+                    },
+                    { enableHighAccuracy: true, timeout: 15000, maximumAge: 120000 }
+                );
+            },
+
+            async useIfAlreadyGranted(componentId, deniedMethod = null) {
+                if (!navigator.permissions?.query) return;
+                try {
+                    const permission = await navigator.permissions.query({ name: 'geolocation' });
+                    if (permission.state === 'granted') this.request(componentId, deniedMethod);
+                } catch (_) {
+                    // Safari não implementa completamente a Permissions API.
+                }
+            },
+        };
+    </script>
+
     <!-- Scripts adicionais -->
     @stack('scripts')
 

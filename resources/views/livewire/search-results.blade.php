@@ -4,7 +4,7 @@
 @section('title', 'Pesquisar hotéis e acomodações em Angola')
 @section('meta_description', 'Compare preços de hotéis, resorts e hospedarias em Angola. Filtre por destino, datas, preço e comodidades e reserve a melhor opção.')
 
-<div class="bg-gray-100 min-h-screen relative">
+<div class="bg-gray-100 min-h-screen relative" x-data="{ filtersOpen: false }" @keydown.escape.window="filtersOpen = false">
     <!-- Indicador de carregamento elegante para pesquisa principal -->
     <div wire:loading wire:target="search" class="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm z-50 flex items-center justify-center transition-all duration-300">
         <div class="bg-white rounded-lg shadow-xl p-6 max-w-md mx-auto transform transition-all scale-90 opacity-0 animate-fadeIn">
@@ -29,6 +29,43 @@
         }
         .animate-fadeIn {
             animation: fadeIn 0.3s ease-out forwards;
+        }
+        @media (max-width: 767px) {
+            .mobile-sort-scroll {
+                flex-wrap: nowrap !important;
+                overflow-x: auto;
+                padding-bottom: .35rem;
+                scroll-snap-type: x proximity;
+                scrollbar-width: none;
+            }
+            .mobile-sort-scroll::-webkit-scrollbar {
+                display: none;
+            }
+            .mobile-sort-scroll > button {
+                flex: 0 0 auto;
+                min-height: 40px;
+                scroll-snap-align: start;
+            }
+            .mobile-filter-open {
+                display: flex !important;
+                position: fixed;
+                inset: 0;
+                z-index: 60;
+                width: 100%;
+                max-width: none;
+                padding: 0;
+                margin: 0;
+                align-items: flex-end;
+                background: rgba(15, 23, 42, .55);
+            }
+            .mobile-filter-open > div {
+                width: 100%;
+                max-height: 88vh;
+                overflow-y: auto;
+                margin: 0;
+                border-radius: 1.25rem 1.25rem 0 0;
+                padding-bottom: calc(1.25rem + env(safe-area-inset-bottom));
+            }
         }
     </style>
     
@@ -85,7 +122,9 @@
                         type="number" 
                         id="guests" 
                         wire:model.defer="guests" 
-                        min="1" 
+                        min="1"
+                        max="10"
+                        required
                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
                     >
                 </div>
@@ -96,7 +135,9 @@
                         type="number" 
                         id="rooms" 
                         wire:model.defer="rooms" 
-                        min="1" 
+                        min="1"
+                        max="5"
+                        required
                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
                     >
                 </div>
@@ -135,24 +176,72 @@
         <div class="mb-6">
             <h1 class="text-2xl font-bold text-gray-800">
                 @if($searchedLocation)
-                    Hotéis em {{ $searchedLocation->name }}, {{ $searchedLocation->province }}
+                    {{ __('Hotéis em :location, :province', ['location' => $searchedLocation->name, 'province' => $searchedLocation->province]) }}
                 @else
-                    Resultados da sua busca
+                    {{ __('Resultados da sua busca') }}
                 @endif
             </h1>
             <p class="text-gray-600">
-                {{ $searchResults->total() }} hotéis encontrados
+                {{ trans_choice(':count hotel encontrado|:count hotéis encontrados', $searchResults->total(), ['count' => $searchResults->total()]) }}
                 @if($checkIn && $checkOut)
-                    para {{ Carbon\Carbon::parse($checkIn)->format('d/m/Y') }} a {{ Carbon\Carbon::parse($checkOut)->format('d/m/Y') }}
-                    ({{ $nights }} {{ $nights == 1 ? 'noite' : 'noites' }})
+                    {{ __('para :checkin a :checkout', [
+                        'checkin' => Carbon\Carbon::parse($checkIn)->format('d/m/Y'),
+                        'checkout' => Carbon\Carbon::parse($checkOut)->format('d/m/Y'),
+                    ]) }}
+                    ({{ trans_choice(':count noite|:count noites', $nights, ['count' => $nights]) }})
                 @endif
+                <span class="inline-flex items-center gap-1 ml-2 text-primary font-medium">
+                    <i class="fas fa-user-friends text-xs"></i>
+                    {{ trans_choice(':count hóspede|:count hóspedes', $guests, ['count' => $guests]) }}
+                    <span aria-hidden="true">·</span>
+                    <i class="fas fa-door-open text-xs"></i>
+                    {{ trans_choice(':count quarto|:count quartos', $rooms, ['count' => $rooms]) }}
+                </span>
             </p>
+        </div>
+
+        <!-- Ações principais no telemóvel: resultados ficam visíveis antes dos filtros -->
+        <div class="md:hidden sticky top-2 z-30 mb-4 grid grid-cols-2 gap-2 rounded-xl border border-gray-200 bg-white/95 p-2 shadow-lg backdrop-blur">
+            <button type="button"
+                    @click="filtersOpen = true"
+                    class="flex min-h-[44px] items-center justify-center gap-2 rounded-lg bg-primary px-3 py-2.5 font-semibold text-white">
+                <i class="fas fa-sliders-h"></i>
+                <span>{{ __('Filtros') }}</span>
+                @php
+                    $activeFilterCount = count($propertyTypes) + count($selectedProvinces) + count($stars) + count($ratings) + count($amenities);
+                @endphp
+                @if($activeFilterCount > 0)
+                    <span class="rounded-full bg-white px-2 py-0.5 text-xs text-primary">{{ $activeFilterCount }}</span>
+                @endif
+            </button>
+            <button type="button"
+                    data-location-button
+                    onclick="window.KiandaLocation.request('{{ $_instance->getId() }}')"
+                    class="flex min-h-[44px] items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border border-primary bg-white px-2 py-2.5 text-sm font-semibold text-primary disabled:cursor-wait">
+                <i class="fas fa-location-crosshairs"></i>
+                <span data-location-label>{{ __('Perto de mim') }}</span>
+            </button>
+            <p data-location-status hidden role="status" aria-live="polite" class="col-span-2 px-2 pb-1 text-xs text-gray-600"></p>
         </div>
         
         <div class="flex flex-wrap md:flex-nowrap gap-6" wire:loading.class.delay="opacity-75">
             <!-- Filtros - Coluna esquerda -->
-            <div class="w-full md:w-1/4 md:min-w-[280px] md:max-w-[300px] mb-6" wire:loading.class="opacity-75">
+            <aside class="hidden w-full md:order-1 md:block md:w-1/4 md:min-w-[280px] md:max-w-[300px] md:mb-6"
+                   :class="{ 'mobile-filter-open': filtersOpen }"
+                   @click.self="filtersOpen = false"
+                   aria-label="{{ __('Filtros de pesquisa') }}"
+                   wire:loading.class="opacity-75">
                 <div class="bg-white rounded-xl shadow-lg p-5 mb-4 border border-gray-100 hover:border-primary/20 transition-all duration-300">
+                    <div class="md:hidden mb-4 flex items-center justify-between border-b border-gray-100 pb-3">
+                        <div>
+                            <p class="text-xs font-medium uppercase tracking-wide text-gray-500">{{ __('Refinar resultados') }}</p>
+                            <h2 class="text-xl font-bold text-gray-900">{{ __('Filtros') }}</h2>
+                        </div>
+                        <button type="button" @click="filtersOpen = false" aria-label="{{ __('Fechar filtros') }}"
+                                class="flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-gray-700">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
                     <div class="flex items-center justify-between mb-4">
                         <h2 class="text-lg font-bold text-gray-800">{{ __('Filtros de Busca') }}</h2>
                         <button 
@@ -163,6 +252,7 @@
                             <i class="fas fa-redo-alt" wire:loading.class="animate-spin"></i>
                             <span wire:loading.remove>{{ __('Limpar') }}</span>
                             <span wire:loading>{{ __('Limpando...') }}</span>
+                        </button>
                     </div>
                     
                     <!-- Filtro de destino -->
@@ -173,8 +263,8 @@
                         <div class="relative">
                             <input 
                                 type="text" 
-                                wire:model.debounce.500ms="location" 
-                                placeholder="Digite um destino" 
+                                wire:model.live.debounce.500ms="location"
+                                placeholder="{{ __('Digite um destino') }}"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary pl-10"
                             >
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -204,7 +294,7 @@
                         <div class="flex items-center justify-between cursor-pointer" @click="open = !open">
                             <h3 class="font-medium text-gray-700 flex items-center">
                                 <i class="fas fa-building text-primary mr-2"></i>
-                                Tipo de Propriedade
+                                {{ __('Tipo de Propriedade') }}
                                 @if(count($propertyTypes) > 0)
                                     <span class="ml-2 text-xs bg-primary text-white rounded-full px-2 py-0.5">{{ count($propertyTypes) }}</span>
                                 @endif
@@ -289,7 +379,7 @@
                             <div class="mt-2 mb-2 flex flex-wrap gap-1">
                                 @foreach($selectedProvinces as $selectedProvince)
                                     <div class="inline-flex items-center bg-primary/10 text-primary text-xs rounded-full px-2 py-1">
-                                        <span>{{ $selectedProvince }}</span>
+                                        <span>{{ \App\Models\Location::provinceName($selectedProvince) }}</span>
                                         <button wire:click="toggleProvinceFilter('{{ $selectedProvince }}')" class="ml-1 text-primary hover:text-primary-dark focus:outline-none">
                                             <i class="fas fa-times-circle"></i>
                                         </button>
@@ -318,7 +408,7 @@
                                                     <i class="fas fa-check text-xs text-white"></i>
                                                 @endif
                                             </div>
-                                            <span class="text-sm truncate max-w-[150px]">{{ $province->province }}</span>
+                                            <span class="text-sm truncate max-w-[150px]">{{ \App\Models\Location::provinceName($province->province) }}</span>
                                         </div>
                                         
                                         <div class="flex items-center">
@@ -475,7 +565,7 @@
                         </div>
                         
                         <div x-show="open" class="mt-2 space-y-2">
-                            @foreach([['Excelente', 9], ['Muito Bom', 8], ['Bom', 7], ['Regular', 6], ['Ruim', 0]] as $rating)
+                            @foreach([['Excelente', 5], ['Muito Bom', 4], ['Bom', 3], ['Regular', 2], ['Razoável', 1]] as $rating)
                                 <div class="flex items-center justify-between py-1 px-2 rounded-lg hover:bg-gray-50 transition-colors duration-200">
                                     <button 
                                         wire:click="toggleRatingFilter({{ $rating[1] }})" 
@@ -492,7 +582,7 @@
                                                 @if($rating[1] > 0)
                                                     <div class="ml-2 flex">
                                                         @for($j = 1; $j <= 5; $j++)
-                                                            @if($j <= round($rating[1]/2))
+                                                            @if($j <= $rating[1])
                                                                 <i class="fas fa-star text-yellow-400 text-xs"></i>
                                                             @else
                                                                 <i class="far fa-star text-yellow-400 text-xs"></i>
@@ -580,10 +670,10 @@
                         <div wire:loading wire:target="clearFilters" class="absolute bottom-0 left-0 h-1 bg-primary animate-pulse w-full"></div>
                     </button>
                 </div>
-            </div>
+            </aside>
             
             <!-- Resultados da busca - Coluna direita -->
-            <div class="w-full md:w-3/4 relative min-h-[500px]">
+            <div class="order-1 w-full md:order-2 md:w-3/4 relative min-h-[500px]">
                 <!-- Indicador de carregamento elegante para resultados -->
                 <div wire:loading wire:target="stars, ratings, amenities, selectedProvinces, minPrice, maxPrice, setSorting, applyProvinceFilter, toggleRatingFilter, toggleAmenityFilter, perPage" 
                      class="absolute inset-0 bg-white/60 backdrop-blur-[1px] z-10 transition-opacity duration-300">
@@ -641,7 +731,7 @@
                     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
                         <div>
                             <span class="font-medium text-gray-700 block mb-2">{{ __('Ordenar por:') }}</span>
-                            <div class="flex flex-wrap gap-2">
+                            <div class="mobile-sort-scroll flex flex-wrap gap-2">
                                 <button 
                                     wire:click="setSorting('recommended')" 
                                     wire:loading.attr="disabled"
@@ -728,7 +818,7 @@
                         <div class="md:flex items-center space-x-2">
                             <span class="text-sm text-gray-700 font-medium">{{ __('Mostrar:') }}</span>
                             <select 
-                                wire:model="perPage" 
+                                wire:model.live="perPage"
                                 class="text-sm border rounded-lg px-3 py-1.5 bg-white focus:ring-primary focus:border-primary text-gray-700 cursor-pointer shadow-sm">
                                 <option value="10">10 por página</option>
                                 <option value="20">20 por página</option>
@@ -754,8 +844,8 @@
                 <!-- Resultados da busca -->
                 <div class="{{ $viewMode == 'grid' ? 'grid grid-cols-1 md:grid-cols-2 gap-6' : 'space-y-6' }}" wire:key="results-{{ implode('-', $propertyTypes) }}">
                     @forelse($searchResults as $hotel)
-                        <div wire:key="hotel-{{ $hotel->id }}" class="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl border border-gray-100 hover:border-primary/20 relative group">
-                            <div class="{{ $viewMode == 'grid' ? 'flex flex-col' : 'flex flex-col md:flex-row' }}">
+                        <div wire:key="hotel-{{ $hotel->id }}" class="h-full bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl border border-gray-100 hover:border-primary/20 relative group">
+                            <div class="{{ $viewMode == 'grid' ? 'flex flex-col h-full' : 'flex flex-col md:flex-row' }}">
                                 <!-- Imagem do hotel -->
                                 <div class="{{ $viewMode == 'grid' ? 'w-full h-48' : 'md:w-1/3 h-48 md:h-64' }} relative overflow-hidden">
                                     @php
@@ -765,10 +855,10 @@
                                         if ($hotel->thumbnail) {
                                             // Verifica se já é uma URL (começa com http:// ou https://)
                                             if (Str::startsWith($hotel->thumbnail, ['http://', 'https://'])) {
-                                                $thumbnailUrl = $hotel->thumbnail;
+                                                $thumbnailUrl = \App\Helpers\ImageHelper::getValidImage($hotel->thumbnail, 'hotel');
                                             } else {
                                                 // Caminho para storage
-                                                $thumbnailUrl = asset('storage/' . $hotel->thumbnail);
+                                                $thumbnailUrl = \App\Helpers\ImageHelper::getValidImage($hotel->thumbnail, 'hotel');
                                             }
                                         } else {
                                             // Fallback para o helper
@@ -779,7 +869,7 @@
                                     <img 
                                         src="{{ $thumbnailUrl }}" 
                                         alt="{{ $hotel->name }}" 
-                                        class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                        class="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
                                         loading="lazy"
                                         onerror="this.onerror=null; this.src='{{ \App\Helpers\ImageHelper::getValidImage(null, 'hotel') }}'"
                                     >
@@ -803,7 +893,7 @@
                                 </div>
                                 
                                 <!-- Informações do hotel -->
-                                <div class="{{ $viewMode == 'grid' ? 'w-full' : 'md:w-2/3' }} p-5 flex flex-col h-full">
+                                <div class="{{ $viewMode == 'grid' ? 'w-full flex-1' : 'md:w-2/3' }} p-5 flex flex-col h-full">
                                     <!-- Nome, localização e avaliação -->
                                     <div class="mb-3">
                                         <div class="flex justify-between items-start mb-1">
@@ -821,7 +911,7 @@
                                         
                                         <div class="flex items-center text-sm text-gray-600 mb-2">
                                             <i class="fas fa-map-marker-alt mr-2 text-primary"></i>
-                                            <span>{{ $hotel->location->name }}, {{ $hotel->location->province }}</span>
+                                            <span>{{ $hotel->location->name }}, {{ \App\Models\Location::provinceName($hotel->location->province) }}</span>
                                         </div>
                                         
                                         <!-- Avaliação simplificada -->
@@ -899,7 +989,7 @@
                                     
                                     <!-- Preço e botão de ação -->
                                     <div class="mt-auto pt-3 border-t border-gray-100 flex {{ $viewMode == 'grid' ? 'flex-col space-y-3' : 'flex-row items-center justify-between' }}">
-                                        <div>
+                                        <div class="{{ $viewMode == 'grid' ? 'min-h-[72px]' : '' }}">
                                             @php
                                                 // Obter o menor preço disponível para o hotel
                                                 $lowestPrice = null;
@@ -985,12 +1075,12 @@
                          class="absolute inset-0 bg-white/70 backdrop-blur-[1px] rounded-lg flex items-center justify-center z-10 transition-opacity duration-300">
                         <div class="flex items-center space-x-2 bg-white shadow-md px-4 py-2 rounded-full">
                             <div class="w-4 h-4 border-2 border-t-primary border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin"></div>
-                            <span class="text-sm font-medium text-gray-700">Carregando página...</span>
+                            <span class="text-sm font-medium text-gray-700">{{ __('Carregando página...') }}</span>
                         </div>
                     </div>
                     
                     <div class="pagination-container" wire:loading.class="opacity-50">
-                        {{ $searchResults->links() }}
+                        {{ $searchResults->onEachSide(0)->links() }}
                     </div>
                     
                     <!-- Estilos customizados para paginação -->
@@ -1024,14 +1114,7 @@
 @push('scripts')
 <script>
     document.addEventListener('livewire:initialized', () => {
-        if (!('geolocation' in navigator)) return;
-        navigator.geolocation.getCurrentPosition(
-            function (pos) {
-                @this.call('setUserLocation', pos.coords.latitude, pos.coords.longitude);
-            },
-            function () { /* sem GPS: mantém a listagem normal */ },
-            { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 }
-        );
+        window.KiandaLocation.useIfAlreadyGranted('{{ $_instance->getId() }}');
     });
 </script>
 @endpush

@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin;
 
+use App\Livewire\Admin\Concerns\AuthorizesManagedHotels;
 use App\Models\Hotel;
 use App\Models\HotelLeisureFacility;
 use Livewire\Component;
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\Storage;
 
 class LeisureFacilitiesManagement extends Component
 {
+    use AuthorizesManagedHotels;
     use WithPagination, WithFileUploads;
 
     public $facilityId = null;
@@ -157,6 +159,7 @@ class LeisureFacilitiesManagement extends Component
     public function save()
     {
         $this->validate();
+        $this->authorizeManagedHotel((int) $this->hotel_id);
 
         $imagePaths = $this->images;
 
@@ -187,7 +190,9 @@ class LeisureFacilitiesManagement extends Component
         ];
 
         if ($this->facilityId) {
-            HotelLeisureFacility::find($this->facilityId)->update($data);
+            $facility = HotelLeisureFacility::findOrFail($this->facilityId);
+            $this->authorizeHotelResource($facility);
+            $facility->update($data);
             session()->flash('message', 'Instalação atualizada com sucesso!');
         } else {
             HotelLeisureFacility::create($data);

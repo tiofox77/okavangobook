@@ -44,6 +44,14 @@ return [
             'throw' => false,
         ],
 
+        'agent_media' => [
+            'driver' => 'local',
+            'root' => public_path('uploads/agent'),
+            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/uploads/agent',
+            'visibility' => 'public',
+            'throw' => true,
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

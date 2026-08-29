@@ -1,13 +1,14 @@
 @section('title', 'Contacto — Fale connosco')
 @section('meta_description', 'Entre em contacto com a equipa KiandaStay. Tire dúvidas sobre reservas, hotéis e parcerias em Angola.')
-<div>
+<div class="contact-page">
     <!-- Hero Section -->
-    <div class="relative bg-primary/90 overflow-hidden py-20">
-        <div class="absolute inset-0 opacity-20">
-            <img src="https://images.unsplash.com/photo-1513415277900-a62401e19be4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1500&q=80" 
+    <div class="relative overflow-hidden py-20 md:py-24 bg-gray-900">
+        <div class="absolute inset-0">
+            <img src="{{ asset('storage/locations/commons/luanda.jpg') }}"
                  alt="Paisagem de Angola" 
                  class="w-full h-full object-cover"
             >
+            <div class="absolute inset-0" style="background: linear-gradient(110deg, rgba(7, 30, 58, .88), rgba(17, 94, 166, .64));"></div>
         </div>
         <div class="container mx-auto px-4 relative z-10">
             <div class="text-center text-white">
@@ -21,10 +22,11 @@
     </div>
 
     <!-- Conteúdo Principal -->
-    <div class="container mx-auto px-4 py-16">
+    <div class="py-16 md:py-20" style="background: linear-gradient(145deg, #eef5fb 0%, #f8fafc 48%, #edf4f8 100%);">
+      <div class="container mx-auto px-4">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
             <!-- Formulário de Contacto -->
-            <div class="bg-white rounded-xl shadow-lg p-8 transform transition duration-500 hover:shadow-2xl opacity-100 animate-fade-in-left">
+            <div class="contact-glass rounded-2xl p-6 md:p-8 transform transition duration-500 hover:shadow-2xl opacity-100 animate-fade-in-left">
                 <h2 class="text-3xl font-bold text-gray-800 mb-6">{{ __('Envie-nos uma mensagem') }}</h2>
                 
                 @if($success)
@@ -101,20 +103,26 @@
             <!-- Informações de Contacto -->
             <div class="space-y-10 opacity-100 animate-fade-in-right" style="animation-delay: 300ms">
                 <!-- Mapa -->
-                <div class="rounded-xl overflow-hidden shadow-lg h-64 md:h-80">
-                    <iframe 
-                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d126096.78421915645!2d13.154970954349378!3d-8.838270001258465!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1a51f15cdc8d2c7d%3A0x850c1c5c5ecc5a92!2sLuanda%2C%20Angola!5e0!3m2!1spt-BR!2sbr!4v1655300139421!5m2!1spt-BR!2sbr" 
-                        width="100%" 
-                        height="100%" 
-                        style="border:0;" 
-                        allowfullscreen="" 
-                        loading="lazy" 
-                        referrerpolicy="no-referrer-when-downgrade"
-                    ></iframe>
+                <div class="relative rounded-2xl overflow-hidden shadow-lg h-64 md:h-80 bg-gray-800">
+                    <img src="{{ asset('storage/locations/commons/luanda.jpg') }}"
+                         alt="Luanda, Angola"
+                         class="absolute inset-0 w-full h-full object-cover">
+                    <div class="absolute inset-0" style="background: linear-gradient(to top, rgba(5, 25, 48, .92), rgba(5, 25, 48, .16));"></div>
+                    <div class="absolute inset-x-0 bottom-0 p-6 text-white">
+                        <p class="text-sm uppercase tracking-widest text-blue-100 mb-2">{{ __('Onde estamos') }}</p>
+                        <h3 class="text-2xl font-bold mb-4">Luanda, Angola</h3>
+                        <a href="https://www.google.com/maps/search/?api=1&query=Av.+4+de+Fevereiro,+Luanda,+Angola"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           class="inline-flex items-center px-5 py-3 bg-white text-primary font-semibold rounded-lg shadow hover:bg-blue-50 transition">
+                            <i class="fas fa-map-marked-alt mr-2"></i>
+                            {{ __('Abrir no mapa') }}
+                        </a>
+                    </div>
                 </div>
                 
                 <!-- Detalhes de Contacto -->
-                <div class="bg-white rounded-xl shadow-lg p-8">
+                <div class="contact-glass rounded-2xl p-6 md:p-8">
                     <h3 class="text-2xl font-bold text-gray-800 mb-6">{{ __('Informações de Contacto') }}</h3>
                     
                     <div class="space-y-6">
@@ -182,6 +190,7 @@
                 @endif
             </div>
         </div>
+      </div>
     </div>
     
     <!-- FAQ Section -->
@@ -299,7 +308,7 @@
                 <div class="flex flex-col md:flex-row">
                     <div class="md:w-1/3 bg-primary-dark relative hidden md:block">
                         <img 
-                            src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+                            src="{{ asset('storage/locations/commons/namibe.jpg') }}"
                             alt="Viagem" 
                             class="absolute inset-0 w-full h-full object-cover opacity-50"
                         >
@@ -425,4 +434,24 @@
             }
         }
     </script>
+    <style>
+        .contact-page .contact-glass {
+            background: rgba(255, 255, 255, .94);
+            border: 1px solid rgba(255, 255, 255, .88);
+            box-shadow: 0 20px 55px rgba(15, 47, 78, .12);
+            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(16px);
+        }
+
+        .dark .contact-page .contact-glass {
+            background: rgba(17, 24, 39, .95);
+            border-color: rgba(255, 255, 255, .1);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .contact-page [class*="animate-"] {
+                animation: none !important;
+            }
+        }
+    </style>
 </div>

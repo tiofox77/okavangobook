@@ -9,6 +9,12 @@ class NewsletterSubscribe extends Component
 {
     public $email = '';
     public $showSuccess = false;
+    public string $variant = 'default';
+
+    public function mount(string $variant = 'default'): void
+    {
+        $this->variant = in_array($variant, ['default', 'hero'], true) ? $variant : 'default';
+    }
 
     protected $rules = [
         'email' => 'required|email|unique:newsletter_subscribers,email',

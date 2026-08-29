@@ -1,8 +1,8 @@
-<div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-4 sm:py-8">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <!-- Header -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-6">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 sm:p-6 mb-4 sm:mb-6">
             <div class="flex items-center justify-between">
                 <div>
                     <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
@@ -36,10 +36,10 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
             <!-- Formulário Principal -->
-            <div class="lg:col-span-2">
+            <div class="order-2 lg:order-1 lg:col-span-2">
                 @if($currentStep === 'details')
                     <!-- Step 1: Detalhes da Reserva -->
-                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 sm:p-6">
                         <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                             <i class="fas fa-info-circle text-blue-600 mr-2"></i>
                             Detalhes da Reserva
@@ -274,10 +274,10 @@
                         @endif
                         
                         <!-- Botão Avançar -->
-                        <div class="flex justify-end pt-6 border-t">
+                        <div class="flex pt-6 border-t">
                             <button type="button" 
                                     wire:click="nextStep" 
-                                    class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200 flex items-center">
+                                    class="min-h-[44px] w-full sm:w-auto sm:ml-auto px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200 flex items-center justify-center">
                                 Continuar
                                 <i class="fas fa-arrow-right ml-2"></i>
                             </button>
@@ -286,7 +286,7 @@
                     
                 @elseif($currentStep === 'confirmation')
                     <!-- Step 2: Confirmação -->
-                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 sm:p-6">
                         <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                             <i class="fas fa-check-circle text-green-600 mr-2"></i>
                             Confirmação da Reserva
@@ -315,10 +315,10 @@
                         </div>
                         
                         <!-- Botões -->
-                        <div class="flex justify-between">
+                        <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
                             <button type="button" 
                                     wire:click="previousStep" 
-                                    class="px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg transition-colors duration-200 flex items-center">
+                                    class="min-h-[44px] w-full sm:w-auto px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg transition-colors duration-200 flex items-center justify-center">
                                 <i class="fas fa-arrow-left mr-2"></i>
                                 Voltar
                             </button>
@@ -326,7 +326,7 @@
                             <button type="button" 
                                     wire:click="confirmBooking" 
                                     wire:loading.attr="disabled"
-                                    class="px-6 py-2 bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white font-medium rounded-lg transition-colors duration-200 flex items-center">
+                                    class="min-h-[44px] w-full sm:w-auto px-6 py-2 bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white font-medium rounded-lg transition-colors duration-200 flex items-center justify-center">
                                 <span wire:loading.remove wire:target="confirmBooking">
                                     <i class="fas fa-check mr-2"></i>
                                     Confirmar Reserva
@@ -342,8 +342,8 @@
             </div>
             
             <!-- Sidebar com Resumo da Reserva -->
-            <div class="lg:col-span-1">
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 sticky top-6">
+            <div class="order-1 lg:order-2 lg:col-span-1">
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 sm:p-6 lg:sticky lg:top-6">
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                         <i class="fas fa-file-invoice-dollar text-blue-600 mr-2"></i>
                         Resumo da Reserva

@@ -383,65 +383,68 @@
 
     <!-- Maintenance Tab -->
     @if($activeTab === 'maintenance')
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Maintenance Settings -->
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
-                <div class="p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">
-                        <i class="fas fa-tools text-yellow-500 mr-2"></i>
-                        Configurações de Manutenção
-                    </h3>
-                    
-                    <form wire:submit.prevent="saveMaintenanceSettings" class="space-y-4">
-                        <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-                            <div>
-                                <h4 class="text-sm font-medium text-gray-900">Modo de Manutenção</h4>
-                                <p class="text-sm text-gray-500">Desativar temporariamente o site para os usuários</p>
-                            </div>
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" wire:model.live="maintenanceMode" class="sr-only peer">
-                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                            </label>
-                        </div>
-
-                        <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-                            <div>
-                                <h4 class="text-sm font-medium text-gray-900">Modo Debug</h4>
-                                <p class="text-sm text-gray-500">Exibir informações detalhadas de erro</p>
-                            </div>
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" wire:model.live="debugMode" class="sr-only peer">
-                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                            </label>
-                        </div>
-
-                        <button type="submit" 
-                                class="w-full bg-yellow-600 text-white py-2 px-4 rounded-md hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 transition-colors">
-                            <i class="fas fa-save mr-2"></i>Salvar Configurações de Manutenção
-                        </button>
-                    </form>
+        <div class="space-y-6">
+            <div class="overflow-hidden rounded-2xl p-6 text-white shadow-lg" style="background: linear-gradient(120deg, #0f172a 0%, #1e3a8a 52%, #1d4ed8 100%);">
+                <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+                    <div>
+                        <div class="mb-2 inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-xs font-semibold"><i class="fas fa-shield-alt mr-2"></i>Centro operacional</div>
+                        <h2 class="text-2xl font-bold">Saúde e manutenção do sistema</h2>
+                        <p class="mt-2 max-w-2xl text-sm text-blue-100">Controle o estado da plataforma, caches, otimização e requisitos técnicos num único lugar.</p>
+                    </div>
+                    <button wire:click="refreshMaintenanceStatus" class="rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-blue-800 shadow hover:bg-blue-50" wire:loading.attr="disabled">
+                        <i class="fas fa-sync-alt mr-2" wire:loading.class="fa-spin"></i>Atualizar diagnóstico
+                    </button>
                 </div>
             </div>
 
-            <!-- Cache Management -->
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
-                <div class="p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">
-                        <i class="fas fa-broom text-green-500 mr-2"></i>
-                        Gestão de Cache
-                    </h3>
-                    
-                    <div class="space-y-4">
-                        <p class="text-sm text-gray-600">
-                            Limpar o cache pode resolver problemas de configuração e melhorar o desempenho.
-                        </p>
-                        
-                        <button wire:click="showConfirmation('clearCache', 'Tem certeza que deseja limpar todo o cache do sistema?')" 
-                                class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors">
-                            <i class="fas fa-broom mr-2"></i>Limpar Cache
-                        </button>
+            <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                @foreach([
+                    ['Base de dados', $maintenanceStatus['database'] ?? false, 'fa-database'],
+                    ['Armazenamento', $maintenanceStatus['storage_writable'] ?? false, 'fa-folder-open'],
+                    ['Ambiente', ($maintenanceStatus['environment'] ?? '') === 'production', 'fa-server'],
+                    ['Site público', !$maintenanceMode, 'fa-globe-africa'],
+                ] as [$label, $ok, $icon])
+                    <div class="rounded-xl border {{ $ok ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50' }} p-4">
+                        <div class="flex items-center justify-between"><i class="fas {{ $icon }} {{ $ok ? 'text-green-600' : 'text-red-600' }}"></i><span class="h-2.5 w-2.5 rounded-full {{ $ok ? 'bg-green-500' : 'bg-red-500' }}"></span></div>
+                        <p class="mt-3 text-sm font-semibold text-gray-900">{{ $label }}</p>
+                        <p class="text-xs {{ $ok ? 'text-green-700' : 'text-red-700' }}">{{ $ok ? 'Operacional' : 'Requer atenção' }}</p>
                     </div>
+                @endforeach
+            </div>
+
+            <div class="grid grid-cols-1 gap-6 xl:grid-cols-3">
+                <form wire:submit.prevent="saveMaintenanceSettings" class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm xl:col-span-2">
+                    <div class="mb-5 flex items-center gap-3"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100 text-amber-600"><i class="fas fa-tools"></i></span><div><h3 class="font-semibold text-gray-900">Controlo da aplicação</h3><p class="text-xs text-gray-500">Alterações críticas exigem confirmação ao guardar.</p></div></div>
+                    <div class="grid gap-4 md:grid-cols-2">
+                        <label class="flex cursor-pointer items-start justify-between gap-4 rounded-xl border border-gray-200 p-4 hover:border-amber-300">
+                            <span><span class="block text-sm font-semibold text-gray-900">Modo de manutenção</span><span class="mt-1 block text-xs leading-5 text-gray-500">Suspende temporariamente o acesso público durante intervenções.</span></span>
+                            <input type="checkbox" wire:model.live="maintenanceMode" class="mt-1 h-5 w-5 rounded text-amber-600">
+                        </label>
+                        <label class="flex cursor-pointer items-start justify-between gap-4 rounded-xl border border-gray-200 p-4 hover:border-red-300">
+                            <span><span class="block text-sm font-semibold text-gray-900">Modo debug</span><span class="mt-1 block text-xs leading-5 text-gray-500">Mostra detalhes técnicos. Deve ficar desligado em produção.</span></span>
+                            <input type="checkbox" wire:model.live="debugMode" class="mt-1 h-5 w-5 rounded text-red-600">
+                        </label>
+                    </div>
+                    @if($debugMode)<div class="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700"><i class="fas fa-exclamation-triangle mr-2"></i>Debug ativo pode expor informação sensível aos visitantes.</div>@endif
+                    <button type="submit" class="mt-5 w-full rounded-xl bg-amber-600 px-4 py-3 font-semibold text-white hover:bg-amber-700"><i class="fas fa-save mr-2"></i>Guardar estado da aplicação</button>
+                </form>
+
+                <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+                    <h3 class="font-semibold text-gray-900"><i class="fas fa-microchip mr-2 text-blue-600"></i>Informação técnica</h3>
+                    <dl class="mt-4 space-y-3 text-sm">
+                        @foreach(['Ambiente' => $maintenanceStatus['environment'] ?? '-', 'PHP' => $maintenanceStatus['php'] ?? '-', 'Laravel' => $maintenanceStatus['laravel'] ?? '-', 'Cache' => $maintenanceStatus['cache_driver'] ?? '-', 'Fila' => $maintenanceStatus['queue_driver'] ?? '-', 'Log principal' => $maintenanceStatus['log_size'] ?? '-'] as $label => $value)
+                            <div class="flex justify-between gap-3 border-b border-gray-100 pb-2"><dt class="text-gray-500">{{ $label }}</dt><dd class="font-medium text-gray-800">{{ $value }}</dd></div>
+                        @endforeach
+                    </dl>
+                    <p class="mt-4 text-xs text-gray-400">Verificado em {{ $maintenanceStatus['last_checked'] ?? '-' }}</p>
                 </div>
+            </div>
+
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+                <button wire:click="showConfirmation('clearCache', 'Limpar cache, configurações, rotas e vistas compiladas?')" class="rounded-xl border border-green-200 bg-white p-5 text-left shadow-sm hover:border-green-400 hover:shadow"><i class="fas fa-broom text-xl text-green-600"></i><span class="mt-3 block font-semibold text-gray-900">Limpar caches</span><span class="mt-1 block text-xs text-gray-500">Resolve dados e vistas desatualizados.</span></button>
+                <button wire:click="showConfirmation('optimizeApplication', 'Otimizar configurações, rotas e vistas para produção?')" class="rounded-xl border border-blue-200 bg-white p-5 text-left shadow-sm hover:border-blue-400 hover:shadow"><i class="fas fa-rocket text-xl text-blue-600"></i><span class="mt-3 block font-semibold text-gray-900">Otimizar aplicação</span><span class="mt-1 block text-xs text-gray-500">Reconstrói caches de produção.</span></button>
+                <button wire:click="setActiveTab('requirements')" class="rounded-xl border border-purple-200 bg-white p-5 text-left shadow-sm hover:border-purple-400 hover:shadow"><i class="fas fa-clipboard-check text-xl text-purple-600"></i><span class="mt-3 block font-semibold text-gray-900">Ver requisitos</span><span class="mt-1 block text-xs text-gray-500">PHP, extensões, permissões e BD.</span></button>
+                <a href="{{ route('admin.updates') }}" class="rounded-xl border border-orange-200 bg-white p-5 text-left shadow-sm hover:border-orange-400 hover:shadow"><i class="fas fa-cloud-download-alt text-xl text-orange-600"></i><span class="mt-3 block font-semibold text-gray-900">Atualizações</span><span class="mt-1 block text-xs text-gray-500">Histórico, versões e pacotes.</span></a>
             </div>
         </div>
     @endif

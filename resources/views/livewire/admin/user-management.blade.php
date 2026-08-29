@@ -101,6 +101,7 @@
                                     <div class="text-sm text-gray-500">{{ $user->created_at->format('d/m/Y') }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <button wire:click="viewUser({{ $user->id }})" class="text-emerald-600 hover:text-emerald-900 mr-2">Ver</button>
                                     <button wire:click="openModal({{ $user->id }})" class="text-blue-600 hover:text-blue-900 mr-2">
                                         Editar
                                     </button>
@@ -125,6 +126,88 @@
             <div class="mt-4">
                 {{ $users->links() }}
             </div>
+
+            @if ($showViewModal && !empty($selectedUserDetails))
+                <div class="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="user-details-title" wire:keydown.escape.window="closeViewModal">
+                    <div class="flex min-h-full items-end justify-center p-0 text-center sm:items-center sm:p-4">
+                        <button type="button" class="fixed inset-0 cursor-default bg-slate-950/60 backdrop-blur-sm" wire:click="closeViewModal" aria-label="Fechar detalhes"></button>
+                        <section class="relative flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-2xl bg-white text-left shadow-2xl dark:bg-slate-900 sm:max-w-4xl sm:rounded-2xl">
+                            <header class="flex items-start justify-between border-b border-slate-200 bg-gradient-to-r from-blue-700 to-blue-600 px-5 py-5 text-white dark:border-slate-700 sm:px-7">
+                                <div class="flex min-w-0 items-center gap-4">
+                                    <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/20 text-2xl font-bold ring-1 ring-white/30">{{ $selectedUserDetails['initial'] }}</div>
+                                    <div class="min-w-0">
+                                        <h2 id="user-details-title" class="truncate text-xl font-bold sm:text-2xl">{{ $selectedUserDetails['name'] }}</h2>
+                                        <p class="truncate text-sm text-blue-100">{{ $selectedUserDetails['email'] }}</p>
+                                        <div class="mt-2 flex flex-wrap gap-1.5">
+                                            @forelse ($selectedUserDetails['roles'] as $role)
+                                                <span class="rounded-full bg-white/20 px-2.5 py-1 text-xs font-semibold ring-1 ring-white/25">{{ $role }}</span>
+                                            @empty
+                                                <span class="rounded-full bg-amber-300/20 px-2.5 py-1 text-xs font-semibold text-amber-100">Sem função</span>
+                                            @endforelse
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="button" wire:click="closeViewModal" class="ml-3 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/10 text-2xl hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white" aria-label="Fechar">&times;</button>
+                            </header>
+
+                            <div class="overflow-y-auto px-5 py-5 sm:px-7 sm:py-6">
+                                <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                                    @foreach ([
+                                        ['label' => 'Propriedades', 'value' => $selectedUserDetails['counts']['hotels']],
+                                        ['label' => 'Reservas', 'value' => $selectedUserDetails['counts']['reservations']],
+                                        ['label' => 'Avaliações', 'value' => $selectedUserDetails['counts']['reviews']],
+                                        ['label' => 'Favoritos', 'value' => $selectedUserDetails['counts']['favorites']],
+                                    ] as $stat)
+                                        <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800">
+                                            <div class="text-2xl font-bold text-slate-900 dark:text-white">{{ $stat['value'] }}</div>
+                                            <div class="mt-1 text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ $stat['label'] }}</div>
+                                        </div>
+                                    @endforeach
+                                </div>
+
+                                <div class="mt-6 grid gap-4 lg:grid-cols-2">
+                                    <div class="rounded-xl border border-slate-200 p-4 dark:border-slate-700">
+                                        <h3 class="font-semibold text-slate-900 dark:text-white">Informações da conta</h3>
+                                        <dl class="mt-3 space-y-3 text-sm">
+                                            <div class="flex justify-between gap-4"><dt class="text-slate-500">ID</dt><dd class="font-medium text-slate-800 dark:text-slate-200">#{{ $selectedUserDetails['id'] }}</dd></div>
+                                            <div class="flex justify-between gap-4"><dt class="text-slate-500">E-mail</dt><dd class="font-medium text-slate-800 dark:text-slate-200">{{ $selectedUserDetails['email_verified'] ? 'Verificado' : 'Não verificado' }}</dd></div>
+                                            <div class="flex justify-between gap-4"><dt class="text-slate-500">Registado em</dt><dd class="text-right font-medium text-slate-800 dark:text-slate-200">{{ $selectedUserDetails['created_at'] }}</dd></div>
+                                            <div class="flex justify-between gap-4"><dt class="text-slate-500">Atualizado em</dt><dd class="text-right font-medium text-slate-800 dark:text-slate-200">{{ $selectedUserDetails['updated_at'] }}</dd></div>
+                                        </dl>
+                                    </div>
+                                    <div class="rounded-xl border border-slate-200 p-4 dark:border-slate-700">
+                                        <h3 class="font-semibold text-slate-900 dark:text-white">Subscrição</h3>
+                                        @if ($selectedUserDetails['subscription'])
+                                            <div class="mt-3 flex items-center justify-between rounded-lg bg-blue-50 p-3 dark:bg-blue-950/40">
+                                                <div><p class="font-semibold text-blue-900 dark:text-blue-100">{{ $selectedUserDetails['subscription']['plan'] }}</p><p class="text-xs text-blue-700 dark:text-blue-300">Ciclo: {{ ucfirst($selectedUserDetails['subscription']['cycle']) }}</p></div>
+                                                <span class="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300">{{ ucfirst($selectedUserDetails['subscription']['status']) }}</span>
+                                            </div>
+                                            <p class="mt-2 text-xs text-slate-500">Válida até {{ $selectedUserDetails['subscription']['ends_at'] }}</p>
+                                        @else
+                                            <p class="mt-3 text-sm text-slate-500 dark:text-slate-400">Este utilizador não possui uma subscrição ativa.</p>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                <div class="mt-6">
+                                    <div class="mb-3 flex items-center justify-between"><h3 class="font-semibold text-slate-900 dark:text-white">Propriedades de que é dono</h3><span class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-300">{{ count($selectedUserDetails['hotels']) }}</span></div>
+                                    @forelse ($selectedUserDetails['hotels'] as $hotel)
+                                        <article class="mb-3 rounded-xl border border-slate-200 p-4 dark:border-slate-700">
+                                            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                                <div class="min-w-0"><div class="flex flex-wrap items-center gap-2"><h4 class="font-semibold text-slate-900 dark:text-white">{{ $hotel['name'] }}</h4><span class="rounded-full px-2 py-0.5 text-xs font-medium {{ $hotel['active'] ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300' }}">{{ $hotel['active'] ? 'Ativa' : 'Inativa' }}</span></div><p class="mt-1 text-sm text-slate-500 dark:text-slate-400">{{ $hotel['type'] }} · {{ $hotel['location'] }}</p></div>
+                                                <div class="flex shrink-0 flex-wrap gap-2 text-xs text-slate-600 dark:text-slate-300"><span class="rounded-lg bg-slate-100 px-2.5 py-1.5 dark:bg-slate-800">{{ $hotel['rooms'] }} tipos de quarto</span><span class="rounded-lg bg-slate-100 px-2.5 py-1.5 dark:bg-slate-800">{{ $hotel['reservations'] }} reservas</span></div>
+                                            </div>
+                                        </article>
+                                    @empty
+                                        <div class="rounded-xl border border-dashed border-slate-300 px-4 py-8 text-center text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">Nenhuma propriedade atribuída a este utilizador.</div>
+                                    @endforelse
+                                </div>
+                            </div>
+                            <footer class="border-t border-slate-200 bg-slate-50 px-5 py-4 text-right dark:border-slate-700 dark:bg-slate-800/70 sm:px-7"><button type="button" wire:click="closeViewModal" class="inline-flex w-full justify-center rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:w-auto">Fechar</button></footer>
+                        </section>
+                    </div>
+                </div>
+            @endif
             
             <!-- Modal de criação/edição -->
             @if ($showModal)

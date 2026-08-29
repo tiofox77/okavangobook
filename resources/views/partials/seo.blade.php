@@ -5,14 +5,14 @@
     $seoKeywords    = \App\Models\Setting::get('meta_keywords', 'hotéis Angola, reservas, resorts, hospedarias, Luanda, Benguela, alojamento, turismo Angola');
     $seoTitle       = trim($__env->yieldContent('title', 'Encontre as melhores acomodações em Angola'));
     $seoFullTitle   = $seoAppName . ' - ' . $seoTitle;
-    $seoImage       = trim($__env->yieldContent('meta_image', asset('assets/img/og-image.png')));
+    $seoImage       = trim($__env->yieldContent('meta_image', asset('storage/locations/commons/luanda.jpg')));
     $seoUrl         = url()->current();
     $seoType        = trim($__env->yieldContent('og_type', 'website'));
 @endphp
 
 <meta name="description" content="{{ $seoDescription }}">
 <meta name="keywords" content="{{ $seoKeywords }}">
-<meta name="robots" content="@yield('robots', 'index, follow')">
+<meta name="robots" content="@yield('robots', 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1')">
 <meta name="author" content="{{ $seoAppName }}">
 <link rel="canonical" href="{{ $seoUrl }}">
 
@@ -43,7 +43,7 @@
     'url' => url('/'),
     'potentialAction' => [
         '@type' => 'SearchAction',
-        'target' => url('/search') . '?destination={search_term_string}',
+        'target' => route('search.results') . '?location={search_term_string}',
         'query-input' => 'required name=search_term_string',
     ],
 ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}

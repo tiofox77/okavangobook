@@ -28,6 +28,8 @@ class UserManagement extends Component
     
     // Estado do modal
     public bool $showModal = false;
+    public bool $showViewModal = false;
+    public array $selectedUserDetails = [];
     
     // Regras de validação
     protected function rules()
@@ -103,6 +105,64 @@ class UserManagement extends Component
     public function closeModal()
     {
         $this->showModal = false;
+    }
+
+    public function viewUser(int $userId): void
+    {
+        $user = User::query()
+            ->with([
+                'roles:id,name',
+                'managedHotels' => fn ($query) => $query
+                    ->with('location:id,name')
+                    ->withCount(['roomTypes', 'reservations'])
+                    ->orderBy('name'),
+                'activeSubscription.plan',
+            ])
+            ->withCount(['managedHotels', 'reservations', 'reviews', 'favorites'])
+            ->findOrFail($userId);
+
+        $subscription = $user->activeSubscription;
+
+        $this->selectedUserDetails = [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'initial' => mb_strtoupper(mb_substr($user->name, 0, 1)),
+            'roles' => $user->roles->pluck('name')->values()->all(),
+            'email_verified' => $user->email_verified_at !== null,
+            'email_verified_at' => $user->email_verified_at?->format('d/m/Y H:i'),
+            'created_at' => $user->created_at?->format('d/m/Y H:i'),
+            'updated_at' => $user->updated_at?->format('d/m/Y H:i'),
+            'counts' => [
+                'hotels' => $user->managed_hotels_count,
+                'reservations' => $user->reservations_count,
+                'reviews' => $user->reviews_count,
+                'favorites' => $user->favorites_count,
+            ],
+            'subscription' => $subscription ? [
+                'plan' => $subscription->plan?->name ?? 'Plano removido',
+                'status' => $subscription->status,
+                'cycle' => $subscription->billing_cycle,
+                'ends_at' => $subscription->ends_at?->format('d/m/Y'),
+            ] : null,
+            'hotels' => $user->managedHotels->map(fn ($hotel) => [
+                'id' => $hotel->id,
+                'name' => $hotel->name,
+                'type' => ucfirst((string) ($hotel->property_type ?: 'hotel')),
+                'location' => $hotel->location?->name ?? 'Localização não definida',
+                'active' => (bool) $hotel->is_active,
+                'rooms' => $hotel->room_types_count,
+                'reservations' => $hotel->reservations_count,
+            ])->values()->all(),
+        ];
+
+        $this->showViewModal = true;
+    }
+
+    public function closeViewModal(): void
+    {
+        $this->showViewModal = false;
+        $this->selectedUserDetails = [];
     }
     
     public function save()

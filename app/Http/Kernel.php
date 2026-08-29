@@ -67,6 +67,9 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'api.key' => \App\Http\Middleware\VerifyApiKey::class,
+        'agent.auth' => \App\Http\Middleware\AuthenticateAgent::class,
+        'agent.scope' => \App\Http\Middleware\RequireAgentScope::class,
+        'agent.write' => \App\Http\Middleware\RequireAgentWriteContext::class,
         
         // Spatie Permission Middlewares
         'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,

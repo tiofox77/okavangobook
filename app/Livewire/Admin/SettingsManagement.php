@@ -60,6 +60,7 @@ class SettingsManagement extends Component
     // Maintenance & Debug Settings
     public bool $maintenanceMode = false;
     public bool $debugMode = false;
+    public array $maintenanceStatus = [];
 
     // Modal states
     public bool $showConfirmModal = false;
@@ -111,6 +112,10 @@ class SettingsManagement extends Component
         // Auto check system requirements if that tab is active
         if ($this->activeTab === 'requirements') {
             $this->checkSystemRequirements();
+        }
+
+        if ($this->activeTab === 'maintenance') {
+            $this->refreshMaintenanceStatus();
         }
     }
 
@@ -167,6 +172,10 @@ class SettingsManagement extends Component
         // Auto check system requirements when switching to that tab
         if ($tab === 'requirements' && empty($this->systemRequirements)) {
             $this->checkSystemRequirements();
+        }
+
+        if ($tab === 'maintenance') {
+            $this->refreshMaintenanceStatus();
         }
     }
 
@@ -356,6 +365,7 @@ class SettingsManagement extends Component
 
             Setting::set('maintenance_mode', $this->maintenanceMode ? '1' : '0', 'maintenance', 'boolean', 'Modo de manutenção', true);
             Setting::set('debug_mode', $this->debugMode ? '1' : '0', 'maintenance', 'boolean', 'Modo debug', false);
+            $this->updateEnvFile(['APP_DEBUG' => $this->debugMode ? 'true' : 'false']);
 
             // Apply maintenance mode
             if ($this->maintenanceMode) {
@@ -367,6 +377,8 @@ class SettingsManagement extends Component
             }
 
             $this->clearCache();
+
+            $this->refreshMaintenanceStatus();
 
             session()->flash('success', 'Configurações de manutenção salvas com sucesso!');
         } catch (\Exception $e) {
@@ -507,12 +519,64 @@ class SettingsManagement extends Component
             // Clear settings cache
             Setting::clearCache();
 
+            $this->refreshMaintenanceStatus();
+
             Log::info('All caches cleared successfully');
             session()->flash('success', 'Cache limpo com sucesso!');
         } catch (\Exception $e) {
             Log::error('Error clearing cache: ' . $e->getMessage());
             session()->flash('error', 'Erro ao limpar cache: ' . $e->getMessage());
         }
+    }
+
+    public function optimizeApplication(): void
+    {
+        try {
+            Artisan::call('optimize:clear');
+            Artisan::call('config:cache');
+            Artisan::call('route:cache');
+            Artisan::call('view:cache');
+            Setting::clearCache();
+            $this->refreshMaintenanceStatus();
+            Log::info('Application optimized from the admin maintenance center');
+            session()->flash('success', 'Aplicação otimizada com sucesso!');
+        } catch (\Throwable $e) {
+            Log::error('Error optimizing application: '.$e->getMessage());
+            session()->flash('error', 'Não foi possível otimizar: '.$e->getMessage());
+        }
+    }
+
+    public function refreshMaintenanceStatus(): void
+    {
+        $logPath = storage_path('logs/laravel.log');
+        $this->maintenanceStatus = [
+            'environment' => app()->environment(),
+            'php' => PHP_VERSION,
+            'laravel' => app()->version(),
+            'database' => $this->databaseIsConnected(),
+            'cache_driver' => (string) config('cache.default'),
+            'queue_driver' => (string) config('queue.default'),
+            'storage_writable' => is_writable(storage_path()) && is_writable(base_path('bootstrap/cache')),
+            'log_size' => is_file($logPath) ? $this->formatBytes((int) filesize($logPath)) : '0 B',
+            'last_checked' => now()->format('d/m/Y H:i:s'),
+        ];
+    }
+
+    protected function databaseIsConnected(): bool
+    {
+        try {
+            DB::connection()->getPdo();
+            return true;
+        } catch (\Throwable) {
+            return false;
+        }
+    }
+
+    protected function formatBytes(int $bytes): string
+    {
+        if ($bytes < 1024) return $bytes.' B';
+        if ($bytes < 1048576) return number_format($bytes / 1024, 1).' KB';
+        return number_format($bytes / 1048576, 1).' MB';
     }
 
     /**
@@ -536,6 +600,9 @@ class SettingsManagement extends Component
         switch ($this->confirmAction) {
             case 'clearCache':
                 $this->clearCache();
+                break;
+            case 'optimizeApplication':
+                $this->optimizeApplication();
                 break;
             case 'enableMaintenance':
                 $this->maintenanceMode = true;

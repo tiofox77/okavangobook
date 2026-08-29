@@ -2,19 +2,18 @@
     <div class="container mx-auto px-4 py-3">
         <div class="flex justify-between items-center">
             <!-- Logo -->
-            <div class="flex items-center">
-                <a href="{{ route('home') }}" class="flex items-center">
-                    @php
-                        $appName = \App\Models\Setting::get('app_name', config('app.name', 'KiandaStay'));
-                        $nameSuffix = \Illuminate\Support\Str::endsWith($appName, 'Stay') ? 'Stay' : '';
-                        $namePrefix = $nameSuffix ? \Illuminate\Support\Str::beforeLast($appName, 'Stay') : $appName;
-                    @endphp
-                    <span class="text-2xl font-bold text-primary">{{ $namePrefix }}@if($nameSuffix)<span class="text-secondary">{{ $nameSuffix }}</span>@endif</span>
+            <div class="flex items-center shrink-0">
+                <a href="{{ route('home') }}" class="flex items-center" aria-label="KiandaStay — página inicial">
+                    <img src="{{ asset('assets/img/branding/kiandastay-logo.png') }}?v=20260813"
+                         alt="KiandaStay"
+                         width="144" height="98"
+                         class="h-12 sm:h-14 w-auto object-contain"
+                         decoding="async">
                 </a>
             </div>
             
             <!-- Menu de navegação para desktop -->
-            <nav class="hidden lg:flex space-x-4 xl:space-x-6">
+            <nav class="hidden xl:flex space-x-4 2xl:space-x-6">
                 <a href="{{ route('home') }}" class="text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-blue-400 {{ request()->routeIs('home') ? 'font-bold text-primary dark:text-blue-400' : '' }}">{{ __('Início') }}</a>
                 <a href="{{ route('search.results') }}" class="text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-blue-400 {{ request()->routeIs('search.results') && !request()->has('sort') && !request()->has('property_types') ? 'font-bold text-primary dark:text-blue-400' : '' }}">{{ __('Hotéis') }}</a>
                 <a href="{{ route('search.results', ['property_types' => ['resort']]) }}" class="text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-blue-400 {{ request()->input('property_types.0') === 'resort' ? 'font-bold text-primary dark:text-blue-400' : '' }}">{{ __('Resorts') }}</a>
@@ -28,7 +27,7 @@
             </nav>
             
             <!-- Botões de autenticação -->
-            <div class="hidden lg:flex items-center space-x-4">
+            <div class="hidden xl:flex items-center space-x-4">
                 <!-- Seletor de idioma -->
                 <div class="relative" x-data="{ langOpen: false }">
                     <button @click="langOpen = !langOpen" type="button" class="flex items-center text-gray-700 dark:text-gray-200 hover:text-primary text-sm px-2 py-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">
@@ -143,7 +142,7 @@
             </div>
             
             <!-- Menu mobile (hambúrguer) -->
-            <div class="lg:hidden flex items-center">
+            <div class="xl:hidden flex items-center">
                 <button id="mobile-menu-button" type="button" class="text-gray-700 hover:text-primary focus:outline-none">
                     <i class="fas fa-bars text-2xl"></i>
                 </button>
@@ -152,7 +151,7 @@
     </div>
     
     <!-- Menu mobile -->
-    <div id="mobile-menu" class="hidden lg:hidden bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700">
+    <div id="mobile-menu" class="hidden xl:hidden bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700">
         <!-- Alternar modo escuro (mobile) -->
         <button onclick="toggleDarkMode()" type="button" class="flex items-center w-full py-2 px-4 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
             <i class="fas fa-moon mr-2 dark:hidden"></i>

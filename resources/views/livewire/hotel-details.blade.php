@@ -60,6 +60,229 @@
 </script>
 @endsection
 
+@push('styles')
+<style>
+    .hospedaria-highlight-card {
+        position: relative;
+        isolation: isolate;
+        overflow: hidden;
+        background:
+            radial-gradient(circle at 92% 14%, rgba(16, 185, 129, 0.22), transparent 28%),
+            radial-gradient(circle at 8% 110%, rgba(245, 158, 11, 0.14), transparent 34%),
+            linear-gradient(135deg, #ecfdf5 0%, #ffffff 52%, #f0fdfa 100%);
+        border: 1px solid rgba(16, 185, 129, 0.4);
+        box-shadow:
+            0 22px 55px rgba(6, 95, 70, 0.13),
+            0 4px 14px rgba(15, 23, 42, 0.06);
+        transition: transform 280ms ease, box-shadow 280ms ease, border-color 280ms ease;
+    }
+
+    .hospedaria-highlight-card::before {
+        content: '';
+        position: absolute;
+        inset: 0 0 auto;
+        height: 4px;
+        background: linear-gradient(90deg, #047857, #10b981 44%, #14b8a6 72%, #f59e0b);
+        z-index: 2;
+    }
+
+    .hospedaria-highlight-card::after {
+        content: '';
+        position: absolute;
+        width: 230px;
+        height: 230px;
+        top: -145px;
+        right: -75px;
+        border: 38px solid rgba(16, 185, 129, 0.1);
+        border-radius: 9999px;
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .hospedaria-card-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .hospedaria-card-leaf {
+        position: absolute;
+        right: 2rem;
+        bottom: -1.25rem;
+        color: rgba(5, 150, 105, 0.09);
+        font-size: 8rem;
+        line-height: 1;
+        transform: rotate(-14deg);
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .hospedaria-badge-enhanced {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
+        padding: 0.42rem 0.8rem 0.42rem 0.45rem;
+        color: #ffffff;
+        background: linear-gradient(135deg, #047857 0%, #10b981 58%, #0d9488 100%);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 9999px;
+        box-shadow: 0 8px 22px rgba(5, 150, 105, 0.28);
+        overflow: hidden;
+        transition: transform 220ms ease, box-shadow 220ms ease;
+    }
+
+    .hospedaria-badge-enhanced::after {
+        content: '';
+        position: absolute;
+        top: -45%;
+        left: -45%;
+        width: 34%;
+        height: 190%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+        transform: rotate(18deg);
+        pointer-events: none;
+    }
+
+    .hospedaria-badge-icon {
+        display: inline-grid;
+        width: 1.65rem;
+        height: 1.65rem;
+        place-items: center;
+        flex: 0 0 auto;
+        color: #047857;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 9999px;
+        box-shadow: 0 2px 7px rgba(6, 78, 59, 0.2);
+    }
+
+    .hospedaria-title-highlight {
+        color: #052e2b;
+        letter-spacing: -0.025em;
+        text-wrap: balance;
+    }
+
+    .hospedaria-rating-pill,
+    .hospedaria-location-pill {
+        width: fit-content;
+        background: rgba(255, 255, 255, 0.76);
+        border: 1px solid rgba(16, 185, 129, 0.2);
+        box-shadow: 0 5px 16px rgba(6, 95, 70, 0.07);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+    }
+
+    .hospedaria-rating-pill {
+        padding: 0.45rem 0.7rem;
+        border-radius: 9999px;
+    }
+
+    .hospedaria-location-pill {
+        max-width: 100%;
+        padding: 0.65rem 0.8rem;
+        border-radius: 0.85rem;
+    }
+
+    .hospedaria-highlight-card .hospedaria-location-pill i {
+        color: #059669;
+    }
+
+    @media (hover: hover) {
+        .hospedaria-highlight-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(5, 150, 105, 0.58);
+            box-shadow:
+                0 28px 65px rgba(6, 95, 70, 0.18),
+                0 6px 18px rgba(15, 23, 42, 0.08);
+        }
+
+        .hospedaria-highlight-card:hover .hospedaria-badge-enhanced {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 12px 28px rgba(5, 150, 105, 0.34);
+        }
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+        .hospedaria-highlight-card {
+            animation: hospedaria-card-entrance 560ms cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+        }
+
+        .hospedaria-highlight-card::after {
+            animation: hospedaria-orbit-float 6s ease-in-out infinite;
+        }
+
+        .hospedaria-card-leaf {
+            animation: hospedaria-leaf-float 5.5s ease-in-out infinite;
+        }
+
+        .hospedaria-badge-enhanced::after {
+            animation: hospedaria-badge-shine 4.8s ease-in-out infinite;
+        }
+    }
+
+    @keyframes hospedaria-card-entrance {
+        from { opacity: 0; transform: translateY(12px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes hospedaria-orbit-float {
+        0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+        50% { transform: translate3d(-10px, 10px, 0) rotate(7deg); }
+    }
+
+    @keyframes hospedaria-leaf-float {
+        0%, 100% { transform: translateY(0) rotate(-14deg); }
+        50% { transform: translateY(-8px) rotate(-9deg); }
+    }
+
+    @keyframes hospedaria-badge-shine {
+        0%, 62% { left: -45%; }
+        82%, 100% { left: 125%; }
+    }
+
+    @media (max-width: 639px) {
+        .hospedaria-card-leaf {
+            right: -1rem;
+            bottom: 1rem;
+            font-size: 6.5rem;
+        }
+
+        .hospedaria-title-highlight {
+            font-size: 2rem;
+            line-height: 1.08;
+        }
+
+        .hospedaria-location-pill {
+            width: 100%;
+        }
+    }
+
+    .dark .hospedaria-highlight-card {
+        background:
+            radial-gradient(circle at 92% 14%, rgba(16, 185, 129, 0.19), transparent 30%),
+            radial-gradient(circle at 8% 110%, rgba(245, 158, 11, 0.1), transparent 34%),
+            linear-gradient(135deg, #10251f 0%, #111827 54%, #102927 100%);
+        border-color: rgba(52, 211, 153, 0.34);
+        box-shadow: 0 22px 55px rgba(0, 0, 0, 0.28);
+    }
+
+    .dark .hospedaria-title-highlight {
+        color: #ecfdf5;
+    }
+
+    .dark .hospedaria-rating-pill,
+    .dark .hospedaria-location-pill {
+        color: #d1fae5;
+        background: rgba(17, 24, 39, 0.72);
+        border-color: rgba(52, 211, 153, 0.25);
+    }
+
+    .dark .hospedaria-rating-pill span,
+    .dark .hospedaria-location-pill span {
+        color: #d1fae5;
+    }
+</style>
+@endpush
+
 <div class="bg-gray-100 dark:bg-gray-900 min-h-screen" x-data="{
     showImageViewer: false,
     currentImage: '',
@@ -166,8 +389,14 @@
             </div>
             
             <!-- Informações básicas do hotel -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
-                <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+            <div class="{{ $propertyType === 'hospedaria' ? 'hospedaria-highlight-card rounded-2xl p-5 sm:p-6 lg:p-7 mb-6' : 'bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6' }}">
+                @if($propertyType === 'hospedaria')
+                    <span class="hospedaria-card-leaf" aria-hidden="true">
+                        <i class="fas fa-leaf"></i>
+                    </span>
+                @endif
+
+                <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 {{ $propertyType === 'hospedaria' ? 'hospedaria-card-content' : '' }}">
                     <!-- Informações do hotel -->
                     <div class="flex-1">
                         <!-- Título e Favoritar -->
@@ -180,8 +409,10 @@
                                         <span>{{ __('Resort de Luxo') }}</span>
                                     </div>
                                 @elseif($propertyType === 'hospedaria')
-                                    <div class="inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-green-500 to-teal-500 text-white rounded-full text-sm font-semibold mb-2">
-                                        <i class="fas fa-home"></i>
+                                    <div class="hospedaria-badge-enhanced text-sm font-semibold mb-3">
+                                        <span class="hospedaria-badge-icon" aria-hidden="true">
+                                            <i class="fas fa-home"></i>
+                                        </span>
                                         <span>{{ __('Hospedaria') }}</span>
                                     </div>
                                 @else
@@ -191,7 +422,7 @@
                                     </div>
                                 @endif
                                 
-                                <h1 class="text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
+                                <h1 class="text-3xl lg:text-4xl font-bold text-gray-900 mb-2 {{ $propertyType === 'hospedaria' ? 'hospedaria-title-highlight' : '' }}">
                                     {{ $hotel->name }}
                                     @if($propertyType === 'resort')
                                         <span class="text-amber-600">✨</span>
@@ -200,7 +431,7 @@
                                 
                                 <!-- Estrelas e Avaliações -->
                                 <div class="flex items-center gap-4 mb-3">
-                                    <div class="flex items-center">
+                                    <div class="flex items-center {{ $propertyType === 'hospedaria' ? 'hospedaria-rating-pill' : '' }}">
                                         @for($i = 1; $i <= 5; $i++)
                                             <i class="{{ $i <= $hotel->stars ? 'fas' : 'far' }} fa-star text-yellow-400 text-sm"></i>
                                         @endfor
@@ -209,7 +440,7 @@
                                 </div>
                                 
                                 <!-- Endereço -->
-                                <div class="flex items-start text-gray-600">
+                                <div class="flex items-start text-gray-600 {{ $propertyType === 'hospedaria' ? 'hospedaria-location-pill' : '' }}">
                                     <i class="fas fa-map-marker-alt mt-1 mr-2 text-blue-600"></i>
                                     <span class="text-sm">{{ collect([$hotel->address, $hotel->location?->name, $hotel->location?->province])->filter()->implode(', ') }}</span>
                                 </div>

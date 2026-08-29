@@ -1,4 +1,18 @@
-<div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+<div class="booking-confirm-page min-h-screen bg-gray-50 dark:bg-gray-900 py-4 sm:py-8">
+    <style>
+        @media (max-width: 639px) {
+            .booking-confirm-page .booking-detail-row {
+                align-items: flex-start;
+                gap: .25rem 1rem;
+                flex-wrap: wrap;
+            }
+            .booking-confirm-page .booking-detail-row > :last-child {
+                max-width: 100%;
+                overflow-wrap: anywhere;
+                text-align: right;
+            }
+        }
+    </style>
     <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <!-- Header -->
@@ -15,7 +29,7 @@
         </div>
 
         <!-- Detalhes da Reserva -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-6">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 sm:p-6 mb-6">
             <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                 <i class="fas fa-calendar-check text-blue-600 mr-2"></i>
                 Detalhes da Reserva
@@ -23,56 +37,56 @@
             
             <div class="space-y-4">
                 <!-- Código de Confirmação -->
-                <div class="flex justify-between items-center">
+                <div class="booking-detail-row flex justify-between items-center">
                     <span class="text-gray-600 dark:text-gray-400">Código:</span>
                     <span class="font-mono font-medium text-blue-600">{{ $booking->confirmation_code }}</span>
                 </div>
                 
                 <!-- Hotel -->
-                <div class="flex justify-between items-center">
+                <div class="booking-detail-row flex justify-between items-center">
                     <span class="text-gray-600 dark:text-gray-400">Hotel:</span>
                     <span class="font-medium text-gray-900 dark:text-white">{{ $booking->hotel->name }}</span>
                 </div>
                 
                 <!-- Tipo de Quarto -->
-                <div class="flex justify-between items-center">
+                <div class="booking-detail-row flex justify-between items-center">
                     <span class="text-gray-600 dark:text-gray-400">Tipo de Quarto:</span>
                     <span class="font-medium text-gray-900 dark:text-white">{{ $booking->roomType->name }}</span>
                 </div>
                 
                 @if($booking->room)
                     <!-- Número do Quarto -->
-                    <div class="flex justify-between items-center">
+                    <div class="booking-detail-row flex justify-between items-center">
                         <span class="text-gray-600 dark:text-gray-400">Quarto:</span>
                         <span class="font-medium text-gray-900 dark:text-white">{{ $booking->room->room_number }}</span>
                     </div>
                 @endif
                 
                 <!-- Datas -->
-                <div class="flex justify-between items-center">
+                <div class="booking-detail-row flex justify-between items-center">
                     <span class="text-gray-600 dark:text-gray-400">Check-in:</span>
                     <span class="font-medium text-gray-900 dark:text-white">{{ $booking->check_in?->format('d/m/Y') }}</span>
                 </div>
                 
-                <div class="flex justify-between items-center">
+                <div class="booking-detail-row flex justify-between items-center">
                     <span class="text-gray-600 dark:text-gray-400">Check-out:</span>
                     <span class="font-medium text-gray-900 dark:text-white">{{ $booking->check_out?->format('d/m/Y') }}</span>
                 </div>
                 
                 <!-- Hóspedes e Noites -->
-                <div class="flex justify-between items-center">
+                <div class="booking-detail-row flex justify-between items-center">
                     <span class="text-gray-600 dark:text-gray-400">Hóspedes:</span>
                     <span class="font-medium text-gray-900 dark:text-white">{{ $booking->guests }}</span>
                 </div>
                 
-                <div class="flex justify-between items-center">
+                <div class="booking-detail-row flex justify-between items-center">
                     <span class="text-gray-600 dark:text-gray-400">Noites:</span>
                     <span class="font-medium text-gray-900 dark:text-white">{{ $booking->nights }}</span>
                 </div>
                 
                 <!-- Preço Total -->
                 <hr class="border-gray-200 dark:border-gray-600">
-                <div class="flex justify-between items-center">
+                <div class="booking-detail-row flex justify-between items-center">
                     <span class="text-lg font-semibold text-gray-900 dark:text-white">Total:</span>
                     <span class="text-lg font-bold text-green-600 dark:text-green-400">
                         {{ number_format($booking->total_price, 0, ',', '.') }} Kz
@@ -82,21 +96,21 @@
         </div>
 
         <!-- Hóspede Principal -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-6">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 sm:p-6 mb-6">
             <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                 <i class="fas fa-user text-indigo-600 mr-2"></i>
                 Hóspede Principal
             </h2>
             
             <div class="space-y-3">
-                <div class="flex justify-between items-center">
+                <div class="booking-detail-row flex justify-between items-center">
                     <span class="text-gray-600 dark:text-gray-400">Nome:</span>
-                    <span class="font-medium text-gray-900 dark:text-white">{{ $booking->user->name }}</span>
+                    <span class="font-medium text-gray-900 dark:text-white">{{ $booking->user?->name ?? $booking->guest_name ?? 'Hóspede' }}</span>
                 </div>
                 
-                <div class="flex justify-between items-center">
+                <div class="booking-detail-row flex justify-between items-center">
                     <span class="text-gray-600 dark:text-gray-400">Email:</span>
-                    <span class="font-medium text-gray-900 dark:text-white">{{ $booking->user->email }}</span>
+                    <span class="font-medium text-gray-900 dark:text-white">{{ $booking->user?->email ?? $booking->guest_email ?? '—' }}</span>
                 </div>
             </div>
         </div>
@@ -139,18 +153,6 @@
 
         <!-- Ações -->
         <div class="text-center space-y-4">
-            <!-- Botão de Teste (temporário para debug) -->
-            <div class="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <p class="text-sm text-yellow-800 mb-2">Teste de Debug:</p>
-                <button 
-                    type="button"
-                    wire:click="testLivewire"
-                    class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors"
-                >
-                    Testar Livewire
-                </button>
-            </div>
-            
             <button 
                 type="button"
                 wire:click="confirmBooking"

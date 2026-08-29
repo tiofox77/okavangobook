@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire\Admin;
 
+use App\Livewire\Admin\Concerns\AuthorizesManagedHotels;
 use App\Models\Hotel;
 use App\Models\RoomType;
 use App\Models\Amenity;
@@ -15,6 +16,7 @@ use Livewire\WithPagination;
 
 class RoomManagement extends Component
 {
+    use AuthorizesManagedHotels;
     use WithPagination;
     use \Livewire\WithFileUploads;
     
@@ -288,7 +290,9 @@ class RoomManagement extends Component
      */
     public function view(int $roomId): void
     {
-        $this->viewingRoom = RoomType::with('hotel')->findOrFail($roomId);
+        $room = RoomType::with('hotel')->findOrFail($roomId);
+        $this->authorizeHotelResource($room);
+        $this->viewingRoom = $room;
         $this->showViewModal = true;
     }
     
@@ -311,6 +315,7 @@ class RoomManagement extends Component
         $this->resetErrorBag();
         
         $room = RoomType::findOrFail($roomId);
+        $this->authorizeHotelResource($room);
         $this->room_id = $room->id;
         $this->form_hotel_id = $room->hotel_id;
         $this->name = $room->name;
@@ -412,6 +417,7 @@ class RoomManagement extends Component
     public function save(): void
     {
         $this->validate();
+        $this->authorizeManagedHotel((int) $this->form_hotel_id);
         
         // Tratamento especial para amenities que pode vir como string ou array
         $processedAmenities = null;
@@ -476,6 +482,7 @@ class RoomManagement extends Component
         
         if ($this->room_id) {
             $room = RoomType::findOrFail($this->room_id);
+            $this->authorizeHotelResource($room);
             $room->update($roomData);
             session()->flash('success', 'Tipo de quarto atualizado com sucesso!');
         } else {
@@ -492,6 +499,7 @@ class RoomManagement extends Component
     public function delete(int $roomId): void
     {
         $room = RoomType::findOrFail($roomId);
+        $this->authorizeHotelResource($room);
         $room->delete();
         
         session()->flash('success', 'Tipo de quarto excluído com sucesso!');

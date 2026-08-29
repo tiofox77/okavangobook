@@ -123,8 +123,7 @@ class Hotel extends Model
             return $this->thumbnail;
         }
         
-        // Retornar uma imagem padrão confiável
-        return 'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
+        return \App\Helpers\ImageHelper::generateDefaultSvg('hotel');
     }
     
     /**
@@ -156,7 +155,7 @@ class Hotel extends Model
      */
     public function roomTypes(): HasMany
     {
-        return $this->hasMany(RoomType::class);
+        return $this->hasMany(RoomType::class)->orderBy('position')->orderBy('id');
     }
     
     /**
@@ -207,6 +206,11 @@ class Hotel extends Model
     public function reviews(): HasMany
     {
         return $this->hasMany(Review::class);
+    }
+
+    public function agentMedia(): HasMany
+    {
+        return $this->hasMany(AgentMedia::class)->orderBy('position')->orderBy('id');
     }
     
     /**

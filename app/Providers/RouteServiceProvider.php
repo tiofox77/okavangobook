@@ -28,6 +28,12 @@ class RouteServiceProvider extends ServiceProvider
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
 
+        RateLimiter::for('agent-api', function (Request $request) {
+            $token = $request->attributes->get('agentToken');
+
+            return Limit::perMinute(120)->by($token?->id ?: $request->ip());
+        });
+
         $this->routes(function () {
             Route::middleware('api')
                 ->prefix('api')

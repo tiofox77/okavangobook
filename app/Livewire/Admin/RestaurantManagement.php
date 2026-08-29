@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin;
 
+use App\Livewire\Admin\Concerns\AuthorizesManagedHotels;
 use App\Models\Hotel;
 use App\Models\HotelRestaurantItem;
 use Livewire\Component;
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\Storage;
 
 class RestaurantManagement extends Component
 {
+    use AuthorizesManagedHotels;
     use WithPagination, WithFileUploads;
 
     public $itemId = null;
@@ -133,6 +135,7 @@ class RestaurantManagement extends Component
     public function save()
     {
         $this->validate();
+        $this->authorizeManagedHotel((int) $this->hotel_id);
 
         if ($this->imageUpload) {
             $imagePath = $this->imageUpload->store('restaurant-items', 'public');
@@ -162,7 +165,9 @@ class RestaurantManagement extends Component
         ];
 
         if ($this->itemId) {
-            HotelRestaurantItem::find($this->itemId)->update($data);
+            $item = HotelRestaurantItem::findOrFail($this->itemId);
+            $this->authorizeHotelResource($item);
+            $item->update($data);
             session()->flash('message', 'Item atualizado com sucesso!');
         } else {
             HotelRestaurantItem::create($data);

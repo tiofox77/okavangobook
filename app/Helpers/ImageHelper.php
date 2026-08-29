@@ -2,6 +2,8 @@
 
 namespace App\Helpers;
 
+use Illuminate\Support\Facades\Storage;
+
 class ImageHelper
 {
     /**
@@ -20,7 +22,32 @@ class ImageHelper
 
         // 1. Verificar se é uma URL completa (http/https)
         if (str_starts_with($imageUrl, 'http://') || str_starts_with($imageUrl, 'https://')) {
-            return $imageUrl; // URLs externas são retornadas directamente
+            // URLs externas válidas são conteúdo legítimo. A disponibilidade deve ser
+            // tratada pelo <img onerror>, não substituída antecipadamente por placeholder.
+            $parts = parse_url($imageUrl);
+            if (!isset($parts['scheme'], $parts['host']) || !in_array($parts['scheme'], ['http', 'https'], true)) {
+                return self::generateDefaultSvg($type);
+            }
+            $requestHost = app()->runningInConsole() ? null : request()->getHost();
+            $configuredHost = parse_url((string) config('app.url'), PHP_URL_HOST);
+            $isLocalHost = isset($parts['host'])
+                && in_array($parts['host'], array_filter([$requestHost, $configuredHost]), true);
+            $publicRelativePath = ltrim((string) ($parts['path'] ?? ''), '/');
+
+            if ($isLocalHost && $publicRelativePath !== '' && file_exists(public_path($publicRelativePath))) {
+                return $imageUrl;
+            }
+
+            if (!$isLocalHost) {
+                return $imageUrl;
+            }
+
+            $cached = glob(storage_path('app/public/media-cache/' . sha1($imageUrl) . '.*'));
+            if (!empty($cached)) {
+                return asset('storage/media-cache/' . basename($cached[0]));
+            }
+
+            return self::generateDefaultSvg($type);
         }
 
         // 2. Verificar se o caminho já contém 'storage/' no início
@@ -47,6 +74,14 @@ class ImageHelper
             }
         }
 
+        // Os uploads da aplicação vivem no disco público
+        // (storage/app/public), exposto pela ligação public/storage.
+        // Caminhos guardados na BD como "media-cache/..." ou "hotels/..."
+        // devem ser resolvidos neste disco, não no disco local predefinido.
+        if (Storage::disk('public')->exists($imageUrl)) {
+            return Storage::disk('public')->url($imageUrl);
+        }
+
         // 4. Tentar usar o Laravel Storage para verificar no disco storage
         try {
             // Lista de possíveis caminhos no storage disk
@@ -61,8 +96,8 @@ class ImageHelper
             ];
 
             foreach ($storagePaths as $storagePath) {
-                if (\Storage::exists($storagePath)) {
-                    return \Storage::url($storagePath);
+                if (Storage::disk('public')->exists($storagePath)) {
+                    return Storage::disk('public')->url($storagePath);
                 }
             }
         } catch (\Exception $e) {
@@ -82,13 +117,7 @@ class ImageHelper
      */
     public static function getDefaultImage(string $type = 'default'): string
     {
-        $defaultImages = [
-            'location' => 'https://images.unsplash.com/photo-1501446529957-6226bd447c46?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-            'hotel' => 'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-            'default' => 'https://images.unsplash.com/photo-1518005068251-37900150dfca?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
-        ];
-
-        return $defaultImages[$type] ?? $defaultImages['default'];
+        return self::generateDefaultSvg($type);
     }
     
     /**

@@ -70,8 +70,15 @@ class SearchForm extends Component
     // Método para atualizar os labels
     private function updateLabels()
     {
-        $this->guestLabel = $this->guests == 1 ? '1 hóspede' : $this->guests . ' hóspedes';
-        $this->roomLabel = $this->rooms == 1 ? '1 quarto' : $this->rooms . ' quartos';
+        $this->guestLabel = trans_choice(':count hóspede|:count hóspedes', $this->guests, ['count' => $this->guests]);
+        $this->roomLabel = trans_choice(':count quarto|:count quartos', $this->rooms, ['count' => $this->rooms]);
+    }
+
+    private function normalizeOccupancy(): void
+    {
+        $this->guests = max(1, min(10, (int) $this->guests));
+        $this->rooms = max(1, min(5, (int) $this->rooms));
+        $this->updateLabels();
     }
     
     // Métodos para incrementar/decrementar o número de hóspedes
@@ -232,8 +239,7 @@ class SearchForm extends Component
     // Método para lidar com o envio do formulário
     public function search()
     {
-        // Atualizar labels antes de prosseguir
-        $this->updateLabels();
+        $this->normalizeOccupancy();
         
         // Nota: Não precisamos validar se selectedProvince está vazio, já que isso significa "Todas as províncias"
         // A validação a seguir só é para garantir que as datas sejam válidas
