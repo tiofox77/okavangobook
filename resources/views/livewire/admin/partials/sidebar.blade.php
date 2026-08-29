@@ -64,6 +64,14 @@
             </div>
         </div>
         
+        <a href="{{ route('admin.agent-tokens') }}" class="menu-item flex items-center py-3 px-3 rounded-lg mb-1 {{ request()->routeIs('admin.agent-tokens') ? 'active bg-gray-700' : '' }} tooltip">
+            <div class="icon-container bg-cyan-500 bg-opacity-20 text-cyan-400">
+                <i class="fas fa-key"></i>
+            </div>
+            <span class="sidebar-link-text transition-opacity duration-300">Tokens API</span>
+            <span class="tooltip-text">Tokens da Agent API</span>
+        </a>
+
         <a href="{{ route('admin.articles') }}" class="menu-item flex items-center py-3 px-3 rounded-lg mb-1 {{ request()->routeIs('admin.articles') ? 'active bg-gray-700' : '' }} tooltip">
             <div class="icon-container bg-purple-500 bg-opacity-20 text-purple-400">
                 <i class="fas fa-newspaper"></i>

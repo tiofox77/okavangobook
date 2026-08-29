@@ -111,6 +111,7 @@ Route::middleware(['auth', 'role:Admin'])->prefix('admin')->group(function () {
     Route::get('/newsletter/send', App\Livewire\Admin\NewsletterSend::class)->name('admin.newsletter.send');
     Route::get('/analytics', App\Livewire\Admin\Analytics::class)->name('admin.analytics');
     Route::get('/analytics/visitas', App\Livewire\Admin\VisitorAnalytics::class)->name('admin.analytics.visits');
+    Route::get('/agent-tokens', App\Livewire\Admin\AgentTokenManagement::class)->name('admin.agent-tokens');
     Route::get('/articles', App\Livewire\Admin\ArticleManagement::class)->name('admin.articles');
     Route::get('/reports/reservations', App\Livewire\Admin\ReservationReports::class)->name('admin.reports.reservations');
     Route::get('/settings', App\Livewire\Admin\SettingsManagement::class)->name('admin.settings');
