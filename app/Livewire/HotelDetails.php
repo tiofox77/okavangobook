@@ -121,7 +121,15 @@ class HotelDetails extends Component
                     $bestProvider = $price->provider;
                 }
             }
-            
+
+            // Fallback: quartos disponíveis com base_price mas SEM registos de
+            // preço (prices=[]) devem mostrar disponibilidade a partir do
+            // base_price — caso contrário lowest_price fica null e a página
+            // mostra "Sem Disponibilidade" indevidamente.
+            if ($lowestPrice === null && $roomType->is_available && (float) $roomType->base_price > 0) {
+                $lowestPrice = (float) $roomType->base_price * max(1, $this->nights);
+            }
+
             // Adicionar tipo de quarto à lista
             $this->roomTypes[] = [
                 'id' => $roomType->id,
