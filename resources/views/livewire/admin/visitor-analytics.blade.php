@@ -47,6 +47,25 @@
         <i class="fas fa-circle-notch fa-spin"></i> A actualizar…
     </div>
 
+    {{-- Aviso: tabela de rastreio ainda não criada --}}
+    @if(! ($tableReady ?? true))
+    <div class="mb-6 bg-amber-50 dark:bg-amber-900/20 border border-amber-300 dark:border-amber-700 rounded-xl p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+        <div class="flex-shrink-0 w-12 h-12 rounded-full bg-amber-100 dark:bg-amber-800/40 flex items-center justify-center">
+            <i class="fas fa-database text-amber-600 dark:text-amber-400 text-xl"></i>
+        </div>
+        <div class="flex-1">
+            <h3 class="font-bold text-amber-900 dark:text-amber-200">Rastreio ainda não ativo</h3>
+            <p class="text-sm text-amber-800 dark:text-amber-300 mt-1">
+                A tabela de visitas ainda não foi criada. Vá a <strong>Configurações → Actualizações → Base de Dados</strong>
+                e clique <strong>"Executar migrações pendentes"</strong>. Depois, esta página regista visitas automaticamente.
+            </p>
+        </div>
+        <a href="{{ route('admin.updates') }}" class="flex-shrink-0 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-sm font-medium text-center whitespace-nowrap">
+            <i class="fas fa-arrow-right mr-1"></i> Ir para Base de Dados
+        </a>
+    </div>
+    @endif
+
     {{-- KPIs principais --}}
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
         @php

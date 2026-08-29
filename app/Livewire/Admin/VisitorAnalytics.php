@@ -9,6 +9,7 @@ use App\Models\SearchHistory;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Livewire\Component;
 
 /**
@@ -76,6 +77,25 @@ class VisitorAnalytics extends Component
 
     public function render()
     {
+        // Se a migração ainda não correu, mostra um estado de "configuração"
+        // em vez de rebentar com erro 500.
+        if (! Schema::hasTable('page_visits')) {
+            $blank = ['labels' => [], 'views' => [], 'visitors' => []];
+            $this->dispatch('va:charts', ['series' => $blank, 'devices' => []]);
+
+            return view('livewire.admin.visitor-analytics', [
+                'tableReady' => false,
+                'kpis' => array_fill_keys([
+                    'pageviews', 'visitors', 'avg_per_day', 'pages_per_visit', 'today', 'week', 'month',
+                    'registered', 'new_users', 'newsletter', 'newsletter_total', 'searches', 'reservations',
+                    'hotel_clicks', 'bots',
+                ], 0),
+                'series' => $blank,
+                'devices' => [], 'browsers' => [], 'platforms' => [], 'countries' => [],
+                'cities' => [], 'topPages' => [], 'referrers' => [], 'recent' => [],
+            ])->layout('layouts.admin');
+        }
+
         [$start, $end] = $this->period();
 
         $series = $this->timeSeries($start, $end);
@@ -85,6 +105,7 @@ class VisitorAnalytics extends Component
         $this->dispatch('va:charts', ['series' => $series, 'devices' => $devices]);
 
         return view('livewire.admin.visitor-analytics', [
+            'tableReady' => true,
             'kpis' => $this->kpis($start, $end),
             'series' => $series,
             'devices' => $devices,

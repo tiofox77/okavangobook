@@ -35,6 +35,12 @@ class TrackPageVisit
                 return;
             }
 
+            // Se a tabela ainda não foi criada (migração por correr), não faz nada
+            // — evita encher os logs com erros até a tabela existir.
+            if (! $this->pageVisitsTableExists()) {
+                return;
+            }
+
             $ua = (string) $request->userAgent();
             $agent = VisitorAgent::parse($ua);
 
@@ -82,6 +88,23 @@ class TrackPageVisit
             ]);
         } catch (\Throwable $e) {
             report($e); // nunca propagar — o site tem prioridade
+        }
+    }
+
+    /**
+     * A tabela page_visits existe? Resultado em cache (60s) para não
+     * consultar o schema a cada pedido; auto-corrige após a migração.
+     */
+    private function pageVisitsTableExists(): bool
+    {
+        try {
+            return \Illuminate\Support\Facades\Cache::remember(
+                'analytics_page_visits_exists',
+                60,
+                fn () => \Illuminate\Support\Facades\Schema::hasTable('page_visits')
+            );
+        } catch (\Throwable $e) {
+            return false;
         }
     }
 
