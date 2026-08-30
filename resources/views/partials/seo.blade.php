@@ -3,8 +3,8 @@
     $seoDefaultDesc = \App\Models\Setting::get('meta_description', 'Encontre, compare e reserve as melhores acomodações em Angola — hotéis, resorts e hospedarias nas 18 províncias, com os melhores preços.');
     $seoDescription = trim($__env->yieldContent('meta_description', $seoDefaultDesc));
     $seoKeywords    = \App\Models\Setting::get('meta_keywords', 'hotéis Angola, reservas, resorts, hospedarias, Luanda, Benguela, alojamento, turismo Angola');
-    $seoTitle       = trim($__env->yieldContent('title', 'Encontre as melhores acomodações em Angola'));
-    $seoFullTitle   = $seoAppName . ' - ' . $seoTitle;
+    $seoTitle       = trim($__env->yieldContent('title', 'Hotéis em Angola: compare preços e reserve nas 18 províncias'));
+    $seoFullTitle   = $seoTitle . ' | ' . $seoAppName;
     $seoImage       = trim($__env->yieldContent('meta_image', asset('storage/locations/commons/luanda.jpg')));
     $seoUrl         = url()->current();
     $seoType        = trim($__env->yieldContent('og_type', 'website'));

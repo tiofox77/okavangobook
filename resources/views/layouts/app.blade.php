@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ \App\Models\Setting::get('app_name', config('app.name', 'KiandaStay')) }} - @yield('title', 'Encontre as melhores acomodações em Angola')</title>
+    {{-- Título keyword-first (melhor para SEO): "Hotéis em Luanda… | KiandaStay" --}}
+    <title>@yield('title', 'Hotéis em Angola: compare preços e reserve nas 18 províncias') | {{ \App\Models\Setting::get('app_name', config('app.name', 'KiandaStay')) }}</title>
 
     {{-- SEO: meta description, Open Graph, Twitter, canonical, dados estruturados --}}
     @include('partials.seo')

@@ -1,5 +1,5 @@
-@section('title', $provinceName . ' — hotéis, resorts e hospedarias')
-@section('meta_description', \Illuminate\Support\Str::limit($locationDescription, 155))
+@section('title', 'Hotéis em ' . $provinceName . ': compare preços e reserve')
+@section('meta_description', \Illuminate\Support\Str::limit($seoDescription ?? $locationDescription, 158))
 @section('structured_data')
 <script type="application/ld+json">
 {!! json_encode([
@@ -14,6 +14,66 @@
         'name' => $hotel->name,
         'url' => route('hotel.details', $hotel->slug),
     ])->values()->all(),
+], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+</script>
+{{-- Breadcrumb (rich result de navegação) --}}
+<script type="application/ld+json">
+{!! json_encode([
+    '@context' => 'https://schema.org',
+    '@type' => 'BreadcrumbList',
+    'itemListElement' => [
+        ['@type' => 'ListItem', 'position' => 1, 'name' => 'Home', 'item' => url('/')],
+        ['@type' => 'ListItem', 'position' => 2, 'name' => 'Destinos', 'item' => route('destinations')],
+        ['@type' => 'ListItem', 'position' => 3, 'name' => 'Hotéis em ' . $provinceName, 'item' => url()->current()],
+    ],
+], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+</script>
+{{-- Lista de hotéis (ItemList — reforça a página como listagem de "hotéis em {província}") --}}
+<script type="application/ld+json">
+{!! json_encode([
+    '@context' => 'https://schema.org',
+    '@type' => 'ItemList',
+    'name' => 'Hotéis em ' . $provinceName,
+    'numberOfItems' => $hotelsCount ?? $hotels->count(),
+    'itemListElement' => $hotels->map(fn ($hotel, $i) => [
+        '@type' => 'ListItem',
+        'position' => $i + 1,
+        'item' => array_filter([
+            '@type' => 'Hotel',
+            'name' => $hotel->name,
+            'url' => route('hotel.details', $hotel->slug),
+            'image' => \App\Helpers\ImageHelper::getValidImage($hotel->thumbnail, 'hotel'),
+            'address' => ['@type' => 'PostalAddress', 'addressLocality' => $hotel->location->name ?? $provinceName, 'addressCountry' => 'AO'],
+            'aggregateRating' => ($hotel->rating > 0 && $hotel->reviews_count > 0) ? [
+                '@type' => 'AggregateRating', 'ratingValue' => (string) $hotel->rating, 'reviewCount' => $hotel->reviews_count, 'bestRating' => '5',
+            ] : null,
+            'priceRange' => $hotel->min_price ? 'AKZ ' . number_format((float) $hotel->min_price, 0, ',', '.') . '+' : null,
+        ]),
+    ])->values()->all(),
+], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+</script>
+{{-- FAQ (rich result de perguntas — mais espaço na SERP) --}}
+<script type="application/ld+json">
+{!! json_encode([
+    '@context' => 'https://schema.org',
+    '@type' => 'FAQPage',
+    'mainEntity' => array_values(array_filter([
+        [
+            '@type' => 'Question',
+            'name' => "Quantos hotéis há em {$provinceName}?",
+            'acceptedAnswer' => ['@type' => 'Answer', 'text' => "O KiandaStay compara " . ($hotelsCount ?? $hotels->count()) . " hotéis, resorts e hospedarias em {$provinceName}, com fotos, avaliações e reserva online."],
+        ],
+        ($minPrice ?? null) ? [
+            '@type' => 'Question',
+            'name' => "Quanto custa um hotel em {$provinceName}?",
+            'acceptedAnswer' => ['@type' => 'Answer', 'text' => "Os preços em {$provinceName} começam em AKZ " . number_format((float) $minPrice, 0, ',', '.') . " por noite. Compare todas as opções e reserve pelo melhor preço no KiandaStay."],
+        ] : null,
+        [
+            '@type' => 'Question',
+            'name' => "Como reservar um hotel em {$provinceName}?",
+            'acceptedAnswer' => ['@type' => 'Answer', 'text' => "Escolha as datas e o número de hóspedes no KiandaStay, compare os hotéis disponíveis em {$provinceName} e conclua a reserva online em minutos, sem custos escondidos."],
+        ],
+    ])),
 ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
 </script>
 @endsection
@@ -37,8 +97,10 @@
                         <span class="inline-block px-3 py-1 bg-primary/90 text-white text-xs font-semibold rounded-full mb-4 backdrop-blur-sm">
                             PROVÍNCIA DE ANGOLA
                         </span>
-                        <h1 class="text-5xl sm:text-6xl font-bold mb-6 drop-shadow-lg">{{ $provinceName }}</h1>
-                        <p class="text-xl max-w-3xl mx-auto mb-8 opacity-90">Explore as maravilhas de {{ $provinceName }} e descubra uma experiência única em Angola</p>
+                        <h1 class="text-4xl sm:text-6xl font-bold mb-6 drop-shadow-lg">Hotéis em {{ $provinceName }}</h1>
+                        <p class="text-xl max-w-3xl mx-auto mb-8 opacity-90">
+                            Compare {{ $hotelsCount ?? $hotels->count() }} hotéis, resorts e hospedarias em {{ $provinceName }}@if(!empty($minPrice)) desde AKZ {{ number_format((float) $minPrice, 0, ',', '.') }}/noite @endif e reserve com os melhores preços de Angola
+                        </p>
                         <div class="flex justify-center space-x-4">
                             <a href="#hoteis" class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition transform hover:scale-105">
                                 Ver Hotéis

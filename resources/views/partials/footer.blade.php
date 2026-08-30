@@ -63,6 +63,34 @@
             </div>
         </div>
         
+        <!-- Hotéis por Província (links internos p/ SEO: "hotéis em {província}") -->
+        @php
+            $footerProvinces = \Illuminate\Support\Facades\Cache::remember('footer_provinces_hotels', 21600, function () {
+                return \App\Models\Hotel::where('hotels.is_active', true)
+                    ->join('locations', 'hotels.location_id', '=', 'locations.id')
+                    ->selectRaw('locations.province, COUNT(*) as total')
+                    ->groupBy('locations.province')
+                    ->orderByDesc('total')
+                    ->limit(10)
+                    ->pluck('total', 'province');
+            });
+        @endphp
+        @if($footerProvinces->isNotEmpty())
+        <div class="mt-8 pt-8 border-t border-gray-700">
+            <h3 class="text-lg font-semibold mb-4">{{ __('Hotéis por Província') }}</h3>
+            <div class="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+                @foreach($footerProvinces as $footerProvince => $footerTotal)
+                    <a href="{{ route('location.details', \Illuminate\Support\Str::slug($footerProvince)) }}"
+                       class="text-gray-300 hover:text-white">
+                        Hotéis em {{ \App\Models\Location::provinceName(\Illuminate\Support\Str::slug($footerProvince)) }}
+                        <span class="text-gray-500">({{ $footerTotal }})</span>
+                    </a>
+                @endforeach
+                <a href="{{ route('destinations') }}" class="text-blue-400 hover:text-blue-300 font-medium">{{ __('Ver todas as províncias') }} →</a>
+            </div>
+        </div>
+        @endif
+
         <!-- Informações de Contacto -->
         <div class="mt-8 pt-8 border-t border-gray-700">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-gray-300 text-sm">

@@ -34,14 +34,17 @@ class LocationDetails extends Component
             return redirect()->route('destinations');
         }
         
-        // Carregar hotéis associados a essa província
+        // Carregar hotéis associados a essa província (melhores primeiro)
         $locationIds = $this->locations->pluck('id');
         $this->hotels = Hotel::whereIn('location_id', $locationIds)
+            ->where('is_active', true)
             ->with('location')
+            ->orderByDesc('is_featured')
+            ->orderByDesc('rating')
             ->take(12)
             ->get();
     }
-    
+
     public function render()
     {
         $provinceName = $this->isSpecificLocation
@@ -49,15 +52,37 @@ class LocationDetails extends Component
             : Location::provinceName($this->province);
         $description = $this->locations->first()->description
             ?: "Conheça {$provinceName}, os seus alojamentos e experiências turísticas em Angola.";
-        
+
+        // Dados para SEO: total de alojamentos na província e preço mínimo por noite
+        $locationIds = $this->locations->pluck('id');
+        $hotelsCount = Hotel::whereIn('location_id', $locationIds)->where('is_active', true)->count();
+        $minPrice = Hotel::whereIn('location_id', $locationIds)
+            ->where('is_active', true)
+            ->where('min_price', '>', 0)
+            ->min('min_price');
+        if (!$minPrice) {
+            $minPrice = \App\Models\RoomType::whereHas('hotel', fn ($q) => $q->whereIn('location_id', $locationIds)->where('is_active', true))
+                ->where('is_available', true)
+                ->where('base_price', '>', 0)
+                ->min('base_price');
+        }
+
+        // Meta description orientada à pesquisa "hotéis em {província}"
+        $seoDescription = "Compare {$hotelsCount} hotéis, resorts e hospedarias em {$provinceName}"
+            . ($minPrice ? ' desde AKZ ' . number_format((float) $minPrice, 0, ',', '.') . '/noite' : '')
+            . '. Fotos, avaliações e reserva online com os melhores preços no KiandaStay.';
+
         return view('livewire.location-details', [
             'imageHelper' => new ImageHelper(),
             'provinceName' => $provinceName,
             'locationDescription' => $description,
+            'hotelsCount' => $hotelsCount,
+            'minPrice' => $minPrice,
+            'seoDescription' => $seoDescription,
         ])
         ->layout('layouts.app', [
-            'title' => "$provinceName - Destinos em Angola",
-            'metaDescription' => $description,
+            'title' => "Hotéis em $provinceName: compare preços e reserve",
+            'metaDescription' => $seoDescription,
         ]);
     }
 }
