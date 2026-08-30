@@ -63,6 +63,7 @@
                             <option value="hotel">🏨 Hotel</option>
                             <option value="resort">🏖️ Resort</option>
                             <option value="hospedaria">🏠 Hospedaria</option>
+                            <option value="residencial">🏢 Residencial</option>
                         </select>
                     </div>
                     
@@ -122,6 +123,10 @@
                                         @elseif($hotel->property_type === 'hospedaria')
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200">
                                                 <i class="fas fa-home mr-1"></i> Hospedaria
+                                            </span>
+                                        @elseif($hotel->property_type === 'residencial')
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+                                                <i class="fas fa-building mr-1"></i> Residencial
                                             </span>
                                         @else
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">

@@ -415,6 +415,11 @@
                                         </span>
                                         <span>{{ __('Hospedaria') }}</span>
                                     </div>
+                                @elseif($propertyType === 'residencial')
+                                    <div class="inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-purple-500 to-indigo-500 text-white rounded-full text-sm font-semibold mb-2">
+                                        <i class="fas fa-building"></i>
+                                        <span>{{ __('Residencial') }}</span>
+                                    </div>
                                 @else
                                     <div class="inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full text-sm font-semibold mb-2">
                                         <i class="fas fa-hotel"></i>
@@ -1377,7 +1382,7 @@
                         if (str_starts_with($waDigits, '00')) { $waDigits = substr($waDigits, 2); }
                         if ($waDigits !== '' && !str_starts_with($waDigits, '244') && strlen($waDigits) === 9) { $waDigits = '244' . $waDigits; }
                         $waValid = strlen($waDigits) >= 11; // 244 + 9 dígitos
-                        $propertyLabels = ['hotel' => 'o hotel', 'resort' => 'o resort', 'hospedaria' => 'a hospedaria', 'apartment' => 'o apartamento', 'house' => 'a casa'];
+                        $propertyLabels = ['hotel' => 'o hotel', 'resort' => 'o resort', 'hospedaria' => 'a hospedaria', 'residencial' => 'o residencial', 'apartment' => 'o apartamento', 'house' => 'a casa'];
                         $waLabel = $propertyLabels[$hotel->property_type ?? 'hotel'] ?? 'o hotel';
                         $waText = rawurlencode(
                             'Olá! 👋 Encontrei ' . $waLabel . ' *' . $hotel->name . '* no KiandaStay e gostaria de mais informações sobre disponibilidade de '

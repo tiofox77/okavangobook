@@ -193,6 +193,7 @@
                                         <option value="hotel">🏨 Hotel</option>
                                         <option value="resort">🏖️ Resort</option>
                                         <option value="hospedaria">🏠 Hospedaria</option>
+                                        <option value="residencial">🏢 Residencial</option>
                                     </select>
                                 </div>
                                 @error('property_type') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror

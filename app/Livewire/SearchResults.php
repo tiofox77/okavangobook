@@ -631,6 +631,10 @@ class SearchResults extends Component
                 ->when(!empty($selectedProvinces), function($q) use ($selectedProvinces) {
                     $q->whereHas('location', fn($loc) => $loc->whereIn('province', $selectedProvinces));
                 })->count(),
+            'residencial' => Hotel::where('property_type', 'residencial')
+                ->when(!empty($selectedProvinces), function($q) use ($selectedProvinces) {
+                    $q->whereHas('location', fn($loc) => $loc->whereIn('province', $selectedProvinces));
+                })->count(),
         ];
         
         return view('livewire.search-results', [

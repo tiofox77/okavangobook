@@ -61,7 +61,7 @@ class PropertyController extends Controller
 
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'property_type' => ['sometimes', Rule::in(['hotel', 'resort', 'hospedaria', 'apartment', 'house'])],
+            'property_type' => ['sometimes', Rule::in(['hotel', 'resort', 'hospedaria', 'residencial', 'apartment', 'house'])],
             'description' => ['sometimes', 'nullable', 'string'],
             'address' => ['required', 'string', 'max:500'],
             'location_id' => ['required', 'integer', 'exists:locations,id'],
@@ -131,6 +131,56 @@ class PropertyController extends Controller
         return response()->json(['data' => $after, 'dry_run' => false], 201);
     }
 
+    /**
+     * Elimina uma propriedade (ação crítica e destrutiva).
+     *
+     * Salvaguardas:
+     * - Recusa (409) se a propriedade tiver reservas — as FKs estão em cascade
+     *   e apagá-la levaria o histórico de reservas atrás; nesses casos use
+     *   PATCH is_active=false para a despublicar.
+     * - Exige o cabeçalho X-Confirm-Critical: true (além de X-Reason e
+     *   Idempotency-Key do agent.write). Suporta dry_run para pré-visualizar.
+     * - Tipos de quarto, preços, media, avaliações e favoritos são removidos
+     *   em cascade pela BD.
+     */
+    public function destroy(Request $request, int $id)
+    {
+        $hotel = Hotel::withCount(['reservations', 'roomTypes'])->findOrFail($id);
+        $before = $hotel->toArray();
+        $dryRun = $request->boolean('dry_run');
+
+        if ($hotel->reservations_count > 0) {
+            $this->audit->record($request, 'property.delete_blocked', $hotel, $before, null, 409, $dryRun);
+
+            return response()->json([
+                'message' => "Não é possível eliminar: a propriedade tem {$hotel->reservations_count} reserva(s) associada(s). Use PATCH /properties/{$id} com is_active=false para a despublicar.",
+                'reservations' => $hotel->reservations_count,
+            ], 409);
+        }
+
+        if (! $dryRun && $request->header('X-Confirm-Critical') !== 'true') {
+            return response()->json([
+                'message' => 'Eliminação é ação crítica: faça dry_run e reenvie com X-Confirm-Critical: true.',
+            ], 409);
+        }
+
+        if ($dryRun) {
+            $this->audit->record($request, 'property.deleted', $hotel, $before, null, 200, true);
+
+            return response()->json([
+                'data' => ['id' => $hotel->id, 'name' => $hotel->name, 'room_types' => $hotel->room_types_count],
+                'dry_run' => true,
+                'message' => 'Pré-visualização: nada foi eliminado.',
+            ]);
+        }
+
+        $hotel->delete(); // cascade remove room_types, prices, media, reviews, favoritos
+
+        $this->audit->record($request, 'property.deleted', $hotel, $before, null, 200, false);
+
+        return response()->json(['data' => ['id' => (int) $id, 'deleted' => true], 'dry_run' => false]);
+    }
+
     public function update(Request $request, int $id)
     {
         $hotel = Hotel::findOrFail($id);
@@ -151,7 +201,7 @@ class PropertyController extends Controller
         }
         $data = $request->validate([
             'name' => ['sometimes', 'string', 'max:255'],
-            'property_type' => ['sometimes', Rule::in(['hotel', 'resort', 'hospedaria', 'apartment', 'house'])],
+            'property_type' => ['sometimes', Rule::in(['hotel', 'resort', 'hospedaria', 'residencial', 'apartment', 'house'])],
             'description' => ['sometimes', 'nullable', 'string'],
             'address' => ['sometimes', 'nullable', 'string', 'max:500'],
             'location_id' => ['sometimes', 'integer', 'exists:locations,id'],

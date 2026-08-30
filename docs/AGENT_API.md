@@ -144,12 +144,16 @@ Fluxo de publicação:
 ### Propriedades
 
 ```http
-GET   /properties
-GET   /properties/{id}
-PATCH /properties/{id}
+GET    /properties
+POST   /properties
+GET    /properties/{id}
+PATCH  /properties/{id}
+DELETE /properties/{id}
 ```
 
-Aceita dados editoriais, regras, fotos, coordenadas, contactos e estado. Ativar uma propriedade requer `properties:publish`, dry-run prévio e `X-Confirm-Critical: true`.
+CRUD completo. `POST` (escopo `properties:write`) cria como rascunho (`is_active=false`); obrigatórios `name`, `address`, `location_id`. `property_type` aceita `hotel`, `resort`, `hospedaria`, `residencial`, `apartment`, `house`. Ativar/publicar requer `properties:publish`, dry-run prévio e `X-Confirm-Critical: true`.
+
+`DELETE` (escopo `properties:delete`) é ação crítica: exige `X-Confirm-Critical: true` (use `dry_run: true` para pré-visualizar) e é **recusado com 409 se a propriedade tiver reservas** — nesse caso despublique com `PATCH { "is_active": false }`. Tipos de quarto, preços e media associados são removidos em cascade.
 
 `images` aceita exclusivamente um array de URLs absolutas HTTP/HTTPS:
 

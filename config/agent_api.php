@@ -8,7 +8,7 @@ return [
         'site:read', 'site:write',
         'pages:read', 'pages:write',
         'seo:write', 'menus:write',
-        'properties:read', 'properties:write', 'properties:publish',
+        'properties:read', 'properties:write', 'properties:publish', 'properties:delete',
         'pricing:write', 'availability:write',
         'bookings:read', 'bookings:write', 'bookings:cancel',
         'leads:read', 'leads:write',

@@ -76,6 +76,7 @@ Route::prefix('agent/v1')->middleware(['agent.auth', 'throttle:agent-api'])->gro
     Route::post('/properties', [AgentPropertyController::class, 'store'])->middleware(['agent.scope:properties:write', 'agent.write']);
     Route::get('/properties/{id}', [AgentPropertyController::class, 'show'])->middleware('agent.scope:properties:read');
     Route::patch('/properties/{id}', [AgentPropertyController::class, 'update'])->middleware(['agent.scope:properties:write', 'agent.write']);
+    Route::delete('/properties/{id}', [AgentPropertyController::class, 'destroy'])->middleware(['agent.scope:properties:delete', 'agent.write']);
 
     Route::get('/properties/{id}/room-types', [AgentPropertyRoomTypeController::class, 'index'])->middleware('agent.scope:properties:read');
     Route::post('/properties/{id}/room-types', [AgentPropertyRoomTypeController::class, 'store'])->middleware(['agent.scope:properties:write', 'agent.write']);

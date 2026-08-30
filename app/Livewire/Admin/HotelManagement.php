@@ -103,7 +103,7 @@ class HotelManagement extends Component
     {
         return [
             'name' => 'required|string|max:255',
-            'property_type' => 'required|in:hotel,resort,hospedaria',
+            'property_type' => 'required|in:hotel,resort,hospedaria,residencial',
             'description' => 'required|string',
             'locationId' => 'required|exists:locations,id',
             'userId' => 'nullable|exists:users,id',

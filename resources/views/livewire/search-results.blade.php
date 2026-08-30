@@ -359,6 +359,24 @@
                                 </div>
                                 <span class="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">{{ $propertyTypeCounts['hospedaria'] ?? 0 }}</span>
                             </div>
+
+                            <!-- Residencial -->
+                            <div
+                                wire:click="togglePropertyType('residencial')"
+                                wire:key="filter-residencial"
+                                class="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-gray-50 transition-colors duration-200 border cursor-pointer {{ in_array('residencial', $propertyTypes) ? 'bg-purple-50 border-purple-300' : 'border-gray-100' }}"
+                            >
+                                <div class="flex items-center">
+                                    <div class="w-5 h-5 flex items-center justify-center mr-3 border-2 rounded {{ in_array('residencial', $propertyTypes) ? 'bg-primary border-primary' : 'border-gray-300 bg-white' }}">
+                                        @if(in_array('residencial', $propertyTypes))
+                                            <i class="fas fa-check text-xs text-white"></i>
+                                        @endif
+                                    </div>
+                                    <i class="fas fa-building text-purple-500 mr-2"></i>
+                                    <span class="text-sm {{ in_array('residencial', $propertyTypes) ? 'text-primary font-medium' : 'text-gray-700' }}">{{ __('Residencial') }}</span>
+                                </div>
+                                <span class="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">{{ $propertyTypeCounts['residencial'] ?? 0 }}</span>
+                            </div>
                         </div>
                     </div>
                     
