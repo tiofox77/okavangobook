@@ -1268,13 +1268,38 @@
                             {{ $hotel->address }}, {{ $hotel->location->name }}, {{ $hotel->location->province }}
                         </p>
                         
-                        <!-- Mapa (placeholder) -->
-                        <div class="h-80 bg-gray-200 rounded-lg flex items-center justify-center mb-4">
-                            <div class="text-center">
-                                <i class="fas fa-map-marked-alt text-5xl text-gray-400 mb-2"></i>
-                                <p>{{ __('Mapa estará disponível em breve') }}</p>
+                        <!-- Mapa -->
+                        @if($hotel->latitude && $hotel->longitude)
+                            <div class="rounded-lg overflow-hidden border border-gray-200 mb-3">
+                                <iframe
+                                    src="https://maps.google.com/maps?q={{ $hotel->latitude }},{{ $hotel->longitude }}&z=15&hl=pt&output=embed"
+                                    class="w-full h-80 block"
+                                    style="border:0"
+                                    loading="lazy"
+                                    referrerpolicy="no-referrer-when-downgrade"
+                                    allowfullscreen
+                                    title="{{ __('Mapa de') }} {{ $hotel->name }}"></iframe>
                             </div>
-                        </div>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <a href="https://www.google.com/maps/search/?api=1&query={{ $hotel->latitude }},{{ $hotel->longitude }}"
+                                   target="_blank" rel="noopener"
+                                   class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition">
+                                    <i class="fas fa-map-marker-alt text-red-500"></i> {{ __('Abrir no Google Maps') }}
+                                </a>
+                                <a href="https://www.google.com/maps/dir/?api=1&destination={{ $hotel->latitude }},{{ $hotel->longitude }}"
+                                   target="_blank" rel="noopener"
+                                   class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition">
+                                    <i class="fas fa-route text-primary"></i> {{ __('Como chegar') }}
+                                </a>
+                            </div>
+                        @else
+                            <div class="h-80 bg-gray-200 rounded-lg flex items-center justify-center mb-4">
+                                <div class="text-center">
+                                    <i class="fas fa-map-marked-alt text-5xl text-gray-400 mb-2"></i>
+                                    <p>{{ __('Mapa estará disponível em breve') }}</p>
+                                </div>
+                            </div>
+                        @endif
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
                             <!-- Coordenadas -->
@@ -1346,6 +1371,31 @@
                         </div>
                     @endif
                     
+                    @php
+                        // WhatsApp: normaliza o telefone do hotel para formato internacional (Angola +244)
+                        $waDigits = preg_replace('/\D+/', '', (string) $hotel->phone);
+                        if (str_starts_with($waDigits, '00')) { $waDigits = substr($waDigits, 2); }
+                        if ($waDigits !== '' && !str_starts_with($waDigits, '244') && strlen($waDigits) === 9) { $waDigits = '244' . $waDigits; }
+                        $waValid = strlen($waDigits) >= 11; // 244 + 9 dígitos
+                        $propertyLabels = ['hotel' => 'o hotel', 'resort' => 'o resort', 'hospedaria' => 'a hospedaria', 'apartment' => 'o apartamento', 'house' => 'a casa'];
+                        $waLabel = $propertyLabels[$hotel->property_type ?? 'hotel'] ?? 'o hotel';
+                        $waText = rawurlencode(
+                            'Olá! 👋 Encontrei ' . $waLabel . ' *' . $hotel->name . '* no KiandaStay e gostaria de mais informações sobre disponibilidade de '
+                            . \Carbon\Carbon::parse($checkIn)->format('d/m/Y') . ' a ' . \Carbon\Carbon::parse($checkOut)->format('d/m/Y')
+                            . ' para ' . $guests . ' ' . ($guests == 1 ? 'hóspede' : 'hóspedes') . '. '
+                            . route('hotel.details', $hotel->slug)
+                        );
+                    @endphp
+                    @if($waValid)
+                        <a href="https://wa.me/{{ $waDigits }}?text={{ $waText }}" target="_blank" rel="noopener"
+                           class="mt-4 flex items-center justify-center gap-2 w-full text-white font-bold py-3 px-4 rounded-lg transition duration-300 shadow-sm hover:shadow-md"
+                           style="background-color:#25D366" onmouseover="this.style.backgroundColor='#1EBE5D'" onmouseout="this.style.backgroundColor='#25D366'">
+                            <i class="fab fa-whatsapp text-2xl"></i>
+                            <span>{{ __('Conversar no WhatsApp') }}</span>
+                        </a>
+                        <p class="text-xs text-gray-400 text-center mt-1.5">{{ __('Resposta rápida — mencione o KiandaStay') }}</p>
+                    @endif
+
                     <!-- Contato do hotel -->
                     <div class="mt-6 pt-4 border-t border-gray-200">
                         <h3 class="font-bold mb-2">{{ __('Contato') }}</h3>
@@ -1354,6 +1404,12 @@
                                 <i class="fas fa-phone-alt text-gray-500 mr-2"></i>
                                 <a href="tel:{{ $hotel->phone }}" class="text-primary hover:underline">{{ $hotel->phone }}</a>
                             </div>
+                            @if($waValid)
+                                <div class="flex items-center mb-2">
+                                    <i class="fab fa-whatsapp text-green-500 mr-2"></i>
+                                    <a href="https://wa.me/{{ $waDigits }}?text={{ $waText }}" target="_blank" rel="noopener" class="text-primary hover:underline">WhatsApp</a>
+                                </div>
+                            @endif
                         @endif
                         @if($hotel->email)
                             <div class="flex items-center mb-2">
