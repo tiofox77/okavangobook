@@ -552,12 +552,18 @@
             
             @if($hasImages)
             <div class="mt-6 grid grid-cols-4 grid-rows-2 gap-2 h-64 sm:h-80 lg:h-96">
-                <!-- Imagem de destaque (dimensão fixa; imagem cabe inteira com object-contain, sem cortar) -->
+                <!-- Imagem de destaque (dimensão fixa; a foto cabe inteira e o fundo é a própria foto desfocada) -->
                 <div class="col-span-2 row-span-2 relative rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
                     <div
                         class="w-full h-full cursor-pointer"
                         @click="openImageViewer('{{ $featuredImageUrl }}', {{ $allHotelImagesJson }}, 0)">
-                        <img src="{{ $featuredImageUrl }}" alt="{{ $hotel->name }}" loading="lazy" class="absolute inset-0 w-full h-full object-contain rounded-lg"
+                        {{-- Fundo: mesma foto desfocada a cobrir a caixa (elimina o letterbox cinzento) --}}
+                        <img src="{{ $featuredImageUrl }}" alt="" aria-hidden="true" loading="lazy"
+                             class="absolute inset-0 w-full h-full object-cover"
+                             style="filter: blur(18px) saturate(1.15) brightness(.92); transform: scale(1.15);"
+                             onerror="this.style.display='none'">
+                        <img src="{{ $featuredImageUrl }}" alt="{{ $hotel->name }}" loading="lazy" class="absolute inset-0 w-full h-full object-contain"
+                             style="filter: drop-shadow(0 6px 18px rgba(0,0,0,.25));"
                              onerror="this.onerror=null; this.src='{{ $defaultPlaceholder }}'">
                         <div class="absolute inset-0 bg-black bg-opacity-10 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
                             <div class="bg-white bg-opacity-80 rounded-full p-4 shadow-lg">
@@ -567,12 +573,18 @@
                     </div>
                 </div>
                 
-                <!-- Galeria de imagens adicionais (até 4, dimensão fixa; imagem cabe inteira sem cortar) -->
+                <!-- Galeria de imagens adicionais (até 4, dimensão fixa; foto inteira sobre fundo desfocado) -->
                 @php $extraImages = array_slice($allHotelImages, 1, 4); @endphp
                 @foreach($extraImages as $index => $imageUrl)
                     <div class="relative rounded-lg overflow-hidden cursor-pointer bg-gray-100 dark:bg-gray-800"
                          @click="openImageViewer('{{ $imageUrl }}', {{ $allHotelImagesJson }}, {{ $index + 1 }})">
-                        <img src="{{ $imageUrl }}" alt="{{ $hotel->name }} - Imagem {{ $index + 1 }}" loading="lazy" class="absolute inset-0 w-full h-full object-contain rounded-lg"
+                        {{-- Fundo: mesma foto desfocada a cobrir a caixa (elimina o letterbox cinzento) --}}
+                        <img src="{{ $imageUrl }}" alt="" aria-hidden="true" loading="lazy"
+                             class="absolute inset-0 w-full h-full object-cover"
+                             style="filter: blur(14px) saturate(1.15) brightness(.92); transform: scale(1.15);"
+                             onerror="this.style.display='none'">
+                        <img src="{{ $imageUrl }}" alt="{{ $hotel->name }} - Imagem {{ $index + 1 }}" loading="lazy" class="absolute inset-0 w-full h-full object-contain"
+                             style="filter: drop-shadow(0 4px 12px rgba(0,0,0,.25));"
                              onerror="this.onerror=null; this.src='{{ $defaultPlaceholder }}'">
                         <div class="absolute inset-0 bg-black bg-opacity-10 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
                             <i class="fas fa-search-plus text-white text-xl"></i>
