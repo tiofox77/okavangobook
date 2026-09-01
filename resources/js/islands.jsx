@@ -2,6 +2,7 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import DateRangePicker from './islands/DateRangePicker.jsx';
 import PriceRangeSlider from './islands/PriceRangeSlider.jsx';
+import Lightbox from './islands/Lightbox.jsx';
 
 /**
  * Entrada das ilhas React.
@@ -93,6 +94,12 @@ function mountAll(scope = document) {
 }
 
 const boot = () => {
+    // Lightbox global (window.KiandaLightbox) — montado uma vez, fora do Livewire
+    const lb = document.createElement('div');
+    lb.id = 'ks-lightbox-root';
+    document.body.appendChild(lb);
+    createRoot(lb).render(<Lightbox />);
+
     mountAll();
     // O callback pode correr a meio de um morph do Livewire (nós ainda
     // detached → closest() falha); repete depois de o DOM assentar.

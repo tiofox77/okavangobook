@@ -301,6 +301,12 @@
     startY: 0,
 
     openImageViewer(image, images, index = 0) {
+        // Delega para o Lightbox React (scroll-lock, swipe, teclado, thumbnails,
+        // transições) quando as ilhas estão carregadas; Alpine fica de fallback.
+        if (window.KiandaLightbox) {
+            window.KiandaLightbox.open(images, index);
+            return;
+        }
         this.currentImage = image;
         this.images = images;
         this.currentIndex = index;
