@@ -40,11 +40,10 @@
     <link rel="manifest" href="{{ asset('manifest.webmanifest') }}?v=20260813">
     
     <!-- Tailwind CSS local -->
-    <link href="{{ asset('assets/css/tailwind.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('assets/css/tailwind.min.css') }}?v=20260830" rel="stylesheet">
 
     <!-- Dark mode: overrides globais (antes) + variantes dark: explícitas (depois) -->
     <link href="{{ asset('assets/css/dark-overrides.css') }}" rel="stylesheet">
-    <link href="{{ asset('assets/css/dark-mode.css') }}" rel="stylesheet">
 
     <!-- Font Awesome via CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">

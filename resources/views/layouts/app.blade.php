@@ -38,12 +38,13 @@
     <meta name="msapplication-TileColor" content="#134e91">
     <meta name="msapplication-TileImage" content="{{ asset('assets/img/pwa/icon-144.png') }}">
 
-    <!-- Tailwind CSS local -->
-    <link href="{{ asset('assets/css/tailwind.min.css') }}" rel="stylesheet">
+    {{-- Dark mode: overrides globais ANTES do Tailwind — a especificidade
+         (.dark .bg-white) já vence as classes claras, e as variantes dark:
+         explícitas do build v3 (carregado depois) mantêm prioridade. --}}
+    <link href="{{ asset('assets/css/dark-overrides.css') }}?v=20260830" rel="stylesheet">
 
-    <!-- Dark mode: overrides globais (antes) + variantes dark: explícitas (depois) -->
-    <link href="{{ asset('assets/css/dark-overrides.css') }}" rel="stylesheet">
-    <link href="{{ asset('assets/css/dark-mode.css') }}" rel="stylesheet">
+    <!-- Tailwind CSS v3 (build completo do projeto: npm run build:css) -->
+    <link href="{{ asset('assets/css/tailwind.min.css') }}?v=20260830" rel="stylesheet">
 
     <!-- Font Awesome via CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -113,32 +114,9 @@
             text-align: left;
         }
 
-        /* ============================================================
-           Compat Tailwind v2: as views usam classes arbitrárias da v3
-           (h-[70vh], min-h-[44px], …) que o tailwind.min.css v2 de
-           produção NÃO gera — as dimensões colapsavam e cortavam o
-           layout (ex.: herói de /destino com altura 0). Definimos aqui
-           exatamente esses seletores até migrarmos o build para v3.
-           ============================================================ */
-        .h-\[70vh\] { height: 70vh; }
-        .max-h-\[70vh\] { max-height: 70vh; }
-        .min-h-\[40px\] { min-height: 40px; }
-        .min-h-\[44px\] { min-height: 44px; }
-        .min-h-\[72px\] { min-height: 72px; }
-        .min-h-\[500px\] { min-height: 500px; }
-        .min-w-\[100px\] { min-width: 100px; }
-        .min-w-\[150px\] { min-width: 150px; }
-        .min-w-\[200px\] { min-width: 200px; }
-        .max-w-\[150px\] { max-width: 150px; }
-        .text-\[10px\] { font-size: 10px; line-height: 1.4; }
-        .bottom-\[-1rem\] { bottom: -1rem; }
-        @media (min-width: 768px) {
-            .md\:min-w-\[280px\] { min-width: 280px; }
-            .md\:max-w-\[300px\] { max-width: 300px; }
-        }
-        @media (min-width: 1280px) {
-            .xl\:grid-cols-\[140px_140px_auto\] { grid-template-columns: 140px 140px auto; }
-        }
+        /* (o antigo bloco "Compat Tailwind v2" foi removido: o CSS agora é um
+           build completo do Tailwind v3 e gera nativamente as classes
+           arbitrárias — h-[70vh], min-h-[44px], grid-cols-[…], etc.) */
     </style>
     
     @livewireStyles

@@ -13,7 +13,8 @@
             </div>
             
             <!-- Menu de navegação para desktop -->
-            <nav class="hidden xl:flex space-x-4 2xl:space-x-6">
+            {{-- Em xl o header vai justo (muitos itens): texto sm e gaps curtos; folga em 2xl --}}
+            <nav class="hidden xl:flex items-center space-x-3 2xl:space-x-6 text-sm 2xl:text-base">
                 <a href="{{ route('home') }}" class="text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-blue-400 {{ request()->routeIs('home') ? 'font-bold text-primary dark:text-blue-400' : '' }}">{{ __('Início') }}</a>
                 <a href="{{ route('search.results') }}" class="text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-blue-400 {{ request()->routeIs('search.results') && !request()->has('sort') && !request()->has('property_types') ? 'font-bold text-primary dark:text-blue-400' : '' }}">{{ __('Hotéis') }}</a>
                 <a href="{{ route('search.results', ['property_types' => ['resort']]) }}" class="text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-blue-400 {{ request()->input('property_types.0') === 'resort' ? 'font-bold text-primary dark:text-blue-400' : '' }}">{{ __('Resorts') }}</a>
@@ -28,7 +29,7 @@
             </nav>
             
             <!-- Botões de autenticação -->
-            <div class="hidden xl:flex items-center space-x-4">
+            <div class="hidden xl:flex items-center space-x-2 2xl:space-x-4">
                 <!-- Seletor de idioma -->
                 <div class="relative" x-data="{ langOpen: false }">
                     <button @click="langOpen = !langOpen" type="button" class="flex items-center text-gray-700 dark:text-gray-200 hover:text-primary text-sm px-2 py-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">

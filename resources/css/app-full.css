@@ -1,0 +1,5 @@
+/* Entrada do build COMPLETO do Tailwind v3 → public/assets/css/tailwind.min.css
+   (substitui o antigo ficheiro estático v2). Gerar com: npm run build:css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

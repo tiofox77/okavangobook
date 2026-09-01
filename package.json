@@ -4,7 +4,8 @@
     "scripts": {
         "dev": "vite",
         "build": "vite build",
-        "build:dark": "tailwindcss -c tailwind.config.cjs -i resources/css/dark-input.css -o storage/app/full-utilities.css && node scripts/extract-dark.cjs storage/app/full-utilities.css public/assets/css/dark-mode.css"
+        "build:dark": "tailwindcss -c tailwind.config.cjs -i resources/css/dark-input.css -o storage/app/full-utilities.css && node scripts/extract-dark.cjs storage/app/full-utilities.css public/assets/css/dark-mode.css",
+        "build:css": "tailwindcss -c tailwind.full.config.cjs -i resources/css/app-full.css -o public/assets/css/tailwind.min.css --minify"
     },
     "devDependencies": {
         "@popperjs/core": "^2.11.6",
