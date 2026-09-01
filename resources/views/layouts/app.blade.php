@@ -44,7 +44,7 @@
     <link href="{{ asset('assets/css/dark-overrides.css') }}?v=20260830" rel="stylesheet">
 
     <!-- Tailwind CSS v3 (build completo do projeto: npm run build:css) -->
-    <link href="{{ asset('assets/css/tailwind.min.css') }}?v=20260830b" rel="stylesheet">
+    <link href="{{ asset('assets/css/tailwind.min.css') }}?v=20260830c" rel="stylesheet">
 
     <!-- Font Awesome via CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -142,8 +142,11 @@
     
     <!-- jQuery via CDN -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    
+
     @livewireScripts
+
+    {{-- Ilhas React (páginas que as usam fazem @push('islands') com @vite) --}}
+    @stack('islands')
     
     <!-- jQuery local -->
     <script src="{{ asset('assets/js/jquery.min.js') }}"></script>

@@ -102,9 +102,9 @@
             </div>
         </div>
         
-        <!-- Datas de Check-in e Check-out -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
-            <div>
+        <!-- Datas de Check-in e Check-out (ilha React quando o JS carrega; inputs nativos como fallback) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3" data-island-zone>
+            <div class="native-dates">
                 <label for="check-in" class="block text-sm text-gray-700 font-medium mb-1">{{ __('Check-in') }}</label>
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -120,7 +120,7 @@
                     >
                 </div>
             </div>
-            <div>
+            <div class="native-dates">
                 <label for="check-out" class="block text-sm text-gray-700 font-medium mb-1">{{ __('Check-out') }}</label>
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -136,8 +136,23 @@
                     >
                 </div>
             </div>
+
+            {{-- Ilha React: calendário de intervalo (wire:ignore = Livewire não toca) --}}
+            <div wire:ignore
+                 data-island="date-range"
+                 data-start-input="check-in"
+                 data-end-input="check-out"
+                 data-min="{{ date('Y-m-d') }}"
+                 class="hidden md:col-span-2"
+                 aria-label="{{ __('Datas da estadia') }}"></div>
         </div>
-        
+
+        @once
+            @push('islands')
+                @vite('resources/js/islands.jsx')
+            @endpush
+        @endonce
+
         <!-- Número de hóspedes e quartos -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
             <div>

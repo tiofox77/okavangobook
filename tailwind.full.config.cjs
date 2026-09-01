@@ -9,6 +9,7 @@ module.exports = {
     content: [
         './resources/views/**/*.blade.php',
         './resources/**/*.js',
+        './resources/js/**/*.jsx',
         './app/Livewire/**/*.php',
         './app/Http/**/*.php',
         './app/View/**/*.php',
