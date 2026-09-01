@@ -30,6 +30,7 @@
     /* Ilhas React: quando a ilha monta, os campos nativos escondem-se
        (continuam no DOM a alimentar o Livewire via wire:model) */
     .island-mounted .native-dates { display: none; }
+    .island-mounted .native-price { display: none; }
 
     /* Entrada suave de conteúdo (usada nas tabs da ficha do hotel) */
     .ks-fade-in { animation: ksFadeIn 0.35s ease both; }

@@ -54,18 +54,18 @@
             <div class="hero-search-shell w-full max-w-3xl animate-fade-in-up rounded-2xl p-3 border shadow-2xl">
                 @livewire('search-form')
 
-                <!-- Estatísticas animadas abaixo do formulário -->
+                <!-- Estatísticas animadas abaixo do formulário (contador anima ao entrar no ecrã) -->
                 <div class="flex flex-wrap justify-center mt-3 gap-5 md:gap-7 text-center text-white">
                     <div class="stat-item">
-                        <span class="block text-xl font-bold">{{ number_format($stats['hotels'], 0, ',', '.') }}+</span>
+                        <span class="block text-xl font-bold" data-island="count-up" data-value="{{ $stats['hotels'] }}" data-suffix="+">{{ number_format($stats['hotels'], 0, ',', '.') }}+</span>
                         <span class="text-sm opacity-80">{{ __('Hotéis') }}</span>
                     </div>
                     <div class="stat-item">
-                        <span class="block text-xl font-bold">{{ $stats['provinces'] }}</span>
+                        <span class="block text-xl font-bold" data-island="count-up" data-value="{{ $stats['provinces'] }}">{{ $stats['provinces'] }}</span>
                         <span class="text-sm opacity-80">{{ __('Províncias') }}</span>
                     </div>
                     <div class="stat-item">
-                        <span class="block text-xl font-bold">{{ number_format($stats['users'], 0, ',', '.') }}+</span>
+                        <span class="block text-xl font-bold" data-island="count-up" data-value="{{ $stats['users'] }}" data-suffix="+">{{ number_format($stats['users'], 0, ',', '.') }}+</span>
                         <span class="text-sm opacity-80">{{ __('Utilizadores') }}</span>
                     </div>
                 </div>

@@ -1,13 +1,15 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 /**
- * Ilha React: seletor de intervalo de datas (estilo Booking/Airbnb).
- * Progressive enhancement — sincroniza com os <input type="date"> nativos
- * (que ficam escondidos mas continuam a alimentar o Livewire via wire:model).
+ * Ilha React: seletor de intervalo de datas (estilo Booking/Airbnb),
+ * animado com framer-motion (popover com mola, meses a deslizar,
+ * contador de noites com "pop"). Progressive enhancement: sincroniza os
+ * <input type="date"> nativos, que continuam a alimentar o Livewire.
  */
 
 const MONTHS = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-const WEEKDAYS = ['S', 'T', 'Q', 'Q', 'S', 'S', 'D']; // seg..dom
+const WEEKDAYS = ['S', 'T', 'Q', 'Q', 'S', 'S', 'D'];
 const DAY_NAMES = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
 
 const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -17,7 +19,7 @@ const fmtShort = (d) => d ? `${DAY_NAMES[d.getDay()]}, ${String(d.getDate()).pad
 
 function monthMatrix(year, month) {
     const first = new Date(year, month, 1);
-    const offset = (first.getDay() + 6) % 7; // semana começa à segunda
+    const offset = (first.getDay() + 6) % 7;
     const days = new Date(year, month + 1, 0).getDate();
     const cells = [];
     for (let i = 0; i < offset; i++) cells.push(null);
@@ -47,12 +49,13 @@ function Month({ year, month, start, end, hover, min, onPick, onHover }) {
                     const isEnd = sameDay(d, end);
                     const mid = inRange(d);
                     return (
-                        <button
+                        <motion.button
                             key={i}
                             type="button"
                             disabled={disabled}
                             onClick={() => onPick(d)}
                             onMouseEnter={() => onHover(d)}
+                            whileTap={disabled ? undefined : { scale: 0.85 }}
                             className={[
                                 'h-9 w-9 mx-auto flex items-center justify-center rounded-full transition-colors',
                                 disabled ? 'text-gray-300 dark:text-gray-600 cursor-not-allowed' : 'cursor-pointer',
@@ -62,7 +65,7 @@ function Month({ year, month, start, end, hover, min, onPick, onHover }) {
                             ].join(' ')}
                         >
                             {d.getDate()}
-                        </button>
+                        </motion.button>
                     );
                 })}
             </div>
@@ -76,6 +79,7 @@ export default function DateRangePicker({ startInput, endInput, minDate }) {
     const [end, setEnd] = useState(fromIso(endInput.value));
     const [hover, setHover] = useState(null);
     const [open, setOpen] = useState(false);
+    const [dir, setDir] = useState(0);
     const base = start || min;
     const [view, setView] = useState({ y: base.getFullYear(), m: base.getMonth() });
     const rootRef = useRef(null);
@@ -100,7 +104,7 @@ export default function DateRangePicker({ startInput, endInput, minDate }) {
         } else {
             setEnd(d);
             sync(start, d);
-            setTimeout(() => setOpen(false), 180);
+            setTimeout(() => setOpen(false), 260);
         }
     };
 
@@ -112,18 +116,22 @@ export default function DateRangePicker({ startInput, endInput, minDate }) {
         return () => { document.removeEventListener('mousedown', away); document.removeEventListener('keydown', esc); };
     }, []);
 
-    const nav = (delta) => setView(({ y, m }) => {
-        const d = new Date(y, m + delta, 1);
-        return { y: d.getFullYear(), m: d.getMonth() };
-    });
+    const nav = (delta) => {
+        setDir(delta);
+        setView(({ y, m }) => {
+            const d = new Date(y, m + delta, 1);
+            return { y: d.getFullYear(), m: d.getMonth() };
+        });
+    };
     const next = new Date(view.y, view.m + 1, 1);
 
     return (
         <div ref={rootRef} className="relative">
-            <button
+            <motion.button
                 type="button"
                 onClick={() => setOpen(!open)}
                 aria-expanded={open}
+                whileTap={{ scale: 0.985 }}
                 className="w-full flex items-center gap-3 pl-3 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-left focus:outline-none focus:ring-2 focus:ring-primary hover:border-primary/50 transition-colors"
             >
                 <i className="far fa-calendar-alt text-gray-400" aria-hidden="true"></i>
@@ -132,43 +140,67 @@ export default function DateRangePicker({ startInput, endInput, minDate }) {
                     <span className="mx-2 text-gray-400">→</span>
                     {end ? fmtShort(end) : 'Check-out'}
                 </span>
-                {nights > 0 && (
-                    <span className="text-xs bg-blue-100 dark:bg-blue-900/40 text-primary dark:text-blue-300 px-2 py-1 rounded-full whitespace-nowrap">
-                        {nights} {nights === 1 ? 'noite' : 'noites'}
-                    </span>
-                )}
-            </button>
+                <AnimatePresence mode="popLayout">
+                    {nights > 0 && (
+                        <motion.span
+                            key={nights}
+                            initial={{ scale: 0.6, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.6, opacity: 0 }}
+                            transition={{ type: 'spring', stiffness: 500, damping: 26 }}
+                            className="text-xs bg-blue-100 dark:bg-blue-900/40 text-primary dark:text-blue-300 px-2 py-1 rounded-full whitespace-nowrap"
+                        >
+                            {nights} {nights === 1 ? 'noite' : 'noites'}
+                        </motion.span>
+                    )}
+                </AnimatePresence>
+            </motion.button>
 
-            {open && (
-                <div className="absolute z-50 mt-2 left-0 right-0 sm:right-auto bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl p-4 ks-fade-in">
-                    <div className="flex items-center justify-between mb-2">
-                        <button type="button" onClick={() => nav(-1)} aria-label="Mês anterior"
-                                className="h-8 w-8 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300">
-                            <i className="fas fa-chevron-left text-sm"></i>
-                        </button>
-                        <button type="button" onClick={() => nav(1)} aria-label="Mês seguinte"
-                                className="h-8 w-8 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300">
-                            <i className="fas fa-chevron-right text-sm"></i>
-                        </button>
-                    </div>
-                    <div className="flex gap-6 flex-col sm:flex-row" onMouseLeave={() => setHover(null)}>
-                        <Month year={view.y} month={view.m} start={start} end={end} hover={hover} min={min} onPick={pick} onHover={setHover} />
-                        <div className="hidden sm:block">
-                            <Month year={next.getFullYear()} month={next.getMonth()} start={start} end={end} hover={hover} min={min} onPick={pick} onHover={setHover} />
+            <AnimatePresence>
+                {open && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -8, scale: 0.96 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -6, scale: 0.97 }}
+                        transition={{ type: 'spring', stiffness: 420, damping: 30 }}
+                        className="absolute z-50 mt-2 left-0 right-0 sm:right-auto bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl p-4 origin-top"
+                    >
+                        <div className="flex items-center justify-between mb-2">
+                            <motion.button type="button" onClick={() => nav(-1)} aria-label="Mês anterior" whileTap={{ scale: 0.8 }}
+                                    className="h-8 w-8 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300">
+                                <i className="fas fa-chevron-left text-sm"></i>
+                            </motion.button>
+                            <motion.button type="button" onClick={() => nav(1)} aria-label="Mês seguinte" whileTap={{ scale: 0.8 }}
+                                    className="h-8 w-8 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300">
+                                <i className="fas fa-chevron-right text-sm"></i>
+                            </motion.button>
                         </div>
-                    </div>
-                    <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
-                        <button type="button"
-                                onClick={() => { setStart(null); setEnd(null); }}
-                                className="text-sm text-gray-500 dark:text-gray-400 hover:text-primary">
-                            Limpar
-                        </button>
-                        <span className="text-sm text-gray-600 dark:text-gray-300">
-                            {start && !end ? 'Escolha a data de check-out' : nights > 0 ? `${nights} ${nights === 1 ? 'noite' : 'noites'}` : 'Escolha as datas'}
-                        </span>
-                    </div>
-                </div>
-            )}
+                        <motion.div
+                            key={`${view.y}-${view.m}`}
+                            initial={{ x: dir * 28, opacity: 0 }}
+                            animate={{ x: 0, opacity: 1 }}
+                            transition={{ type: 'spring', stiffness: 380, damping: 32 }}
+                            className="flex gap-6 flex-col sm:flex-row"
+                            onMouseLeave={() => setHover(null)}
+                        >
+                            <Month year={view.y} month={view.m} start={start} end={end} hover={hover} min={min} onPick={pick} onHover={setHover} />
+                            <div className="hidden sm:block">
+                                <Month year={next.getFullYear()} month={next.getMonth()} start={start} end={end} hover={hover} min={min} onPick={pick} onHover={setHover} />
+                            </div>
+                        </motion.div>
+                        <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+                            <button type="button"
+                                    onClick={() => { setStart(null); setEnd(null); }}
+                                    className="text-sm text-gray-500 dark:text-gray-400 hover:text-primary">
+                                Limpar
+                            </button>
+                            <span className="text-sm text-gray-600 dark:text-gray-300">
+                                {start && !end ? 'Escolha a data de check-out' : nights > 0 ? `${nights} ${nights === 1 ? 'noite' : 'noites'}` : 'Escolha as datas'}
+                            </span>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

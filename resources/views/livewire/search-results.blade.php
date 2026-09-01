@@ -84,7 +84,12 @@
     <!-- Barra de pesquisa compacta para refinar a busca -->
     <div class="bg-white shadow-md py-4">
         <div class="container mx-auto px-4">
-            <form wire:submit.prevent="search" class="flex flex-wrap items-end gap-2">
+            @once
+                @push('islands')
+                    @vite('resources/js/islands.jsx')
+                @endpush
+            @endonce
+            <form wire:submit.prevent="search" class="flex flex-wrap items-end gap-2" data-island-zone>
                 <div class="flex-1 min-w-[200px]">
                     <label for="location" class="block text-sm font-medium text-gray-700 mb-1">{{ __('Destino') }}</label>
                     <input 
@@ -96,25 +101,33 @@
                     >
                 </div>
                 
-                <div class="flex-1 min-w-[150px]">
+                <div class="flex-1 min-w-[150px] native-dates">
                     <label for="check_in" class="block text-sm font-medium text-gray-700 mb-1">{{ __('Check-in') }}</label>
-                    <input 
-                        type="date" 
-                        id="check_in" 
-                        wire:model.defer="checkIn" 
+                    <input
+                        type="date"
+                        id="check_in"
+                        wire:model.defer="checkIn"
                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
                     >
                 </div>
-                
-                <div class="flex-1 min-w-[150px]">
+
+                <div class="flex-1 min-w-[150px] native-dates">
                     <label for="check_out" class="block text-sm font-medium text-gray-700 mb-1">{{ __('Check-out') }}</label>
-                    <input 
-                        type="date" 
-                        id="check_out" 
-                        wire:model.defer="checkOut" 
+                    <input
+                        type="date"
+                        id="check_out"
+                        wire:model.defer="checkOut"
                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
                     >
                 </div>
+
+                {{-- Ilha React: calendário de intervalo (Livewire não toca) --}}
+                <div wire:ignore
+                     data-island="date-range"
+                     data-start-input="check_in"
+                     data-end-input="check_out"
+                     data-min="{{ date('Y-m-d') }}"
+                     class="hidden flex-1 min-w-[250px]"></div>
                 
                 <div class="flex-1 min-w-[100px]">
                     <label for="guests" class="block text-sm font-medium text-gray-700 mb-1">{{ __('Hóspedes') }}</label>
@@ -456,9 +469,17 @@
                             <i class="fas" :class="open ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                         </div>
                         
-                        <div x-show="open" class="mt-3">
+                        <div x-show="open" class="mt-3" data-island-zone>
+                            {{-- Ilha React: slider de preço com dois punhos (auto-aplica ao largar) --}}
+                            <div wire:ignore
+                                 data-island="price-range"
+                                 data-min-input="min-price"
+                                 data-max-input="max-price"
+                                 data-min="0" data-max="1000000" data-step="5000"
+                                 class="hidden mb-3"></div>
+
                             <!-- Inputs de preço -->
-                            <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div class="grid grid-cols-2 gap-4 mb-4 native-price">
                                 <div class="relative">
                                     <label for="min-price" class="block text-xs text-gray-500 mb-1">{{ __('Preço mínimo') }}</label>
                                     <div class="relative">

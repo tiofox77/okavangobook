@@ -1,3 +1,8 @@
+@once
+    @push('islands')
+        @vite('resources/js/islands.jsx')
+    @endpush
+@endonce
 @section('title', $hotel->name . ' — ' . ($hotel->location->name ?? 'Angola'))
 @section('meta_description', \Illuminate\Support\Str::limit(strip_tags($hotel->description) ?: ('Reserve ' . $hotel->name . ' em ' . ($hotel->location->name ?? 'Angola') . '. Veja preços, fotos, comodidades e avaliações.'), 155))
 @section('og_type', 'product')
@@ -771,9 +776,16 @@
                         <div class="flex flex-col gap-4 mb-6 xl:flex-row xl:items-end xl:justify-between">
                             <h2 class="text-xl sm:text-2xl font-bold">{{ __('Quartos disponíveis') }}</h2>
                             
-                            <!-- Formulário para alterar datas -->
-                            <div class="grid w-full grid-cols-2 gap-3 xl:w-auto xl:grid-cols-[140px_140px_auto]">
-                                <div class="min-w-0">
+                            <!-- Formulário para alterar datas (ilha React quando o JS carrega) -->
+                            <div class="grid w-full grid-cols-2 gap-3 xl:w-auto xl:grid-cols-[140px_140px_auto]" data-island-zone>
+                                {{-- Ilha React: calendário de intervalo --}}
+                                <div wire:ignore
+                                     data-island="date-range"
+                                     data-start-input="check_in"
+                                     data-end-input="check_out"
+                                     data-min="{{ date('Y-m-d') }}"
+                                     class="hidden col-span-2 xl:col-span-2 xl:min-w-[290px]"></div>
+                                <div class="min-w-0 native-dates">
                                     <label for="check_in" class="block text-sm font-medium text-gray-700">{{ __('Check-in') }}</label>
                                     <input 
                                         type="date" 
@@ -782,12 +794,12 @@
                                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
                                     >
                                 </div>
-                                <div class="min-w-0">
+                                <div class="min-w-0 native-dates">
                                     <label for="check_out" class="block text-sm font-medium text-gray-700">{{ __('Check-out') }}</label>
-                                    <input 
-                                        type="date" 
-                                        id="check_out" 
-                                        wire:model="checkOut" 
+                                    <input
+                                        type="date"
+                                        id="check_out"
+                                        wire:model="checkOut"
                                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
                                     >
                                 </div>
