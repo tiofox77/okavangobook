@@ -370,7 +370,7 @@
                     $colorIndex = $index % count($colorClasses);
                     $buttonClass = $colorClasses[$colorIndex];
                 @endphp
-                <article class="destination-card group relative bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl overflow-hidden shadow-xl transition-shadow duration-300 border border-blue-100/30 dark:border-blue-900/20">
+                <article class="destination-card group relative bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border border-blue-100/30 dark:border-blue-900/20">
                     <!-- Badge de província -->
                     <div class="absolute top-4 left-4 z-20 bg-white/95 dark:bg-black/80 py-1 px-3 rounded-full shadow-lg">
                         <div class="flex items-center">
