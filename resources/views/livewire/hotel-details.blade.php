@@ -666,8 +666,8 @@
     <!-- Conteúdo principal -->
     <div class="container mx-auto px-4 py-8">
         <div class="flex flex-wrap lg:flex-nowrap gap-8">
-            <!-- Coluna principal -->
-            <div class="w-full lg:w-8/12">
+            <!-- Coluna principal (wire:key muda com a tab: o bloco é recriado e o fade replay-a) -->
+            <div class="w-full lg:w-8/12 ks-fade-in" wire:key="tab-{{ $activeTab }}">
                 <!-- Conteúdo baseado na tab ativa -->
                 @if($activeTab == 'info')
                     <!-- Informações do hotel -->

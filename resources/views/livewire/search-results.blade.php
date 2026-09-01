@@ -862,7 +862,7 @@
                 <!-- Resultados da busca -->
                 <div class="{{ $viewMode == 'grid' ? 'grid grid-cols-1 md:grid-cols-2 gap-6' : 'space-y-6' }}" wire:key="results-{{ implode('-', $propertyTypes) }}">
                     @forelse($searchResults as $hotel)
-                        <div wire:key="hotel-{{ $hotel->id }}" class="h-full bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl border border-gray-100 hover:border-primary/20 relative group">
+                        <div wire:key="hotel-{{ $hotel->id }}" class="h-full bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border border-gray-100 hover:border-primary/20 relative group">
                             <div class="{{ $viewMode == 'grid' ? 'flex flex-col h-full' : 'flex flex-col md:flex-row' }}">
                                 <!-- Imagem do hotel -->
                                 <div class="{{ $viewMode == 'grid' ? 'w-full h-48' : 'md:w-1/3 h-48 md:h-64' }} relative overflow-hidden">
