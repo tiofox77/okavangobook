@@ -410,31 +410,34 @@
                 <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 {{ $propertyType === 'hospedaria' ? 'hospedaria-card-content' : '' }}">
                     <!-- Informações do hotel -->
                     <div class="flex-1">
+                        @php
+                            // Mapa de apresentação por tipo — todos os tipos têm identidade
+                            // própria (antes residencial/apartment/house caíam no badge "Hotel").
+                            $typeMeta = [
+                                'hotel'       => ['label' => __('Hotel'),       'article' => 'o', 'icon' => 'fa-hotel',          'grad' => 'from-blue-500 to-blue-600',     'roomChip' => null],
+                                'resort'      => ['label' => __('Resort de Luxo'), 'article' => 'o', 'icon' => 'fa-umbrella-beach', 'grad' => 'from-amber-500 to-orange-500', 'roomChip' => ['fa-gem', 'bg-amber-100 text-amber-800', __('Experiência Premium')]],
+                                'hospedaria'  => ['label' => __('Hospedaria'),  'article' => 'a', 'icon' => 'fa-home',           'grad' => 'from-teal-500 to-emerald-500',  'roomChip' => ['fa-mug-hot', 'bg-teal-100 text-teal-800', __('Acolhimento Familiar')]],
+                                'residencial' => ['label' => __('Residencial'), 'article' => 'o', 'icon' => 'fa-building',       'grad' => 'from-purple-500 to-indigo-500', 'roomChip' => ['fa-city', 'bg-purple-100 text-purple-800', __('Conforto Urbano')]],
+                                'apartment'   => ['label' => __('Apartamento'), 'article' => 'o', 'icon' => 'fa-door-open',      'grad' => 'from-cyan-500 to-blue-500',     'roomChip' => ['fa-key', 'bg-cyan-100 text-cyan-800', __('Independência Total')]],
+                                'house'       => ['label' => __('Casa'),        'article' => 'a', 'icon' => 'fa-house-chimney',  'grad' => 'from-emerald-500 to-teal-500',  'roomChip' => ['fa-tree', 'bg-emerald-100 text-emerald-800', __('Espaço Exclusivo')]],
+                            ];
+                            $meta = $typeMeta[$propertyType] ?? $typeMeta['hotel'];
+                        @endphp
                         <!-- Título e Favoritar -->
                         <div class="flex items-start justify-between mb-3">
                             <div class="flex-1">
-                                <!-- Badge de Tipo de Propriedade -->
-                                @if($propertyType === 'resort')
-                                    <div class="inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-full text-sm font-semibold mb-2">
-                                        <i class="fas fa-umbrella-beach"></i>
-                                        <span>{{ __('Resort de Luxo') }}</span>
-                                    </div>
-                                @elseif($propertyType === 'hospedaria')
+                                <!-- Badge de Tipo de Propriedade (identidade por tipo) -->
+                                @if($propertyType === 'hospedaria')
                                     <div class="hospedaria-badge-enhanced text-sm font-semibold mb-3">
                                         <span class="hospedaria-badge-icon" aria-hidden="true">
                                             <i class="fas fa-home"></i>
                                         </span>
-                                        <span>{{ __('Hospedaria') }}</span>
-                                    </div>
-                                @elseif($propertyType === 'residencial')
-                                    <div class="inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-purple-500 to-indigo-500 text-white rounded-full text-sm font-semibold mb-2">
-                                        <i class="fas fa-building"></i>
-                                        <span>{{ __('Residencial') }}</span>
+                                        <span>{{ $meta['label'] }}</span>
                                     </div>
                                 @else
-                                    <div class="inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full text-sm font-semibold mb-2">
-                                        <i class="fas fa-hotel"></i>
-                                        <span>{{ __('Hotel') }}</span>
+                                    <div class="inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r {{ $meta['grad'] }} text-white rounded-full text-sm font-semibold mb-2">
+                                        <i class="fas {{ $meta['icon'] }}"></i>
+                                        <span>{{ $meta['label'] }}</span>
                                     </div>
                                 @endif
                                 
@@ -684,13 +687,7 @@
                     <!-- Informações do hotel -->
                     <div class="bg-white rounded-lg shadow-md p-6 mb-8">
                         <h2 class="text-2xl font-bold mb-4">
-                            @if($propertyType === 'resort')
-                                Sobre o Resort
-                            @elseif($propertyType === 'hospedaria')
-                                Sobre a Hospedaria
-                            @else
-                                Sobre o Hotel
-                            @endif
+                            {{ __('Sobre') }} {{ $meta['article'] }} {{ $propertyType === 'resort' ? __('Resort') : $meta['label'] }}
                         </h2>
                         <div class="prose max-w-none">
                             <p>{{ $hotel->description }}</p>
@@ -899,11 +896,11 @@
                                         <!-- Descrição curta -->
                                         <p class="text-gray-600 text-sm my-3 line-clamp-2">{{ $room['description'] }}</p>
                                         
-                                        <!-- Badge especial para quartos de Resort -->
-                                        @if($propertyType === 'resort')
+                                        <!-- Chip por tipo de propriedade (replicado do tratamento Resort) -->
+                                        @if(!empty($meta['roomChip']))
                                             <div class="flex items-center gap-2 my-2">
-                                                <span class="inline-flex items-center px-2 py-1 bg-amber-100 text-amber-800 text-xs font-semibold rounded">
-                                                    <i class="fas fa-gem mr-1"></i>{{ __('Experiência Premium') }}
+                                                <span class="inline-flex items-center px-2 py-1 {{ $meta['roomChip'][1] }} text-xs font-semibold rounded">
+                                                    <i class="fas {{ $meta['roomChip'][0] }} mr-1"></i>{{ $meta['roomChip'][2] }}
                                                 </span>
                                             </div>
                                         @endif

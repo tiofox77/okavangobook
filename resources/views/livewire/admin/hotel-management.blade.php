@@ -128,6 +128,14 @@
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
                                                 <i class="fas fa-building mr-1"></i> Residencial
                                             </span>
+                                        @elseif($hotel->property_type === 'apartment')
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-200">
+                                                <i class="fas fa-door-open mr-1"></i> Apartamento
+                                            </span>
+                                        @elseif($hotel->property_type === 'house')
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200">
+                                                <i class="fas fa-house-chimney mr-1"></i> Casa
+                                            </span>
                                         @else
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
                                                 <i class="fas fa-hotel mr-1"></i> Hotel
