@@ -90,16 +90,24 @@
                 @endpush
             @endonce
             <form wire:submit.prevent="search" class="flex flex-wrap items-end gap-2" data-island-zone>
-                <div class="flex-1 min-w-[200px]">
+                <div class="flex-1 min-w-[200px] native-dest">
                     <label for="location" class="block text-sm font-medium text-gray-700 mb-1">{{ __('Destino') }}</label>
-                    <input 
-                        type="text" 
-                        id="location" 
-                        wire:model.defer="location" 
+                    <input
+                        type="text"
+                        id="location"
+                        wire:model.defer="location"
                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
                         placeholder="Para onde você vai?"
                     >
                 </div>
+
+                {{-- Ilha React: autocomplete instantâneo (destinos + hotéis) --}}
+                <div wire:ignore
+                     data-island="dest-autocomplete"
+                     data-input="location"
+                     data-mode="bar"
+                     data-dates="check_in,check_out"
+                     class="hidden flex-1 min-w-[220px]"></div>
                 
                 <div class="flex-1 min-w-[150px] native-dates">
                     <label for="check_in" class="block text-sm font-medium text-gray-700 mb-1">{{ __('Check-in') }}</label>
@@ -881,7 +889,7 @@
                 </div>
                 
                 <!-- Resultados da busca -->
-                <div class="{{ $viewMode == 'grid' ? 'grid grid-cols-1 md:grid-cols-2 gap-6' : 'space-y-6' }}" wire:key="results-{{ implode('-', $propertyTypes) }}">
+                <div class="{{ $viewMode == 'grid' ? 'grid grid-cols-1 md:grid-cols-2 gap-6' : 'space-y-6' }} ks-stagger-run" data-stagger wire:key="results-{{ implode('-', $propertyTypes) }}">
                     @forelse($searchResults as $hotel)
                         <div wire:key="hotel-{{ $hotel->id }}" class="h-full bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border border-gray-100 hover:border-primary/20 relative group">
                             <div class="{{ $viewMode == 'grid' ? 'flex flex-col h-full' : 'flex flex-col md:flex-row' }}">

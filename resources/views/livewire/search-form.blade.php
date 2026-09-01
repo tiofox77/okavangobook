@@ -42,8 +42,8 @@
                 </div>
             </div>
             
-            <!-- Campo de localização com sugestões -->
-            <div class="relative">
+            <!-- Campo de localização com sugestões (ilha React quando o JS carrega) -->
+            <div class="relative" data-island-zone>
                 <label for="location" class="block text-sm text-gray-700 font-medium mb-1">
                     {{ __('Destino específico (opcional)') }}
                     @if(!empty($location) && !empty($locationId))
@@ -52,23 +52,31 @@
                         </span>
                     @endif
                 </label>
-                <div class="relative">
+                <div class="relative native-dest">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <i class="fas fa-map-marker-alt text-gray-400"></i>
                     </div>
-                    <input 
-                        type="text" 
-                        id="location" 
-                        wire:model.live.debounce.300ms="location" 
+                    <input
+                        type="text"
+                        id="location"
+                        wire:model.live.debounce.300ms="location"
                         placeholder="{{ __('Hotel ou localidade específica') }}"
                         class="w-full pl-10 pr-4 py-2.5 border @error('location') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                         autocomplete="off"
                     >
                 </div>
+
+                {{-- Ilha React: autocomplete instantâneo (destinos + hotéis) --}}
+                <div wire:ignore
+                     data-island="dest-autocomplete"
+                     data-input="location"
+                     data-mode="home"
+                     data-dates="check-in,check-out"
+                     class="hidden"></div>
                 
-                <!-- Sugestões de localização -->
+                <!-- Sugestões de localização (fallback sem JS; a ilha tem as suas) -->
                 @if(!empty($location) && count($locationSuggestions) > 0)
-                    <div class="absolute z-10 w-full bg-white mt-1 border border-gray-300 rounded-lg shadow-lg max-h-64 overflow-y-auto">
+                    <div class="native-dest absolute z-10 w-full bg-white mt-1 border border-gray-300 rounded-lg shadow-lg max-h-64 overflow-y-auto">
                         @foreach($locationSuggestions as $suggestion)
                             <div 
                                 class="px-4 py-3 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors"

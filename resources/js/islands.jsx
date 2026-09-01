@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import DateRangePicker from './islands/DateRangePicker.jsx';
 import PriceRangeSlider from './islands/PriceRangeSlider.jsx';
 import Lightbox from './islands/Lightbox.jsx';
+import DestinationAutocomplete from './islands/DestinationAutocomplete.jsx';
 
 /**
  * Entrada das ilhas React.
@@ -44,6 +45,24 @@ const ISLANDS = {
                 max={Number(el.dataset.max ?? 1000000)}
                 step={Number(el.dataset.step ?? 5000)}
                 wireEl={el.closest('[wire\\:id]')}
+            />
+        );
+        return true;
+    },
+
+    'dest-autocomplete': (el) => {
+        const nativeInput = document.getElementById(el.dataset.input);
+        if (!nativeInput) return false;
+
+        el.closest('[data-island-zone]')?.classList.add('island-mounted');
+        el.classList.remove('hidden');
+
+        createRoot(el).render(
+            <DestinationAutocomplete
+                nativeInput={nativeInput}
+                wireEl={el.closest('[wire\\:id]')}
+                mode={el.dataset.mode || 'bar'}
+                dateIds={(el.dataset.dates || '').split(',').filter(Boolean)}
             />
         );
         return true;
@@ -104,10 +123,23 @@ const boot = () => {
     // O callback pode correr a meio de um morph do Livewire (nós ainda
     // detached → closest() falha); repete depois de o DOM assentar.
     let settle = null;
-    new MutationObserver(() => {
+    new MutationObserver((muts) => {
         mountAll();
         clearTimeout(settle);
         settle = setTimeout(mountAll, 80);
+
+        // Resultados novos (filtro/página no Livewire) → replay do stagger
+        const staggers = new Set();
+        muts.forEach(m => {
+            if (m.type !== 'childList') return;
+            const host = m.target.closest?.('[data-stagger]');
+            if (host) staggers.add(host);
+        });
+        staggers.forEach(el => {
+            el.classList.remove('ks-stagger-run');
+            void el.offsetWidth; // reinicia as animações
+            el.classList.add('ks-stagger-run');
+        });
     }).observe(document.body, {
         childList: true,
         subtree: true,

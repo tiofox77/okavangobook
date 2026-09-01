@@ -21,6 +21,15 @@ class LocationController extends Controller
             $query->where('province', $request->string('province'));
         }
 
-        return LocationResource::collection($query->orderBy('name')->get());
+        // Pesquisa por nome/província (usada pelo autocomplete do frontend)
+        if ($request->filled('q')) {
+            $q = $request->string('q');
+            $query->where(fn ($w) => $w->where('name', 'like', "%$q%")
+                ->orWhere('province', 'like', "%$q%"));
+        }
+
+        return LocationResource::collection(
+            $query->orderBy('name')->limit((int) min($request->input('limit', 100), 100))->get()
+        );
     }
 }
