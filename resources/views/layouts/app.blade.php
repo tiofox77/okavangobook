@@ -90,6 +90,28 @@
         }
 
         [x-cloak] { display: none !important; }
+
+        /* iOS Safari (iPhone): inputs de data têm largura intrínseca própria e
+           ignoram width:100%, transbordando o cartão (distorção no iPhone).
+           appearance:none + min-width:0 devolve o controlo do tamanho ao CSS. */
+        input[type="date"],
+        input[type="datetime-local"],
+        input[type="time"],
+        input[type="month"] {
+            -webkit-appearance: none;
+            appearance: none;
+            display: block;
+            width: 100%;
+            min-width: 0;
+            max-width: 100%;
+            min-height: 2.75rem;
+            background-color: transparent;
+        }
+        /* iOS centra o texto da data por omissão — alinhar à esquerda como os outros campos */
+        input[type="date"]::-webkit-date-and-time-value,
+        input[type="datetime-local"]::-webkit-date-and-time-value {
+            text-align: left;
+        }
     </style>
     
     @livewireStyles
