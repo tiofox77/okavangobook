@@ -1,0 +1,19 @@
+{
+  "resources/js/app.js": {
+    "file": "assets/app-Dy78saiN.js",
+    "name": "app",
+    "src": "resources/js/app.js",
+    "isEntry": true
+  },
+  "resources/js/islands.jsx": {
+    "file": "assets/islands-BGFL8fbu.js",
+    "name": "islands",
+    "src": "resources/js/islands.jsx",
+    "isEntry": true
+  },
+  "resources/sass/app.scss": {
+    "file": "assets/app-IgyIM7qE.css",
+    "src": "resources/sass/app.scss",
+    "isEntry": true
+  }
+}

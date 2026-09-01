@@ -23,3 +23,6 @@ yarn-error.log
 /output/
 /tmp/
 /.claude/settings.local.json
+
+# Artefactos de build das ilhas React são versionados (produção não corre npm)
+!/public/build/
