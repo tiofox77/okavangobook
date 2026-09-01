@@ -32,6 +32,7 @@
     .island-mounted .native-dates { display: none; }
     .island-mounted .native-price { display: none; }
     .island-mounted .native-dest { display: none; }
+    .island-mounted .native-explorer { display: none; }
 
     /* Entrada em cascata dos resultados da pesquisa (replay a cada filtro) */
     [data-stagger].ks-stagger-run > * { animation: ksFadeIn 0.45s ease both; }

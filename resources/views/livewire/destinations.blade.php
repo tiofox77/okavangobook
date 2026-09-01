@@ -31,9 +31,34 @@
         </div>
 
         <!-- Main Content -->
-        <div class="container mx-auto px-4 py-12">
-            <!-- Filter Section -->
-            <div class="mb-12 flex flex-col md:flex-row justify-between items-center bg-white p-6 rounded-xl shadow-sm animate-fade-in">
+        <div class="container mx-auto px-4 py-12" data-island-zone>
+            @once
+                @push('islands')
+                    @vite('resources/js/islands.jsx')
+                @endpush
+            @endonce
+
+            {{-- Ilha React: explorador com pesquisa instantânea e grelha animada.
+                 O bloco Blade abaixo (filtros + grelha) é o fallback sem JS. --}}
+            @php
+                $explorerData = $locations->map(fn ($l) => [
+                    'slug' => $l->province,
+                    'name' => \App\Models\Location::provinceName($l->province),
+                    'image' => \App\Helpers\ImageHelper::getValidImage($l->image, 'location'),
+                    'description' => \Illuminate\Support\Str::limit(strip_tags((string) $l->description), 130),
+                    'hotels' => (int) $l->hotels_count,
+                    'locations' => (int) ($l->locations_count ?? 1),
+                    'minPrice' => $l->min_price ? (float) $l->min_price : null,
+                    'url' => route('location.details', ['province' => $l->province]),
+                ])->values();
+            @endphp
+            <div wire:ignore
+                 data-island="destinations-explorer"
+                 data-destinations='@json($explorerData)'
+                 class="hidden"></div>
+
+            <!-- Filter Section (fallback sem JS) -->
+            <div class="native-explorer mb-12 flex flex-col md:flex-row justify-between items-center bg-white p-6 rounded-xl shadow-sm animate-fade-in">
                 <div class="mb-4 md:mb-0">
                     <h2 class="text-2xl font-bold text-gray-800">{{ __('Descubra Angola') }}</h2>
                     <p class="text-gray-600">{{ __('Encontre o seu próximo destino entre as 18 províncias') }}</p>
@@ -45,8 +70,8 @@
                 </div>
             </div>
 
-            <!-- Provinces Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Provinces Grid (fallback sem JS) -->
+            <div class="native-explorer grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 @foreach($locations as $location)
                     <article wire:key="destination-{{ $location->province }}" class="group h-full bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 animate-fade-in-up" style="animation-delay: {{ min($loop->iteration * 60, 600) }}ms">
                         <a href="{{ route('location.details', ['province' => $location->province]) }}" class="flex h-full flex-col">

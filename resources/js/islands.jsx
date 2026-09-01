@@ -4,6 +4,7 @@ import DateRangePicker from './islands/DateRangePicker.jsx';
 import PriceRangeSlider from './islands/PriceRangeSlider.jsx';
 import Lightbox from './islands/Lightbox.jsx';
 import DestinationAutocomplete from './islands/DestinationAutocomplete.jsx';
+import DestinationsExplorer from './islands/DestinationsExplorer.jsx';
 
 /**
  * Entrada das ilhas React.
@@ -65,6 +66,19 @@ const ISLANDS = {
                 dateIds={(el.dataset.dates || '').split(',').filter(Boolean)}
             />
         );
+        return true;
+    },
+
+    'destinations-explorer': (el) => {
+        let data;
+        try { data = JSON.parse(el.dataset.destinations || '[]'); } catch (e) { return false; }
+        if (!Array.isArray(data) || !data.length) return false;
+
+        // Esconde a grelha Blade (fallback sem JS) e mostra a ilha
+        el.closest('[data-island-zone]')?.classList.add('island-mounted');
+        el.classList.remove('hidden');
+
+        createRoot(el).render(<DestinationsExplorer destinations={data} />);
         return true;
     },
 

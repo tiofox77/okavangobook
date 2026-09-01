@@ -33,12 +33,20 @@ class LocationDetails extends Component
         if ($this->locations->isEmpty()) {
             return redirect()->route('destinations');
         }
-        
+
+        // Contagem REAL de hotéis por local (a coluna hotels_count estava
+        // desatualizada e mostrava 0 nos cards e 158 no total).
+        $this->locations->loadCount(['hotels' => fn ($q) => $q->where('is_active', true)]);
+        // Locais com mais alojamentos primeiro (antes era alfabética e as zonas
+        // vazias apareciam à frente das relevantes)
+        $this->locations = $this->locations->sortByDesc('hotels_count')->values();
+
         // Carregar hotéis associados a essa província (melhores primeiro)
         $locationIds = $this->locations->pluck('id');
         $this->hotels = Hotel::whereIn('location_id', $locationIds)
             ->where('is_active', true)
             ->with('location')
+            ->withMin(['roomTypes as cheapest_room' => fn ($q) => $q->where('is_available', true)->where('base_price', '>', 0)], 'base_price')
             ->orderByDesc('is_featured')
             ->orderByDesc('rating')
             ->take(12)
@@ -50,8 +58,28 @@ class LocationDetails extends Component
         $provinceName = $this->isSpecificLocation
             ? $this->locations->first()->name
             : Location::provinceName($this->province);
-        $description = $this->locations->first()->description
+
+        // Descrição por ordem de qualidade: história curada da província
+        // (a mesma que /destinos usa) > descrição do local homónimo >
+        // primeira não-vazia > texto genérico. Antes usava sempre a do
+        // primeiro local por ordem alfabética: vinha vazia ou descrevia
+        // outra zona (ex.: "Sobre Luanda" mostrava o texto do Mussulo).
+        $curatedStory = $this->isSpecificLocation ? null : config('destination_stories.' . $this->province);
+        $sameNameDesc = optional($this->locations->first(
+            fn ($l) => \Illuminate\Support\Str::slug($l->name) === $this->province
+        ))->description;
+
+        $description = $curatedStory
+            ?: (trim((string) $sameNameDesc) !== '' ? $sameNameDesc : null)
+            ?: $this->locations->pluck('description')->filter(fn ($d) => trim((string) $d) !== '')->first()
             ?: "Conheça {$provinceName}, os seus alojamentos e experiências turísticas em Angola.";
+
+        // Capital real: campo capital preenchido, senão o local homónimo da
+        // província, senão o próprio nome da província (antes mostrava o
+        // primeiro local por ordem alfabética — ex.: "Capital: Alvalade").
+        $capital = $this->locations->pluck('capital')->filter(fn ($c) => trim((string) $c) !== '')->first()
+            ?: (optional($this->locations->first(fn ($l) => \Illuminate\Support\Str::slug($l->name) === $this->province))->name
+                ?: $provinceName);
 
         // Dados para SEO: total de alojamentos na província e preço mínimo por noite
         $locationIds = $this->locations->pluck('id');
@@ -73,6 +101,36 @@ class LocationDetails extends Component
             ->orderBy('position')->orderBy('id')
             ->get();
 
+        // Distribuição por tipo de alojamento (alimenta os atalhos filtrados)
+        $typeCounts = Hotel::whereIn('location_id', $locationIds)
+            ->where('is_active', true)
+            ->selectRaw('property_type, COUNT(*) as total')
+            ->groupBy('property_type')
+            ->pluck('total', 'property_type')
+            ->toArray();
+
+        // Avaliação média e nº de propriedades avaliadas
+        $ratingStats = Hotel::whereIn('location_id', $locationIds)
+            ->where('is_active', true)->where('rating', '>', 0)
+            ->selectRaw('AVG(rating) as avg_rating, COUNT(*) as rated')
+            ->first();
+
+        // Artigos do blog sobre a província (conteúdo relacionado que existia
+        // na BD mas nunca era mostrado nesta página)
+        $relatedArticles = collect();
+        try {
+            $relatedArticles = \App\Models\Article::query()
+                ->when(
+                    \Illuminate\Support\Facades\Schema::hasColumn('articles', 'is_published'),
+                    fn ($q) => $q->where('is_published', true)
+                )
+                ->where(fn ($q) => $q->where('title', 'like', "%{$provinceName}%")
+                    ->orWhere('content', 'like', "%{$provinceName}%"))
+                ->latest()->take(3)->get();
+        } catch (\Throwable $e) {
+            // conteúdo relacionado é opcional — nunca quebrar a página
+        }
+
         // Meta description orientada à pesquisa "hotéis em {província}"
         $seoDescription = "Compare {$hotelsCount} hotéis, resorts e hospedarias em {$provinceName}"
             . ($minPrice ? ' desde AKZ ' . number_format((float) $minPrice, 0, ',', '.') . '/noite' : '')
@@ -86,6 +144,11 @@ class LocationDetails extends Component
             'minPrice' => $minPrice,
             'seoDescription' => $seoDescription,
             'galleryMedia' => $galleryMedia,
+            'capital' => $capital,
+            'typeCounts' => $typeCounts,
+            'avgRating' => $ratingStats?->avg_rating ? round((float) $ratingStats->avg_rating, 1) : null,
+            'ratedCount' => (int) ($ratingStats?->rated ?? 0),
+            'relatedArticles' => $relatedArticles,
         ])
         ->layout('layouts.app', [
             'title' => "Hotéis em $provinceName: compare preços e reserve",

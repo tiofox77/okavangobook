@@ -144,28 +144,66 @@
                         </div>
                         
                         <div class="prose prose-lg max-w-none mb-6">
-                            <p class="text-gray-700">{{ $locations->first()->description }}</p>
+                            {{-- História curada da província primeiro (mesma fonte da /destinos);
+                                 resolvida na view para não depender de bytecode em cache. --}}
+                            <p class="text-gray-700">
+                                {{ (!$isSpecificLocation ? config('destination_stories.' . $province) : null) ?: $locationDescription }}
+                            </p>
                         </div>
                         
-                        <div class="grid grid-cols-2 md:grid-cols-3 gap-6 mt-8">
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
                             <div class="bg-blue-50 rounded-lg p-4 text-center transform transition hover:scale-105">
-                                <i class="fas fa-map-marker-alt text-primary text-2xl mb-2"></i>
+                                <i class="fas fa-city text-primary text-2xl mb-2"></i>
                                 <h4 class="text-sm font-semibold text-gray-700 mb-1">Capital</h4>
-                                <p class="text-primary font-medium">{{ $locations->first()->name }}</p>
+                                <p class="text-primary font-medium">{{ $capital }}</p>
                             </div>
-                            
+
                             <div class="bg-blue-50 rounded-lg p-4 text-center transform transition hover:scale-105">
                                 <i class="fas fa-hotel text-primary text-2xl mb-2"></i>
-                                <h4 class="text-sm font-semibold text-gray-700 mb-1">Hotéis</h4>
-                                <p class="text-primary font-medium">{{ $locations->sum('hotels_count') }}</p>
+                                <h4 class="text-sm font-semibold text-gray-700 mb-1">Alojamentos</h4>
+                                <p class="text-primary font-medium" data-island="count-up" data-value="{{ $hotelsCount }}">{{ $hotelsCount }}</p>
                             </div>
-                            
+
                             <div class="bg-blue-50 rounded-lg p-4 text-center transform transition hover:scale-105">
-                                <i class="fas fa-globe-africa text-primary text-2xl mb-2"></i>
-                                <h4 class="text-sm font-semibold text-gray-700 mb-1">Região</h4>
-                                <p class="text-primary font-medium">Angola</p>
+                                <i class="fas fa-tag text-primary text-2xl mb-2"></i>
+                                <h4 class="text-sm font-semibold text-gray-700 mb-1">A partir de</h4>
+                                <p class="text-primary font-medium">
+                                    {{ $minPrice ? number_format((float) $minPrice, 0, ',', '.') . ' Kz' : '—' }}
+                                </p>
+                            </div>
+
+                            <div class="bg-blue-50 rounded-lg p-4 text-center transform transition hover:scale-105">
+                                <i class="fas fa-star text-primary text-2xl mb-2"></i>
+                                <h4 class="text-sm font-semibold text-gray-700 mb-1">Avaliação</h4>
+                                <p class="text-primary font-medium">
+                                    @if($avgRating)
+                                        {{ number_format($avgRating, 1, ',', '.') }}/5
+                                        <span class="block text-xs text-gray-500">{{ $ratedCount }} avaliados</span>
+                                    @else
+                                        —
+                                    @endif
+                                </p>
                             </div>
                         </div>
+
+                        {{-- Atalhos por tipo de alojamento (dados reais da província) --}}
+                        @php
+                            $typeLabels = ['hotel' => ['Hotéis', 'fa-hotel'], 'resort' => ['Resorts', 'fa-umbrella-beach'], 'hospedaria' => ['Hospedarias', 'fa-home'], 'residencial' => ['Residenciais', 'fa-building'], 'apartment' => ['Apartamentos', 'fa-door-open'], 'house' => ['Casas', 'fa-house-chimney']];
+                        @endphp
+                        @if(!empty($typeCounts))
+                            <div class="flex flex-wrap gap-2 mt-6">
+                                @foreach($typeCounts as $type => $count)
+                                    @if($count > 0 && isset($typeLabels[$type]))
+                                        <a href="{{ route('search.results', ['provinces' => [$province], 'property_types' => [$type]]) }}"
+                                           class="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 hover:bg-primary hover:text-white text-gray-700 rounded-full text-sm font-medium transition-colors">
+                                            <i class="fas {{ $typeLabels[$type][1] }}"></i>
+                                            {{ $typeLabels[$type][0] }}
+                                            <span class="text-xs opacity-70">{{ $count }}</span>
+                                        </a>
+                                    @endif
+                                @endforeach
+                            </div>
+                        @endif
                     </div>
                     
                     <div class="lg:w-1/3 rounded-xl overflow-hidden h-80 group">
@@ -293,16 +331,14 @@
                 @foreach($locations as $location)
                     <div class="group bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 animate-fade-in-up" style="animation-delay: {{ $loop->iteration * 100 }}ms">
                         <div class="h-48 overflow-hidden relative">
-                        <img 
-                        @if(filter_var($locations->first()->image, FILTER_VALIDATE_URL))
-                            src="{{ $locations->first()->image }}"
-                        @else
-                            src="{{ asset('storage/' . $locations->first()->image) }}"
-                        @endif
-                        alt="{{ $provinceName }}" 
-                        class="w-full h-full object-cover"
-                        onerror="this.src='{{ asset('images/locations/default.jpg') }}'"
-                    >
+                        {{-- Imagem DESTE local (antes usava sempre a do primeiro: todos os cards saíam iguais) --}}
+                        <img
+                            src="{{ \App\Helpers\ImageHelper::getValidImage($location->image, 'location') }}"
+                            alt="{{ $location->name }}, {{ $provinceName }}"
+                            loading="lazy"
+                            class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                            onerror="this.onerror=null; this.src='{{ asset('images/locations/default.jpg') }}'"
+                        >
                             <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
                             <div class="absolute bottom-0 left-0 right-0 p-4">
                                 <h3 class="text-xl font-bold text-white mb-1">{{ $location->name }}</h3>
@@ -362,7 +398,19 @@
                                     </p>
                                     <p class="text-gray-600 mb-4 line-clamp-2">{{ Str::limit($hotel->description, 80) }}</p>
                                     <div class="flex justify-between items-center">
-                                        <span class="text-primary font-bold">{{ number_format($hotel->price_per_night, 0, ',', '.') }} AOA</span>
+                                        @php
+                                            // price_per_night não existe no modelo (saía sempre "0 AOA").
+                                            // Usar min_price e, em fallback, o quarto mais barato.
+                                            $cardPrice = ($hotel->min_price > 0 ? $hotel->min_price : null) ?? $hotel->cheapest_room;
+                                        @endphp
+                                        <span class="text-primary font-bold">
+                                            @if($cardPrice > 0)
+                                                {{ number_format((float) $cardPrice, 0, ',', '.') }} Kz
+                                                <span class="block text-xs font-normal text-gray-500">por noite</span>
+                                            @else
+                                                <span class="text-sm text-gray-500">Consultar preço</span>
+                                            @endif
+                                        </span>
                                         <span class="bg-primary text-white px-3 py-1 rounded-full text-sm group-hover:bg-primary-dark transition-colors">Ver detalhes</span>
                                     </div>
                                 </div>
