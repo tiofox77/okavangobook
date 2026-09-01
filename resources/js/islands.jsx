@@ -5,6 +5,7 @@ import PriceRangeSlider from './islands/PriceRangeSlider.jsx';
 import Lightbox from './islands/Lightbox.jsx';
 import DestinationAutocomplete from './islands/DestinationAutocomplete.jsx';
 import DestinationsExplorer from './islands/DestinationsExplorer.jsx';
+import HeroSlideshow from './islands/HeroSlideshow.jsx';
 
 /**
  * Entrada das ilhas React.
@@ -66,6 +67,18 @@ const ISLANDS = {
                 dateIds={(el.dataset.dates || '').split(',').filter(Boolean)}
             />
         );
+        return true;
+    },
+
+    'hero-slideshow': (el) => {
+        let slides;
+        try { slides = JSON.parse(el.dataset.slides || '[]'); } catch (e) { return false; }
+        if (!Array.isArray(slides) || !slides.length) return false;
+
+        el.closest('[data-island-zone]')?.classList.add('island-mounted');
+        el.classList.remove('hidden');
+
+        createRoot(el).render(<HeroSlideshow slides={slides} />);
         return true;
     },
 

@@ -3,6 +3,7 @@
     <!-- Hero com paisagens reais de Angola -->
     <section
         class="home-hero relative overflow-hidden"
+        data-island-zone
         aria-roledescription="carrossel"
         aria-label="Paisagens de Angola"
         x-data="{
@@ -21,7 +22,21 @@
         }"
         x-init="start()"
     >
-        <div class="absolute inset-0" aria-live="polite">
+        @php
+            $heroSlides = [
+                ['src' => asset('assets/img/hero-angola/kalandula.jpg'), 'alt' => 'Quedas de Kalandula, na província de Malanje', 'caption' => 'Quedas de Kalandula · Malanje'],
+                ['src' => asset('assets/img/hero-angola/miradouro-da-lua.jpg'), 'alt' => 'Formações naturais do Miradouro da Lua, em Luanda', 'caption' => 'Miradouro da Lua · Luanda'],
+                ['src' => asset('assets/img/hero-angola/mussulo.jpg'), 'alt' => 'Praia e águas tranquilas da península do Mussulo', 'caption' => 'Mussulo · Luanda'],
+            ];
+        @endphp
+        {{-- Ilha React: slideshow com Ken Burns, crossfade, progresso e swipe.
+             As <figure> Alpine abaixo são o fallback sem JS. --}}
+        <div wire:ignore
+             data-island="hero-slideshow"
+             data-slides='@json($heroSlides)'
+             class="hidden absolute inset-0"></div>
+
+        <div class="absolute inset-0 native-hero" aria-live="polite">
             <figure class="hero-slide" x-show="active === 0" x-transition.opacity.duration.900ms :aria-hidden="active !== 0">
                 <img src="{{ asset('assets/img/hero-angola/kalandula.jpg') }}" alt="Quedas de Kalandula, na província de Malanje" class="w-full h-full object-cover" fetchpriority="high">
                 <figcaption>Quedas de Kalandula · Malanje</figcaption>
@@ -71,7 +86,7 @@
                 </div>
             </div>
 
-            <div class="hero-controls" aria-label="Controlos do slideshow">
+            <div class="hero-controls native-hero" aria-label="Controlos do slideshow">
                 <button type="button" @click="previous()" aria-label="Imagem anterior"><i class="fas fa-chevron-left"></i></button>
                 <template x-for="index in 3" :key="index">
                     <button type="button" class="hero-dot" :class="{ 'hero-dot--active': active === index - 1 }" @click="goTo(index - 1)" :aria-label="`Mostrar imagem ${index}`" :aria-current="active === index - 1 ? 'true' : 'false'"></button>
