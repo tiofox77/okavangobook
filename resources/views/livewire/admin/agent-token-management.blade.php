@@ -72,6 +72,10 @@
             </div>
             <div class="mb-4">
                 <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">Escopos</label>
+                <label class="flex items-center gap-2 mb-2 text-sm text-gray-800 dark:text-gray-100 bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-700 rounded-lg px-3 py-2 cursor-pointer">
+                    <input type="checkbox" wire:model="newScopes" value="*" class="rounded text-indigo-600">
+                    <span><i class="fas fa-crown text-indigo-500 mr-1"></i> <strong>Acesso total (<code>*</code>)</strong> — inclui todos os escopos, presentes e futuros</span>
+                </label>
                 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
                     @foreach($availableScopes as $scope)
                         <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-700/50 rounded-lg px-2 py-1.5 cursor-pointer">
@@ -118,11 +122,18 @@
                             @endif
                         </div>
                         <div class="flex flex-wrap gap-1 mt-2">
-                            @forelse($token->scopes ?? [] as $s)
-                                <span class="text-xs font-mono bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-0.5 rounded">{{ $s }}</span>
-                            @empty
-                                <span class="text-xs text-gray-400">sem escopos</span>
-                            @endforelse
+                            @if(in_array('*', $token->scopes ?? [], true))
+                                <span class="inline-flex items-center gap-1.5 text-xs font-semibold bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-2.5 py-1 rounded-full">
+                                    <i class="fas fa-crown text-[10px]"></i>
+                                    Acesso total — todos os {{ count($availableScopes) }} escopos incluídos
+                                </span>
+                            @else
+                                @forelse($token->scopes ?? [] as $s)
+                                    <span class="text-xs font-mono bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-0.5 rounded">{{ $s }}</span>
+                                @empty
+                                    <span class="text-xs text-gray-400">sem escopos</span>
+                                @endforelse
+                            @endif
                         </div>
                         <p class="text-xs text-gray-400 dark:text-gray-500 mt-2">
                             IPs: {{ !empty($token->allowed_ips) ? implode(', ', $token->allowed_ips) : 'qualquer' }} ·
@@ -144,12 +155,32 @@
 
                 {{-- Editor de escopos inline --}}
                 @if($editingId === $token->id)
+                    @php $isWildcard = in_array('*', $editScopes, true); @endphp
                     <div class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
                         <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">Editar escopos</p>
-                        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 mb-3">
+
+                        {{-- Toggle mestre: Acesso total (*) --}}
+                        <label class="flex items-center gap-3 mb-3 p-3 rounded-lg cursor-pointer border {{ $isWildcard ? 'bg-indigo-50 dark:bg-indigo-900/30 border-indigo-300 dark:border-indigo-700' : 'bg-gray-50 dark:bg-gray-700/40 border-gray-200 dark:border-gray-600' }}">
+                            <input type="checkbox" wire:click="toggleWildcard" @checked($isWildcard) class="rounded text-indigo-600 h-4 w-4">
+                            <span class="flex-1">
+                                <span class="block text-sm font-semibold text-gray-800 dark:text-gray-100">
+                                    <i class="fas fa-crown text-indigo-500 mr-1"></i> Acesso total (<code>*</code>)
+                                </span>
+                                <span class="block text-xs text-gray-500 dark:text-gray-400">
+                                    O curinga inclui automaticamente todos os {{ count($availableScopes) }} escopos, presentes e futuros. Desmarque para escolher escopos individuais.
+                                </span>
+                            </span>
+                        </label>
+
+                        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 mb-3 {{ $isWildcard ? 'opacity-60 pointer-events-none' : '' }}">
                             @foreach($availableScopes as $scope)
                                 <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-700/50 rounded-lg px-2 py-1.5 cursor-pointer">
-                                    <input type="checkbox" wire:model="editScopes" value="{{ $scope }}" class="rounded text-indigo-600">
+                                    @if($isWildcard)
+                                        {{-- Com '*' tudo está incluído: mostrar marcadas (a verdade) --}}
+                                        <input type="checkbox" checked disabled class="rounded text-indigo-600">
+                                    @else
+                                        <input type="checkbox" wire:model="editScopes" value="{{ $scope }}" class="rounded text-indigo-600">
+                                    @endif
                                     <span class="truncate font-mono text-xs">{{ $scope }}</span>
                                 </label>
                             @endforeach

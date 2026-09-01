@@ -48,6 +48,20 @@ class AgentTokenManagement extends Component
         $this->reset(['editingId', 'editScopes']);
     }
 
+    /**
+     * Alterna "Acesso total (*)" no editor: ligar substitui tudo por ['*'];
+     * desligar pré-preenche com TODOS os escopos granulares (para o admin
+     * poder retirar só o que não quer).
+     */
+    public function toggleWildcard(): void
+    {
+        if (in_array('*', $this->editScopes, true)) {
+            $this->editScopes = config('agent_api.scopes', []);
+        } else {
+            $this->editScopes = ['*'];
+        }
+    }
+
     /** Grava os escopos selecionados no token em edição. */
     public function saveScopes(): void
     {
@@ -55,6 +69,11 @@ class AgentTokenManagement extends Component
 
         $token = AgentToken::findOrFail($this->editingId);
         $scopes = $this->sanitizeScopes($this->editScopes);
+
+        // '*' engloba tudo — guardar só o curinga (evita listas redundantes)
+        if (in_array('*', $scopes, true)) {
+            $scopes = ['*'];
+        }
 
         if ($scopes === []) {
             session()->flash('error', 'Selecione pelo menos um escopo.');
@@ -97,6 +116,9 @@ class AgentTokenManagement extends Component
         ]);
 
         $scopes = $this->sanitizeScopes($this->newScopes);
+        if (in_array('*', $scopes, true)) {
+            $scopes = ['*'];
+        }
         if ($scopes === []) {
             session()->flash('error', 'Selecione escopos válidos.');
             return;
