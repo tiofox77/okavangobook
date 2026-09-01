@@ -180,12 +180,28 @@ PATCH  /locations/{id|slug}
 DELETE /locations/{id|slug}
 ```
 
-Tudo o que o admin faz em Localizações: editar `description`, `image` (URL http(s) ou caminho de storage tipo `locations/luanda.jpg`), `name`, `capital`, `population`, `latitude`/`longitude`, `is_featured`, `is_active` e `slug`. Alimenta as páginas públicas `/destino/{slug}`. Escopos: `locations:read`, `locations:write`, `locations:delete`.
+Tudo o que o admin faz em Localizações: editar `description`, `image` (URL http(s) ou caminho de storage tipo `locations/luanda.jpg`), `name`, `capital`, `population`, `latitude`/`longitude`, `is_featured`, `is_active`, `slug` e a própria `province`. Alimenta as páginas públicas `/destino/{slug}`. Escopos: `locations:read`, `locations:write`, `locations:delete`.
 
-- `province` valida contra as 18 províncias (slugs: `luanda`, `benguela`, `huila`, …).
-- No `POST`, `name` e `province` são obrigatórios; o `slug` é gerado do nome se omitido.
+- Resolve por **id numérico ou slug** (`/locations/luanda`).
+- `province` valida contra os 18 slugs de província (`bengo`, `benguela`, `bie`, `cabinda`, `cuando-cubango`, `cuanza-norte`, `cuanza-sul`, `cunene`, `huambo`, `huila`, `luanda`, `lunda-norte`, `lunda-sul`, `malanje`, `moxico`, `namibe`, `uige`, `zaire`); mudar a província de um destino existente é permitido.
+- Campos fora do allowlist (ex.: `hotels_count`) → HTTP 422 explicativo; `image` com esquema perigoso (ex.: `javascript:`) → 422.
+- No `POST`, `name` e `province` são obrigatórios; o `slug` é gerado do nome se omitido (único); `is_active` assume `true`.
 - `DELETE` é bloqueado com 409 se o destino tiver hotéis associados (regra do admin) e exige `X-Confirm-Critical: true` (suporta `dry_run`).
-- Filtros no `GET /locations`: `q`, `province`, `featured`, `active`, `per_page`.
+- Filtros no `GET /locations`: `q` (nome/província/descrição), `province`, `featured`, `active`, `per_page` (≤100).
+- Resposta inclui `province_name`, `image_url` validada, `hotels_count` e `url` pública; auditoria em `location.created/updated/deleted/delete_blocked`.
+
+Exemplo — atualizar a descrição e a imagem de Luanda:
+
+```bash
+curl -X PATCH https://kiandastay.vip/api/agent/v1/locations/luanda \
+  -H "Authorization: Bearer kstay__TOKEN" \
+  -H "X-Reason: atualizar página de Luanda" \
+  -H "Idempotency-Key: luanda-2026-09-01-001" \
+  -H "Content-Type: application/json" \
+  -d '{"description":"Capital vibrante de Angola…","image":"https://kiandastay.vip/storage/locations/commons/luanda.jpg"}'
+```
+
+A alteração reflete de imediato na página pública `/destino/luanda`.
 
 ### Tipos de quarto
 
