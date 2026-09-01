@@ -265,11 +265,46 @@ class BookingCreate extends Component
     }
     
     /**
-     * Avançar para próximo step
+     * Mensagens de validação em português (sem isto apareciam chaves cruas
+     * como "validation.accepted" na confirmação).
+     */
+    protected function messages(): array
+    {
+        return [
+            'guest_name.required' => 'Indique o nome completo do hóspede.',
+            'guest_email.required' => 'Indique o email para receber a confirmação.',
+            'guest_email.email' => 'O email não parece válido.',
+            'check_in.required' => 'Escolha a data de check-in.',
+            'check_in.after_or_equal' => 'O check-in não pode ser no passado.',
+            'check_out.required' => 'Escolha a data de check-out.',
+            'check_out.after' => 'O check-out tem de ser depois do check-in.',
+            'guests.required' => 'Indique o número de hóspedes.',
+            'agreedToTerms.accepted' => 'Tem de aceitar os termos e condições para reservar.',
+            'agreedToTerms.required' => 'Tem de aceitar os termos e condições para reservar.',
+            'payment_method.required' => 'Escolha o método de pagamento.',
+        ];
+    }
+
+    /**
+     * Avançar para próximo step — valida os campos DESTE passo primeiro
+     * (antes avançava com o formulário do hóspede vazio e os erros ficavam
+     * escondidos no passo anterior).
      */
     public function nextStep(): void
     {
         if ($this->currentStep === 'details') {
+            $fields = ['check_in', 'check_out', 'guests'];
+            if (! $this->isLoggedIn) {
+                array_push($fields, 'guest_name', 'guest_email', 'guest_phone');
+            }
+
+            try {
+                $this->validate(collect($this->rules())->only($fields)->all());
+            } catch (\Illuminate\Validation\ValidationException $e) {
+                $this->dispatch('show-toast', type: 'error', message: 'Verifique os campos assinalados antes de continuar.');
+                throw $e;
+            }
+
             $this->currentStep = 'confirmation';
         }
     }
@@ -289,8 +324,15 @@ class BookingCreate extends Component
      */
     public function confirmBooking(): void
     {
-        $this->validate();
-        
+        try {
+            $this->validate();
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Feedback visível (toast) além das mensagens inline — antes o clique
+            // parecia "não fazer nada" quando o erro pertencia a outro passo.
+            $this->dispatch('show-toast', type: 'error', message: 'Não foi possível confirmar: verifique os campos assinalados.');
+            throw $e;
+        }
+
         try {
             DB::beginTransaction();
             

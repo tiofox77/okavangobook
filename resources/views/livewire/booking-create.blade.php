@@ -35,8 +35,13 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
-            <!-- Formulário Principal -->
-            <div class="order-2 lg:order-1 lg:col-span-2">
+            @once
+                @push('islands')
+                    @vite('resources/js/islands.jsx')
+                @endpush
+            @endonce
+            <!-- Formulário Principal (wire:key por passo: recria o bloco e o fade replay-a) -->
+            <div class="order-2 lg:order-1 lg:col-span-2 ks-fade-in" wire:key="booking-step-{{ $currentStep }}">
                 @if($currentStep === 'details')
                     <!-- Step 1: Detalhes da Reserva -->
                     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 sm:p-6">
@@ -45,36 +50,51 @@
                             Detalhes da Reserva
                         </h2>
                         
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6" data-island-zone>
                             <!-- Check-in -->
-                            <div>
+                            <div class="native-dates">
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                     <i class="fas fa-calendar-alt text-green-500 mr-1"></i>
                                     Check-in
                                 </label>
-                                <input type="date" 
-                                       wire:model.live="check_in" 
+                                <input type="date"
+                                       id="booking_check_in"
+                                       wire:model.live="check_in"
                                        class="block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                                        min="{{ date('Y-m-d') }}">
-                                @if($errors->has('check_in'))
-                                    <span class="text-red-600 dark:text-red-400 text-sm">{{ $errors->first('check_in') }}</span>
-                                @endif
                             </div>
-                            
+
                             <!-- Check-out -->
-                            <div>
+                            <div class="native-dates">
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                     <i class="fas fa-calendar-alt text-red-500 mr-1"></i>
                                     Check-out
                                 </label>
-                                <input type="date" 
-                                       wire:model.live="check_out" 
+                                <input type="date"
+                                       id="booking_check_out"
+                                       wire:model.live="check_out"
                                        class="block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                                        min="{{ $check_in ?: date('Y-m-d') }}">
-                                @if($errors->has('check_out'))
-                                    <span class="text-red-600 dark:text-red-400 text-sm">{{ $errors->first('check_out') }}</span>
-                                @endif
                             </div>
+
+                            {{-- Ilha React: calendário de intervalo (Livewire não toca) --}}
+                            <div wire:ignore
+                                 data-island="date-range"
+                                 data-start-input="booking_check_in"
+                                 data-end-input="booking_check_out"
+                                 data-min="{{ date('Y-m-d') }}"
+                                 class="hidden md:col-span-2"></div>
+
+                            @if($errors->has('check_in') || $errors->has('check_out'))
+                                <div class="md:col-span-2 -mt-2">
+                                    @if($errors->has('check_in'))
+                                        <span class="block text-red-600 dark:text-red-400 text-sm">{{ $errors->first('check_in') }}</span>
+                                    @endif
+                                    @if($errors->has('check_out'))
+                                        <span class="block text-red-600 dark:text-red-400 text-sm">{{ $errors->first('check_out') }}</span>
+                                    @endif
+                                </div>
+                            @endif
                         </div>
                         
                         <!-- Hóspedes -->
@@ -386,9 +406,25 @@
                                         @endif
                                     </span>
                                 </div>
-                                <div class="flex justify-between">
+                                @php
+                                    // Preço efetivo = o mesmo usado no Total (antes mostrava o base_price
+                                    // e contradizia o Total quando vinha um preço com desconto da ficha).
+                                    $effectivePerNight = $price_per_night ?? ($selectedRoomType->base_price ?? 0);
+                                    $hasBookingDiscount = ($selectedRoomType->base_price ?? 0) > $effectivePerNight + 0.01;
+                                @endphp
+                                <div class="flex justify-between items-center gap-2">
                                     <span>Preço/noite:</span>
-                                    <span class="font-medium">{{ number_format($selectedRoomType->base_price, 0, ',', '.') }} Kz</span>
+                                    <span class="font-medium text-right">
+                                        @if($hasBookingDiscount)
+                                            <span class="line-through text-gray-400 text-xs mr-1">{{ number_format($selectedRoomType->base_price, 0, ',', '.') }} Kz</span>
+                                        @endif
+                                        {{ number_format($effectivePerNight, ($effectivePerNight == floor($effectivePerNight) ? 0 : 2), ',', '.') }} Kz
+                                        @if($hasBookingDiscount)
+                                            <span class="ml-1 align-middle text-[11px] bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300 px-1.5 py-0.5 rounded-full whitespace-nowrap">
+                                                -{{ round((1 - $effectivePerNight / $selectedRoomType->base_price) * 100) }}%
+                                            </span>
+                                        @endif
+                                    </span>
                                 </div>
                             </div>
                         </div>
