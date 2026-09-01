@@ -10,6 +10,34 @@ class Location extends Model
 {
     use HasFactory;
 
+    /**
+     * Slug único garantido em qualquer criação (admin, seeders, Agent API).
+     * A coluna é UNIQUE NOT NULL, mas o formulário do admin não a preenchia.
+     */
+    protected static function booted(): void
+    {
+        static::saving(function (Location $location) {
+            if (empty($location->slug) && !empty($location->name)) {
+                $location->slug = static::generateUniqueSlug($location->name, $location->id);
+            }
+        });
+    }
+
+    public static function generateUniqueSlug(string $base, $ignoreId = null): string
+    {
+        $slug = \Illuminate\Support\Str::slug($base) ?: 'destino';
+        $original = $slug;
+        $suffix = 2;
+
+        while (static::where('slug', $slug)
+            ->when($ignoreId, fn ($q) => $q->where('id', '!=', $ignoreId))
+            ->exists()) {
+            $slug = $original . '-' . $suffix++;
+        }
+
+        return $slug;
+    }
+
     public const PROVINCE_NAMES = [
         'bengo' => 'Bengo',
         'benguela' => 'Benguela',

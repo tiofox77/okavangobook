@@ -170,6 +170,23 @@ Objetos, IDs e caminhos relativos são rejeitados com HTTP 422 e `errors.images.
 
 O campo `room_types` não é aceite no `PATCH /properties/{id}`. Em vez de o ignorar, a API devolve HTTP 422 e indica as rotas próprias.
 
+### Destinos (Locations)
+
+```http
+GET    /locations
+POST   /locations
+GET    /locations/{id|slug}
+PATCH  /locations/{id|slug}
+DELETE /locations/{id|slug}
+```
+
+Tudo o que o admin faz em Localizações: editar `description`, `image` (URL http(s) ou caminho de storage tipo `locations/luanda.jpg`), `name`, `capital`, `population`, `latitude`/`longitude`, `is_featured`, `is_active` e `slug`. Alimenta as páginas públicas `/destino/{slug}`. Escopos: `locations:read`, `locations:write`, `locations:delete`.
+
+- `province` valida contra as 18 províncias (slugs: `luanda`, `benguela`, `huila`, …).
+- No `POST`, `name` e `province` são obrigatórios; o `slug` é gerado do nome se omitido.
+- `DELETE` é bloqueado com 409 se o destino tiver hotéis associados (regra do admin) e exige `X-Confirm-Critical: true` (suporta `dry_run`).
+- Filtros no `GET /locations`: `q`, `province`, `featured`, `active`, `per_page`.
+
 ### Tipos de quarto
 
 ```http

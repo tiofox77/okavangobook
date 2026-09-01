@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\HotelController;
 use App\Http\Controllers\Api\LocationController;
 use App\Http\Controllers\Api\WebhookController;
 use App\Http\Controllers\Api\Agent\AgentController;
+use App\Http\Controllers\Api\Agent\LocationController as AgentLocationController;
 use App\Http\Controllers\Api\Agent\LogController as AgentLogController;
 use App\Http\Controllers\Api\Agent\MediaController as AgentMediaController;
 use App\Http\Controllers\Api\Agent\PageController as AgentPageController;
@@ -89,6 +90,13 @@ Route::prefix('agent/v1')->middleware(['agent.auth', 'throttle:agent-api'])->gro
     Route::patch('/properties/{id}/media/{mediaId}', [AgentPropertyMediaController::class, 'update'])->middleware(['agent.scope:media:write', 'agent.write']);
     Route::delete('/properties/{id}/media/{mediaId}', [AgentPropertyMediaController::class, 'destroy'])->middleware(['agent.scope:media:write', 'agent.write']);
     Route::post('/properties/{id}/media/reorder', [AgentPropertyMediaController::class, 'reorder'])->middleware(['agent.scope:media:write', 'agent.write']);
+
+    // Destinos (Locations) — CRUD completo, espelha o admin
+    Route::get('/locations', [AgentLocationController::class, 'index'])->middleware('agent.scope:locations:read');
+    Route::post('/locations', [AgentLocationController::class, 'store'])->middleware(['agent.scope:locations:write', 'agent.write']);
+    Route::get('/locations/{idOrSlug}', [AgentLocationController::class, 'show'])->middleware('agent.scope:locations:read');
+    Route::patch('/locations/{idOrSlug}', [AgentLocationController::class, 'update'])->middleware(['agent.scope:locations:write', 'agent.write']);
+    Route::delete('/locations/{idOrSlug}', [AgentLocationController::class, 'destroy'])->middleware(['agent.scope:locations:delete', 'agent.write']);
 
     Route::post('/media', [AgentMediaController::class, 'store'])->middleware(['agent.scope:media:write', 'agent.write']);
     Route::get('/logs/agent', [AgentLogController::class, 'index'])->middleware('agent.scope:logs:read');
