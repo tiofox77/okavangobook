@@ -203,6 +203,86 @@
         </div>
 
         <!-- Principais Cidades/Locações -->
+        {{-- Galeria multimédia do destino (imagens abrem no Lightbox React; vídeos MP4/YouTube/Vimeo) --}}
+        @if($galleryMedia->isNotEmpty())
+            @once
+                @push('islands')
+                    @vite('resources/js/islands.jsx')
+                @endpush
+            @endonce
+            @php
+                $galleryImages = $galleryMedia->where('type', 'image')->values();
+                $galleryVideos = $galleryMedia->where('type', 'video')->values();
+                $galleryImageUrls = $galleryImages->map(fn ($m) => \App\Helpers\ImageHelper::getValidImage($m->url, 'location'))->values();
+            @endphp
+            <div class="mb-16 animate-fade-in-up">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-3xl font-bold text-gray-800">
+                        <i class="fas fa-images text-primary mr-2"></i>{{ __('Galeria de') }} {{ $provinceName }}
+                    </h2>
+                    <span class="text-sm text-gray-500">
+                        {{ $galleryImages->count() }} {{ $galleryImages->count() === 1 ? 'foto' : 'fotos' }}@if($galleryVideos->count()) · {{ $galleryVideos->count() }} {{ $galleryVideos->count() === 1 ? 'vídeo' : 'vídeos' }}@endif
+                    </span>
+                </div>
+
+                @if($galleryImages->isNotEmpty())
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-6">
+                        @foreach($galleryImages as $i => $m)
+                            <button type="button"
+                                    onclick='window.KiandaLightbox && KiandaLightbox.open(@json($galleryImageUrls), {{ $i }})'
+                                    class="group relative rounded-xl overflow-hidden h-40 sm:h-44 focus:outline-none focus:ring-2 focus:ring-primary {{ $i === 0 ? 'col-span-2 row-span-2 h-full min-h-[20rem]' : '' }}"
+                                    aria-label="{{ $m->title ?: 'Foto de ' . $provinceName }}">
+                                <img src="{{ $galleryImageUrls[$i] }}"
+                                     alt="{{ $m->title ?: $provinceName . ' — foto ' . ($i + 1) }}"
+                                     loading="lazy"
+                                     class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                                <div class="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-colors flex items-center justify-center">
+                                    <i class="fas fa-search-plus text-white text-2xl opacity-0 group-hover:opacity-100 transition-opacity drop-shadow"></i>
+                                </div>
+                                @if($m->title)
+                                    <span class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/70 to-transparent text-white text-xs px-3 py-2 truncate">{{ $m->title }}</span>
+                                @endif
+                            </button>
+                        @endforeach
+                    </div>
+                @endif
+
+                @if($galleryVideos->isNotEmpty())
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        @foreach($galleryVideos as $v)
+                            <div class="rounded-xl overflow-hidden shadow-lg bg-black">
+                                @if($yt = $v->youtubeId())
+                                    <div class="relative w-full" style="padding-top:56.25%">
+                                        <iframe class="absolute inset-0 w-full h-full"
+                                                src="https://www.youtube-nocookie.com/embed/{{ $yt }}"
+                                                title="{{ $v->title ?: 'Vídeo de ' . $provinceName }}"
+                                                loading="lazy" allowfullscreen
+                                                allow="accelerometer; encrypted-media; picture-in-picture"></iframe>
+                                    </div>
+                                @elseif($vm = $v->vimeoId())
+                                    <div class="relative w-full" style="padding-top:56.25%">
+                                        <iframe class="absolute inset-0 w-full h-full"
+                                                src="https://player.vimeo.com/video/{{ $vm }}"
+                                                title="{{ $v->title ?: 'Vídeo de ' . $provinceName }}"
+                                                loading="lazy" allowfullscreen
+                                                allow="fullscreen; picture-in-picture"></iframe>
+                                    </div>
+                                @else
+                                    <video controls preload="metadata" class="w-full aspect-video bg-black">
+                                        <source src="{{ $v->url }}">
+                                        {{ __('O seu navegador não suporta vídeo.') }}
+                                    </video>
+                                @endif
+                                @if($v->title)
+                                    <p class="text-white/90 text-sm px-4 py-2 bg-gray-900">{{ $v->title }}</p>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+        @endif
+
         <div id="locais" class="scroll-mt-24 mb-20">
             <div class="flex items-center mb-8">
                 <div class="w-12 h-1 bg-primary rounded-full mr-4"></div>

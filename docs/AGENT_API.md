@@ -203,6 +203,35 @@ curl -X PATCH https://kiandastay.vip/api/agent/v1/locations/luanda \
 
 A alteração reflete de imediato na página pública `/destino/luanda`.
 
+#### Galeria multimédia do destino (imagens + vídeos)
+
+```http
+GET    /locations/{id|slug}/media                 locations:read
+POST   /locations/{id|slug}/media                 locations:write
+DELETE /locations/{id|slug}/media/{media_id}      locations:write
+```
+
+A página `/destino/{slug}` mostra a galeria: as **imagens** abrem no lightbox (a primeira ocupa destaque) e os **vídeos** são embebidos (YouTube/Vimeo em iframe, ou `<video>` para MP4/WebM direto).
+
+- `type`: `image` | `video` (obrigatório). `url` obrigatória; `title` e `position` opcionais (a posição auto-incrementa se omitida).
+- **Imagem**: URL http(s) ou caminho de storage (`locations/luanda-baia.jpg`).
+- **Vídeo**: apenas URL http(s) — link do YouTube (`watch?v=`, `youtu.be/`, `/embed/`, `/shorts/`), do Vimeo, ou ficheiro MP4/WebM direto. Caminhos relativos e esquemas perigosos → 422.
+- `DELETE` suporta `dry_run`. Auditoria: `location_media.created` / `location_media.deleted`.
+
+```bash
+# foto
+curl -X POST https://kiandastay.vip/api/agent/v1/locations/luanda/media \
+  -H "Authorization: Bearer kstay__TOKEN" -H "X-Reason: galeria de Luanda" \
+  -H "Idempotency-Key: luanda-foto-001" -H "Content-Type: application/json" \
+  -d '{"type":"image","url":"https://kiandastay.vip/storage/locations/luanda-baia.jpg","title":"Baía de Luanda"}'
+
+# vídeo (YouTube)
+curl -X POST https://kiandastay.vip/api/agent/v1/locations/luanda/media \
+  -H "Authorization: Bearer kstay__TOKEN" -H "X-Reason: vídeo de Luanda" \
+  -H "Idempotency-Key: luanda-video-001" -H "Content-Type: application/json" \
+  -d '{"type":"video","url":"https://www.youtube.com/watch?v=XXXXXXXXXXX","title":"Luanda vista do ar"}'
+```
+
 ### Tipos de quarto
 
 ```http

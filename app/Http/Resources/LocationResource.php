@@ -28,6 +28,10 @@ class LocationResource extends JsonResource
             'is_featured' => (bool) $this->is_featured,
             'is_active' => (bool) $this->is_active,
             'hotels_count' => $this->whenCounted('hotels'),
+            'media' => $this->whenLoaded('media', fn () => $this->media->map(fn ($m) => [
+                'id' => $m->id, 'type' => $m->type, 'url' => $m->url,
+                'title' => $m->title, 'position' => $m->position,
+            ])),
             'url' => $this->slug ? route('location.details', $this->slug) : null,
             'created_at' => $this->created_at?->toIso8601String(),
             'updated_at' => $this->updated_at?->toIso8601String(),

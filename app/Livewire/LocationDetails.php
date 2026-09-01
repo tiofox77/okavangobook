@@ -67,6 +67,12 @@ class LocationDetails extends Component
                 ->min('base_price');
         }
 
+        // Galeria multimédia do destino (imagens + vídeos, de todas as
+        // localizações da província, ordenadas)
+        $galleryMedia = \App\Models\LocationMedia::whereIn('location_id', $locationIds)
+            ->orderBy('position')->orderBy('id')
+            ->get();
+
         // Meta description orientada à pesquisa "hotéis em {província}"
         $seoDescription = "Compare {$hotelsCount} hotéis, resorts e hospedarias em {$provinceName}"
             . ($minPrice ? ' desde AKZ ' . number_format((float) $minPrice, 0, ',', '.') . '/noite' : '')
@@ -79,6 +85,7 @@ class LocationDetails extends Component
             'hotelsCount' => $hotelsCount,
             'minPrice' => $minPrice,
             'seoDescription' => $seoDescription,
+            'galleryMedia' => $galleryMedia,
         ])
         ->layout('layouts.app', [
             'title' => "Hotéis em $provinceName: compare preços e reserve",

@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\LocationController;
 use App\Http\Controllers\Api\WebhookController;
 use App\Http\Controllers\Api\Agent\AgentController;
 use App\Http\Controllers\Api\Agent\LocationController as AgentLocationController;
+use App\Http\Controllers\Api\Agent\LocationMediaController as AgentLocationMediaController;
 use App\Http\Controllers\Api\Agent\LogController as AgentLogController;
 use App\Http\Controllers\Api\Agent\MediaController as AgentMediaController;
 use App\Http\Controllers\Api\Agent\PageController as AgentPageController;
@@ -97,6 +98,11 @@ Route::prefix('agent/v1')->middleware(['agent.auth', 'throttle:agent-api'])->gro
     Route::get('/locations/{idOrSlug}', [AgentLocationController::class, 'show'])->middleware('agent.scope:locations:read');
     Route::patch('/locations/{idOrSlug}', [AgentLocationController::class, 'update'])->middleware(['agent.scope:locations:write', 'agent.write']);
     Route::delete('/locations/{idOrSlug}', [AgentLocationController::class, 'destroy'])->middleware(['agent.scope:locations:delete', 'agent.write']);
+
+    // Galeria multimédia dos destinos (imagens + vídeos)
+    Route::get('/locations/{idOrSlug}/media', [AgentLocationMediaController::class, 'index'])->middleware('agent.scope:locations:read');
+    Route::post('/locations/{idOrSlug}/media', [AgentLocationMediaController::class, 'store'])->middleware(['agent.scope:locations:write', 'agent.write']);
+    Route::delete('/locations/{idOrSlug}/media/{mediaId}', [AgentLocationMediaController::class, 'destroy'])->middleware(['agent.scope:locations:write', 'agent.write']);
 
     Route::post('/media', [AgentMediaController::class, 'store'])->middleware(['agent.scope:media:write', 'agent.write']);
     Route::get('/logs/agent', [AgentLogController::class, 'index'])->middleware('agent.scope:logs:read');

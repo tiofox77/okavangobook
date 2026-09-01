@@ -45,6 +45,24 @@ curl -X PATCH https://kiandastay.vip/api/agent/v1/locations/luanda \
 
 Verificado E2E (18/18): a alteração reflete imediatamente em `/destino/luanda`.
 
+## Galeria multimédia do destino (imagens + vídeos)
+
+```http
+GET    /api/agent/v1/locations/{id|slug}/media              locations:read
+POST   /api/agent/v1/locations/{id|slug}/media              locations:write (+ agent.write)
+DELETE /api/agent/v1/locations/{id|slug}/media/{media_id}   locations:write (+ agent.write)
+```
+
+- Tabela `location_media` (cascade com o destino). Campos: `type` (`image|video`),
+  `url`, `title?`, `position?` (auto-incrementa).
+- **Imagem**: URL http(s) ou caminho de storage. **Vídeo**: só http(s) — YouTube
+  (`watch?v=`/`youtu.be`/`embed`/`shorts`), Vimeo ou MP4/WebM direto.
+  Caminho relativo em vídeo, `javascript:` ou `type` fora do enum → 422.
+- Na página `/destino/{slug}`: grelha de fotos (a 1.ª em destaque) que abrem no
+  **Lightbox React** (swipe/teclado/thumbnails) + vídeos embebidos
+  (YouTube `nocookie`/Vimeo em iframe 16:9, MP4 em `<video controls>`).
+- Auditoria: `location_media.created` / `location_media.deleted`; `dry_run` suportado.
+
 ## Propriedades — CRUD completado (desde v1)
 
 - `POST /properties` (`properties:write`): cria **rascunho** (`is_active=false`);

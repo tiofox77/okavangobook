@@ -100,6 +100,14 @@ class Location extends Model
     {
         return $this->hasMany(Hotel::class);
     }
+
+    /**
+     * Galeria multimédia do destino (imagens e vídeos, ordenados).
+     */
+    public function media(): HasMany
+    {
+        return $this->hasMany(LocationMedia::class)->orderBy('position')->orderBy('id');
+    }
     
     /**
      * Obter as buscas feitas para esta localização.
