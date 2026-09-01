@@ -191,11 +191,53 @@ class BookingCreate extends Component
      */
     private function calculateTotalPrice(): void
     {
-        if ($this->nights > 0) {
-            // Usar preço por noite da URL se disponível, senão usar base_price do room type
-            $pricePerNight = $this->price_per_night ?? ($this->selectedRoomType->base_price ?? 0);
-            $this->total_price = $pricePerNight * $this->nights;
+        if ($this->nights <= 0) {
+            $this->total_price = 0;
+            return;
         }
+
+        $this->total_price = $this->resolvePricePerNight() * $this->nights;
+    }
+
+    /**
+     * Preço por noite com cadeia de fallbacks — antes bastava faltar o
+     * price_per_night na URL e o tipo de quarto não estar carregado para o
+     * total ficar a 0 (e a reserva ser criada a 0 Kz).
+     */
+    private function resolvePricePerNight(): float
+    {
+        if ($this->price_per_night > 0) {
+            return (float) $this->price_per_night;
+        }
+
+        if ($this->selectedRoomType?->base_price > 0) {
+            return (float) $this->selectedRoomType->base_price;
+        }
+
+        // Recarrega o tipo de quarto se o estado se perdeu
+        if ($this->room_type_id) {
+            $base = (float) (RoomType::whereKey($this->room_type_id)->value('base_price') ?? 0);
+            if ($base > 0) {
+                return $base;
+            }
+        }
+
+        // Último recurso: preço do hotel ou quarto mais barato disponível
+        if ($this->hotel_id) {
+            $min = (float) (Hotel::whereKey($this->hotel_id)->value('min_price') ?? 0);
+            if ($min > 0) {
+                return $min;
+            }
+
+            $cheapest = (float) (RoomType::where('hotel_id', $this->hotel_id)
+                ->where('is_available', true)->where('base_price', '>', 0)
+                ->min('base_price') ?? 0);
+            if ($cheapest > 0) {
+                return $cheapest;
+            }
+        }
+
+        return 0.0;
     }
     
     /**
@@ -331,6 +373,21 @@ class BookingCreate extends Component
             // parecia "não fazer nada" quando o erro pertencia a outro passo.
             $this->dispatch('show-toast', type: 'error', message: 'Não foi possível confirmar: verifique os campos assinalados.');
             throw $e;
+        }
+
+        // Guarda de segurança no caminho do dinheiro: recalcula e recusa criar
+        // uma reserva sem preço (era possível gravar total_price = 0).
+        $this->calculateNights();
+        $this->calculateTotalPrice();
+
+        if ($this->nights <= 0) {
+            $this->dispatch('show-toast', type: 'error', message: 'As datas selecionadas são inválidas. Escolha um check-out posterior ao check-in.');
+            return;
+        }
+
+        if ((float) $this->total_price <= 0) {
+            $this->dispatch('show-toast', type: 'error', message: 'Não foi possível calcular o preço desta reserva. Volte à página do alojamento e escolha o quarto novamente.');
+            return;
         }
 
         try {
