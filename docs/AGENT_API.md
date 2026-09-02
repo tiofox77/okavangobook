@@ -347,3 +347,43 @@ Serão implementados sem alterar o prefixo ou o contrato de segurança:
 - Comunicações: templates, preview e envio por handle (email/SMS/WhatsApp).
 - Analytics e saúde de conteúdo.
 - Sistema/deploy: apenas ações enumeradas e reversíveis; nunca shell livre.
+
+### Definições do site — SEO, contactos e redes (`site:write`)
+
+`GET /site/settings` devolve os valores atuais; `PATCH /site/settings` grava. Chaves permitidas:
+
+| Grupo | Chaves |
+|---|---|
+| Identidade e SEO | `app_name`, `app_description`, `app_keywords`, `meta_description`, `meta_keywords`, `app_currency` |
+| Contactos | `contact_email`, `contact_phone`, `contact_address` |
+| Redes sociais | `social_facebook`, `social_instagram`, `social_twitter`, `social_youtube` |
+| Idioma/fuso | `default_language`, `app_language`, `app_timezone` |
+
+Validação: `contact_email` tem de ser um email válido, as redes sociais exigem endereço completo (`https://…`), e há limites de comprimento (`meta_description` 320, `app_description` 500, `app_name` 120…). Chaves fora da lista são ignoradas; segredos (`api_key`), dados bancários e interruptores de sistema (`maintenance_mode`, `debug_mode`) **não** são acessíveis por esta via.
+
+```bash
+curl -X PATCH https://kiandastay.vip/api/agent/v1/site/settings \
+  -H "Authorization: Bearer kstay__TOKEN" -H "X-Reason: atualizar SEO e contactos" \
+  -H "Idempotency-Key: seo-2026-09-02-001" -H "Content-Type: application/json" \
+  -d '{"settings":{"meta_description":"Compare hotéis em Angola…","contact_phone":"+244 900 000 000","contact_email":"reservas@kiandastay.vip"}}'
+```
+
+### Envio de email pelo SMTP do site (`email:send`)
+
+```http
+GET  /site/email/config    email:send   → mailer, host, porta, remetente e limites (nunca a palavra-passe)
+POST /site/email           email:send   → envia pelo SMTP configurado
+```
+
+Campos: `to` (string ou lista), `subject`, `body`, `html` (bool, opcional), `reply_to` (opcional), `cc` (opcional), `dry_run`.
+
+Salvaguardas: máximo **5 destinatários por pedido** (não é motor de campanhas), **30 envios por hora** por token, sem anexos, e cada envio — ou falha — fica na auditoria (`email.sent` / `email.failed`) com o `X-Reason` declarado.
+
+```bash
+curl -X POST https://kiandastay.vip/api/agent/v1/site/email \
+  -H "Authorization: Bearer kstay__TOKEN" -H "X-Reason: responder a pedido de parceria" \
+  -H "Idempotency-Key: mail-2026-09-02-001" -H "Content-Type: application/json" \
+  -d '{"to":"parceiro@exemplo.co.ao","subject":"Parceria KiandaStay","body":"Bom dia…","dry_run":true}'
+```
+
+Use `dry_run: true` para validar destinatários e limites sem enviar nada.

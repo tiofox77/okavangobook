@@ -17,6 +17,7 @@ return [
         'media:read', 'media:write',
         'payments:read', 'payments:write',
         'analytics:read', 'logs:read',
+        'email:send',
         'system:read', 'system:write', 'deploy:write',
     ],
 

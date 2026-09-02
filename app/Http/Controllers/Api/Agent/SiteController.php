@@ -12,11 +12,33 @@ use Illuminate\Support\Facades\Schema;
 
 class SiteController extends Controller
 {
+    /**
+     * Definições que o agente pode alterar. Deliberadamente NÃO inclui
+     * segredos (api_key), dados bancários nem interruptores de sistema
+     * (maintenance_mode, debug_mode).
+     */
     private const WRITABLE = [
+        // Identidade e SEO
         'app_name', 'app_description', 'app_keywords', 'app_currency',
+        'meta_description', 'meta_keywords',
+        // Contactos
         'contact_email', 'contact_phone', 'contact_address',
-        'social_facebook', 'social_instagram', 'social_twitter',
-        'default_language',
+        // Redes sociais
+        'social_facebook', 'social_instagram', 'social_twitter', 'social_youtube',
+        // Localização/idioma
+        'default_language', 'app_language', 'app_timezone',
+    ];
+
+    /** Limites práticos de comprimento por chave. */
+    private const MAX_LENGTH = [
+        'app_name' => 120,
+        'app_description' => 500,
+        'meta_description' => 320,
+        'app_keywords' => 500,
+        'meta_keywords' => 500,
+        'contact_email' => 190,
+        'contact_phone' => 60,
+        'contact_address' => 300,
     ];
 
     public function __construct(private AgentAuditService $audit) {}
@@ -54,6 +76,31 @@ class SiteController extends Controller
 
         if ($requested === []) {
             return response()->json(['message' => 'Nenhuma configuração permitida recebida.'], 422);
+        }
+
+        // Validação por chave: evita gravar SEO/contactos inválidos
+        $erros = [];
+        foreach ($requested as $key => $value) {
+            if ($value === null) {
+                continue;
+            }
+            if (!is_scalar($value)) {
+                $erros[$key][] = 'O valor tem de ser texto.';
+                continue;
+            }
+            $texto = (string) $value;
+            if (isset(self::MAX_LENGTH[$key]) && mb_strlen($texto) > self::MAX_LENGTH[$key]) {
+                $erros[$key][] = 'Máximo de ' . self::MAX_LENGTH[$key] . ' caracteres.';
+            }
+            if ($key === 'contact_email' && $texto !== '' && !filter_var($texto, FILTER_VALIDATE_EMAIL)) {
+                $erros[$key][] = 'Email inválido.';
+            }
+            if (str_starts_with($key, 'social_') && $texto !== '' && !preg_match('#^https?://#i', $texto)) {
+                $erros[$key][] = 'Indique o endereço completo, começado por https://';
+            }
+        }
+        if ($erros !== []) {
+            return response()->json(['message' => 'Valores inválidos.', 'errors' => $erros], 422);
         }
 
         $before = collect(array_keys($requested))->mapWithKeys(fn ($key) => [$key => Setting::get($key)])->all();

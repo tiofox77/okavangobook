@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\WebhookController;
 use App\Http\Controllers\Api\Agent\AgentController;
 use App\Http\Controllers\Api\Agent\LocationController as AgentLocationController;
 use App\Http\Controllers\Api\Agent\LocationMediaController as AgentLocationMediaController;
+use App\Http\Controllers\Api\Agent\EmailController as AgentEmailController;
 use App\Http\Controllers\Api\Agent\LogController as AgentLogController;
 use App\Http\Controllers\Api\Agent\MediaController as AgentMediaController;
 use App\Http\Controllers\Api\Agent\PageController as AgentPageController;
@@ -105,5 +106,9 @@ Route::prefix('agent/v1')->middleware(['agent.auth', 'throttle:agent-api'])->gro
     Route::delete('/locations/{idOrSlug}/media/{mediaId}', [AgentLocationMediaController::class, 'destroy'])->middleware(['agent.scope:locations:write', 'agent.write']);
 
     Route::post('/media', [AgentMediaController::class, 'store'])->middleware(['agent.scope:media:write', 'agent.write']);
+    // Envio de email pelo SMTP do site
+    Route::get('/site/email/config', [AgentEmailController::class, 'config'])->middleware('agent.scope:email:send');
+    Route::post('/site/email', [AgentEmailController::class, 'send'])->middleware(['agent.scope:email:send', 'agent.write']);
+
     Route::get('/logs/agent', [AgentLogController::class, 'index'])->middleware('agent.scope:logs:read');
 });
