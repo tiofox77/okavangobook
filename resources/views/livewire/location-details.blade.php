@@ -144,11 +144,13 @@
                         </div>
                         
                         <div class="prose prose-lg max-w-none mb-6">
-                            {{-- História curada da província primeiro (mesma fonte da /destinos);
-                                 resolvida na view para não depender de bytecode em cache. --}}
-                            <p class="text-gray-700">
-                                {{ (!$isSpecificLocation ? config('destination_stories.' . $province) : null) ?: $locationDescription }}
-                            </p>
+                            {{-- Preserva os parágrafos de textos longos (ex.: descrições
+                                 enriquecidas com vários blocos) em vez de os colapsar. --}}
+                            @foreach(preg_split('/\R{2,}/u', trim((string) $locationDescription)) as $paragrafo)
+                                @if(trim($paragrafo) !== '')
+                                    <p class="text-gray-700">{!! nl2br(e(trim($paragrafo))) !!}</p>
+                                @endif
+                            @endforeach
                         </div>
                         
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">

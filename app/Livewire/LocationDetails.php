@@ -69,9 +69,19 @@ class LocationDetails extends Component
             fn ($l) => \Illuminate\Support\Str::slug($l->name) === $this->province
         ))->description;
 
-        $description = $curatedStory
-            ?: (trim((string) $sameNameDesc) !== '' ? $sameNameDesc : null)
-            ?: $this->locations->pluck('description')->filter(fn ($d) => trim((string) $d) !== '')->first()
+        // Escolha por SUBSTÂNCIA: o texto editado no admin/Agent API ganha à
+        // história pré-definida quando é realmente desenvolvido (>=180 car.);
+        // se for só uma linha, a história curada dá melhor página. Assim o
+        // enriquecimento do agente aparece sem degradar províncias onde ele
+        // gravou apenas uma frase.
+        $editado = trim((string) $sameNameDesc);
+        $outraNaoVazia = (string) $this->locations->pluck('description')
+            ->filter(fn ($d) => trim((string) $d) !== '')->first();
+
+        $description = (mb_strlen($editado) >= 180 ? $editado : null)
+            ?: $curatedStory
+            ?: ($editado !== '' ? $editado : null)
+            ?: (trim($outraNaoVazia) !== '' ? $outraNaoVazia : null)
             ?: "Conheça {$provinceName}, os seus alojamentos e experiências turísticas em Angola.";
 
         // Capital real: campo capital preenchido, senão o local homónimo da
@@ -97,9 +107,18 @@ class LocationDetails extends Component
 
         // Galeria multimédia do destino (imagens + vídeos, de todas as
         // localizações da província, ordenadas)
-        $galleryMedia = \App\Models\LocationMedia::whereIn('location_id', $locationIds)
-            ->orderBy('position')->orderBy('id')
-            ->get();
+        // Guarda: enquanto a migração de location_media não correr no servidor,
+        // a página não pode rebentar (a tabela ainda não existe).
+        $galleryMedia = collect();
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('location_media')) {
+                $galleryMedia = \App\Models\LocationMedia::whereIn('location_id', $locationIds)
+                    ->orderBy('position')->orderBy('id')
+                    ->get();
+            }
+        } catch (\Throwable $e) {
+            report($e); // galeria é opcional — nunca quebrar a página
+        }
 
         // Distribuição por tipo de alojamento (alimenta os atalhos filtrados)
         $typeCounts = Hotel::whereIn('location_id', $locationIds)
