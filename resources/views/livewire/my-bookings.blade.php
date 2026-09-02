@@ -14,19 +14,67 @@
                     </p>
                 </div>
                 
-                <!-- Filtros -->
-                <div class="flex items-center space-x-2">
-                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Filtrar:</label>
-                    <select wire:model.live="statusFilter" 
-                            class="rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm">
-                        <option value="all">Todas</option>
-                        <option value="pending">Pendentes</option>
-                        <option value="confirmed">Confirmadas</option>
-                        <option value="cancelled">Canceladas</option>
-                        <option value="completed">Concluídas</option>
-                    </select>
+                {{-- Pesquisa por código ou alojamento --}}
+                <div class="relative w-full sm:w-72">
+                    <i class="fas fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm" aria-hidden="true"></i>
+                    <input wire:model.live.debounce.300ms="search" type="text"
+                           placeholder="{{ __('Código ou alojamento…') }}"
+                           aria-label="{{ __('Procurar reservas') }}"
+                           class="w-full pl-9">
+                    <div wire:loading wire:target="search" class="absolute right-3 top-1/2 -translate-y-1/2">
+                        <i class="fas fa-circle-notch fa-spin text-gray-400 text-sm" aria-hidden="true"></i>
+                    </div>
                 </div>
             </div>
+
+            {{-- Período --}}
+            <div class="flex flex-wrap items-center gap-2 mt-5">
+                @foreach ([
+                    'todas' => ['Todas', null],
+                    'proximas' => ['Próximas', $contagemProximas],
+                    'passadas' => ['Passadas', null],
+                ] as $chave => $info)
+                    <button type="button" wire:click="$set('periodo', '{{ $chave }}')"
+                            class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors {{ $periodo === $chave ? 'bg-primary text-white shadow-sm' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700' }}">
+                        {{ __($info[0]) }}
+                        @if($info[1])
+                            <span class="px-1.5 py-0.5 rounded-full text-xs {{ $periodo === $chave ? 'bg-white/25' : 'bg-gray-100 dark:bg-gray-700' }}">{{ $info[1] }}</span>
+                        @endif
+                    </button>
+                @endforeach
+
+                <span class="hidden sm:block h-6 w-px bg-gray-200 dark:bg-gray-700 mx-1"></span>
+
+                {{-- Estado --}}
+                @foreach ([
+                    'all' => 'Todos os estados',
+                    'pending' => 'Pendentes',
+                    'confirmed' => 'Confirmadas',
+                    'completed' => 'Concluídas',
+                    'cancelled' => 'Canceladas',
+                ] as $chave => $rotulo)
+                    @if($chave === 'all' || ($contagens[$chave] ?? 0) > 0)
+                        <button type="button" wire:click="$set('statusFilter', '{{ $chave }}')"
+                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm transition-colors {{ $statusFilter === $chave ? 'bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 font-medium' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700' }}">
+                            {{ __($rotulo) }}
+                            <span class="text-xs opacity-70">{{ $contagens[$chave] ?? 0 }}</span>
+                        </button>
+                    @endif
+                @endforeach
+
+                @if($statusFilter !== 'all' || $periodo !== 'todas' || $search !== '')
+                    <button type="button" wire:click="limparFiltros"
+                            class="ml-auto text-sm text-gray-500 hover:text-primary inline-flex items-center gap-1.5">
+                        <i class="fas fa-times text-xs" aria-hidden="true"></i>{{ __('Limpar') }}
+                    </button>
+                @endif
+            </div>
+
+            @if($bookings->total() > 0)
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-4">
+                    {{ trans_choice(':count reserva|:count reservas', $bookings->total(), ['count' => $bookings->total()]) }}
+                </p>
+            @endif
         </div>
         
         <!-- Lista de Reservas -->
