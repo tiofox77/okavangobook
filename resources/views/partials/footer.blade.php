@@ -100,11 +100,11 @@
                 </div>
                 <div class="flex items-center">
                     <i class="fas fa-phone mr-2 text-blue-400"></i>
-                    +244 123 456 789
+                    <a href="tel:{{ '+' . preg_replace('/\D+/', '', \App\Models\Setting::get('contact_phone', '+244 942 705 533')) }}" class="hover:text-white transition-colors">{{ \App\Models\Setting::get('contact_phone', '+244 942 705 533') }}</a>
                 </div>
                 <div class="flex items-center">
                     <i class="fas fa-envelope mr-2 text-blue-400"></i>
-                    info@kiandastay.vip
+                    <a href="mailto:{{ \App\Models\Setting::get('contact_email', 'geral@kiandastay.vip') }}" class="hover:text-white transition-colors">{{ \App\Models\Setting::get('contact_email', 'geral@kiandastay.vip') }}</a>
                 </div>
             </div>
         </div>

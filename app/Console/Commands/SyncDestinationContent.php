@@ -63,7 +63,7 @@ class SyncDestinationContent extends Command
             try {
                 $response = Http::connectTimeout(20)
                     ->timeout(60)
-                    ->withHeaders(['User-Agent' => 'KiandaStay/1.0 (destination media; info@kiandastay.vip)'])
+                    ->withHeaders(['User-Agent' => 'KiandaStay/1.0 (destination media; geral@kiandastay.vip)'])
                     ->get($image['url']);
             } catch (\Throwable $exception) {
                 $this->warn("Falha ao descarregar a fotografia de {$name}");
@@ -106,7 +106,7 @@ class SyncDestinationContent extends Command
     {
         $response = Http::connectTimeout(20)
             ->timeout(60)
-            ->withHeaders(['User-Agent' => 'KiandaStay/1.0 (destination media; info@kiandastay.vip)'])
+            ->withHeaders(['User-Agent' => 'KiandaStay/1.0 (destination media; geral@kiandastay.vip)'])
             ->get('https://commons.wikimedia.org/w/api.php', [
                 'action' => 'query',
                 'generator' => 'search',

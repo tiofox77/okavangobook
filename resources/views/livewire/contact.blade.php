@@ -142,7 +142,7 @@
                             </div>
                             <div>
                                 <h4 class="font-medium text-gray-800 mb-1">Email</h4>
-                                <p class="text-gray-600">info@kiandastay.vip</p>
+                                <p class="text-gray-600">{{ \App\Models\Setting::get('contact_email', 'geral@kiandastay.vip') }}</p>
                             </div>
                         </div>
                         
@@ -152,7 +152,7 @@
                             </div>
                             <div>
                                 <h4 class="font-medium text-gray-800 mb-1">{{ __('Telefone') }}</h4>
-                                <p class="text-gray-600">+244 923 456 789</p>
+                                <p class="text-gray-600">{{ \App\Models\Setting::get('contact_phone', '+244 942 705 533') }}</p>
                             </div>
                         </div>
                         
