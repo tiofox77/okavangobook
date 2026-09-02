@@ -62,6 +62,25 @@ class AgentTokenManagement extends Component
         }
     }
 
+    /**
+     * Liga/desliga um grupo inteiro de escopos (ex.: todos os "locations:").
+     * Evita o erro comum de marcar só o :read e a escrita continuar bloqueada.
+     */
+    public function toggleScopeGroup(string $prefix): void
+    {
+        $group = array_values(array_filter(
+            config('agent_api.scopes', []),
+            fn ($s) => str_starts_with($s, $prefix . ':')
+        ));
+
+        $current = array_values(array_diff($this->editScopes, ['*']));
+        $todosPresentes = $group !== [] && array_diff($group, $current) === [];
+
+        $this->editScopes = $todosPresentes
+            ? array_values(array_diff($current, $group))
+            : array_values(array_unique(array_merge($current, $group)));
+    }
+
     /** Grava os escopos selecionados no token em edição. */
     public function saveScopes(): void
     {

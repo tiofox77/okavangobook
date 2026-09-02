@@ -172,6 +172,30 @@
                             </span>
                         </label>
 
+                        {{-- Atalhos por grupo: marcar "locations" inclui read+write+delete
+                             (o erro comum era marcar só o :read e a escrita ficar bloqueada) --}}
+                        @if(!$isWildcard)
+                            @php
+                                $grupos = collect($availableScopes)
+                                    ->map(fn ($s) => \Illuminate\Support\Str::before($s, ':'))
+                                    ->unique()->values();
+                            @endphp
+                            <div class="flex flex-wrap items-center gap-1.5 mb-3">
+                                <span class="text-xs text-gray-500 dark:text-gray-400 mr-1">Marcar grupo:</span>
+                                @foreach($grupos as $g)
+                                    @php
+                                        $doGrupo = collect($availableScopes)->filter(fn ($s) => str_starts_with($s, $g . ':'))->values();
+                                        $todosMarcados = $doGrupo->isNotEmpty() && $doGrupo->every(fn ($s) => in_array($s, $editScopes, true));
+                                    @endphp
+                                    <button type="button" wire:click="toggleScopeGroup('{{ $g }}')"
+                                            class="px-2.5 py-1 rounded-full text-xs font-medium transition-colors border {{ $todosMarcados ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:border-indigo-400' }}">
+                                        {{ $g }}<span class="opacity-70 ml-1">({{ $doGrupo->count() }})</span>
+                                        @if($todosMarcados)<i class="fas fa-check ml-1 text-[10px]"></i>@endif
+                                    </button>
+                                @endforeach
+                            </div>
+                        @endif
+
                         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 mb-3 {{ $isWildcard ? 'opacity-60 pointer-events-none' : '' }}">
                             @foreach($availableScopes as $scope)
                                 <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-700/50 rounded-lg px-2 py-1.5 cursor-pointer">
