@@ -14,6 +14,24 @@ class ArticlesList extends Component
     public $category = 'all';
     public $search = '';
 
+    /** Repõe a pesquisa e a categoria (botão do estado vazio e da barra). */
+    public function limparFiltros(): void
+    {
+        $this->reset('search', 'category');
+        $this->category = 'all';
+        $this->resetPage();
+    }
+
+    public function updatedSearch(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedCategory(): void
+    {
+        $this->resetPage();
+    }
+
     public function render()
     {
         $articles = $this->getArticles();

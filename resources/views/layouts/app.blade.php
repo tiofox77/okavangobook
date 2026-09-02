@@ -44,7 +44,7 @@
     <link href="{{ asset('assets/css/dark-overrides.css') }}?v=20260830" rel="stylesheet">
 
     <!-- Tailwind CSS v3 (build completo do projeto: npm run build:css) -->
-    <link href="{{ asset('assets/css/tailwind.min.css') }}?v=20260902c" rel="stylesheet">
+    <link href="{{ asset('assets/css/tailwind.min.css') }}?v=20260902d" rel="stylesheet">
 
     <!-- Font Awesome via CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
