@@ -44,7 +44,7 @@
                 
                 <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium {{ $config['bg'] }}">
                     <i class="{{ $config['icon'] }} mr-2"></i>
-                    {{ ucfirst($booking->status) }}
+                    {{ ['pending' => 'Pendente', 'confirmed' => 'Confirmada', 'cancelled' => 'Cancelada', 'completed' => 'Concluída', 'checked_in' => 'Em estadia', 'checked_out' => 'Terminada', 'no_show' => 'Não compareceu'][$booking->status] ?? ucfirst($booking->status) }}
                 </span>
             </div>
         </div>
@@ -124,7 +124,7 @@
                             <div class="flex justify-between">
                                 <span class="text-gray-600 dark:text-gray-400">Preço/Noite:</span>
                                 <span class="font-medium text-gray-900 dark:text-white">
-                                    {{ number_format($booking->roomType->base_price, 0, ',', '.') }} Kz
+                                    {{ number_format($this->noites > 0 ? $booking->total_price / $this->noites : ($booking->roomType->base_price ?? 0), 0, ',', '.') }} Kz
                                 </span>
                             </div>
                         </div>
@@ -221,7 +221,7 @@
                             @endphp
                             <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium {{ $paymentConfig['bg'] }}">
                                 <i class="{{ $paymentConfig['icon'] }} mr-1"></i>
-                                {{ ucfirst($booking->payment_status) }}
+                                {{ ['pending' => 'Pendente', 'paid' => 'Pago', 'refunded' => 'Reembolsado', 'failed' => 'Falhou'][$booking->payment_status] ?? ucfirst($booking->payment_status) }}
                             </span>
                         </div>
                         
@@ -273,7 +273,7 @@
                         
                         <div class="flex items-center justify-center">
                             <div class="w-12 h-px bg-gray-300 dark:bg-gray-600"></div>
-                            <div class="mx-2 text-xs text-gray-500">{{ $booking->nights }} noites</div>
+                            <div class="mx-2 text-xs text-gray-500">{{ trans_choice(':count noite|:count noites', $this->noites, ['count' => $this->noites]) }}</div>
                             <div class="w-12 h-px bg-gray-300 dark:bg-gray-600"></div>
                         </div>
                         
@@ -289,73 +289,117 @@
                     </div>
                 </div>
                 
-                <!-- Ações -->
-                @if($booking->status === 'pending' || $booking->status === 'confirmed')
-                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                            <i class="fas fa-cogs text-gray-600 mr-2"></i>
-                            Ações
-                        </h3>
-                        
-                        <div class="space-y-3">
-                            <button class="w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors duration-200 flex items-center justify-center">
-                                <i class="fas fa-times mr-2"></i>
-                                Cancelar Reserva
+                {{-- Ações da reserva --}}
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 print:hidden">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                        <i class="fas fa-bolt text-primary mr-2" aria-hidden="true"></i>{{ __('Ações') }}
+                    </h3>
+
+                    <div class="space-y-2.5">
+                        @if($this->podeCancelar)
+                            <button type="button" wire:click="abrirAlteracao"
+                                    class="w-full px-4 py-2.5 bg-primary hover:bg-blue-800 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2">
+                                <i class="fas fa-pen-to-square text-sm" aria-hidden="true"></i>{{ __('Solicitar alteração') }}
                             </button>
-                            
-                            <button class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200 flex items-center justify-center">
-                                <i class="fas fa-edit mr-2"></i>
-                                Solicitar Alteração
+                        @endif
+
+                        <button type="button" onclick="window.print()"
+                                class="w-full px-4 py-2.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 font-medium rounded-lg transition-colors flex items-center justify-center gap-2">
+                            <i class="fas fa-print text-sm" aria-hidden="true"></i>{{ __('Imprimir / PDF') }}
+                        </button>
+
+                        @if($this->whatsapp)
+                            <a href="{{ $this->whatsapp }}" target="_blank" rel="noopener noreferrer"
+                               class="w-full px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2">
+                                <i class="fab fa-whatsapp" aria-hidden="true"></i>{{ __('Falar com o alojamento') }}
+                            </a>
+                        @endif
+
+                        @if($booking->hotel)
+                            <a href="{{ route('hotel.details', $booking->hotel->slug) }}"
+                               class="w-full px-4 py-2.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 font-medium rounded-lg transition-colors flex items-center justify-center gap-2">
+                                <i class="fas fa-hotel text-sm" aria-hidden="true"></i>{{ __('Ver alojamento') }}
+                            </a>
+                        @endif
+
+                        @if($this->podeCancelar)
+                            <button type="button" wire:click="abrirCancelamento"
+                                    class="w-full px-4 py-2.5 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 font-medium rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors flex items-center justify-center gap-2">
+                                <i class="fas fa-circle-xmark text-sm" aria-hidden="true"></i>{{ __('Cancelar reserva') }}
                             </button>
+                        @endif
+                    </div>
+
+                    @if($booking->status === 'cancelled')
+                        <div class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 text-sm text-gray-500 dark:text-gray-400">
+                            <p><i class="fas fa-circle-info mr-1.5" aria-hidden="true"></i>{{ __('Cancelada em') }} {{ $booking->cancelled_at?->format('d/m/Y') ?? '—' }}</p>
+                            @if($booking->cancellation_reason)
+                                <p class="mt-2 border-l-4 border-gray-200 dark:border-gray-600 pl-3">{{ $booking->cancellation_reason }}</p>
+                            @endif
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        {{-- Modal: pedido de alteração --}}
+        @if($mostrarAlteracao)
+            <div class="fixed inset-0 z-50 bg-gray-900/60 flex items-center justify-center p-4 print:hidden" wire:key="alterar-reserva">
+                <div class="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-lg">
+                    <div class="p-6">
+                        <div class="flex items-start gap-4 mb-5">
+                            <span class="h-12 w-12 flex-shrink-0 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                                <i class="fas fa-pen-to-square text-xl" aria-hidden="true"></i>
+                            </span>
+                            <div>
+                                <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ __('Solicitar alteração') }}</h3>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                    {{ __('O pedido segue para o alojamento, que confirma a disponibilidade. As datas só mudam depois dessa confirmação.') }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="nova-entrada" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{{ __('Nova entrada') }}</label>
+                                <input id="nova-entrada" type="date" wire:model="novaEntrada" min="{{ now()->toDateString() }}" class="w-full">
+                                @error('novaEntrada') <span class="block mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</span> @enderror
+                            </div>
+                            <div>
+                                <label for="nova-saida" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{{ __('Nova saída') }}</label>
+                                <input id="nova-saida" type="date" wire:model="novaSaida" min="{{ now()->addDay()->toDateString() }}" class="w-full">
+                                @error('novaSaida') <span class="block mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</span> @enderror
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label for="novos-hospedes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{{ __('Hóspedes') }}</label>
+                                <input id="novos-hospedes" type="number" min="1" max="30" wire:model="novosHospedes" class="w-full">
+                                @error('novosHospedes') <span class="block mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</span> @enderror
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label for="nota-alteracao" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{{ __('Nota para o alojamento (opcional)') }}</label>
+                                <textarea id="nota-alteracao" rows="3" wire:model="notaAlteracao"
+                                          placeholder="{{ __('Ex.: chegada mais tarde, quarto no piso térreo…') }}" class="w-full"></textarea>
+                                @error('notaAlteracao') <span class="block mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</span> @enderror
+                            </div>
                         </div>
                     </div>
-                @endif
+
+                    <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 px-6 py-4 bg-gray-50 dark:bg-gray-900/40 rounded-b-2xl">
+                        <button type="button" wire:click="fecharAlteracao"
+                                class="px-4 py-2.5 rounded-lg bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 font-medium">
+                            {{ __('Cancelar') }}
+                        </button>
+                        <button type="button" wire:click="enviarPedidoAlteracao" wire:loading.attr="disabled" wire:target="enviarPedidoAlteracao"
+                                class="px-4 py-2.5 rounded-lg bg-primary hover:bg-blue-800 disabled:bg-blue-400 text-white font-semibold">
+                            <span wire:loading.remove wire:target="enviarPedidoAlteracao">{{ __('Enviar pedido') }}</span>
+                            <span wire:loading wire:target="enviarPedidoAlteracao">
+                                <i class="fas fa-circle-notch fa-spin mr-1" aria-hidden="true"></i>{{ __('A enviar…') }}
+                            </span>
+                        </button>
+                    </div>
+                </div>
             </div>
-        </div>
-
-        {{-- Ações da reserva --}}
-        <div class="mt-6 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 print:hidden">
-            <h2 class="font-bold text-gray-900 dark:text-white mb-4">{{ __('Ações') }}</h2>
-            <div class="flex flex-wrap gap-3">
-                <button type="button" onclick="window.print()"
-                        class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-                    <i class="fas fa-print text-sm" aria-hidden="true"></i>{{ __('Imprimir / PDF') }}
-                </button>
-
-                @if($this->whatsapp)
-                    <a href="{{ $this->whatsapp }}" target="_blank" rel="noopener noreferrer"
-                       class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-emerald-600 text-white font-medium hover:bg-emerald-700 transition-colors">
-                        <i class="fab fa-whatsapp" aria-hidden="true"></i>{{ __('Falar com o alojamento') }}
-                    </a>
-                @endif
-
-                @if($booking->hotel)
-                    <a href="{{ route('hotel.details', $booking->hotel->slug) }}"
-                       class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-                        <i class="fas fa-hotel text-sm" aria-hidden="true"></i>{{ __('Ver alojamento') }}
-                    </a>
-                @endif
-
-                @if($this->podeCancelar)
-                    <button type="button" wire:click="abrirCancelamento"
-                            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 font-medium hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors sm:ml-auto">
-                        <i class="fas fa-circle-xmark text-sm" aria-hidden="true"></i>{{ __('Cancelar reserva') }}
-                    </button>
-                @elseif($booking->status === 'cancelled')
-                    <span class="inline-flex items-center gap-2 px-4 py-2.5 text-sm text-gray-500 dark:text-gray-400 sm:ml-auto">
-                        <i class="fas fa-circle-info" aria-hidden="true"></i>
-                        {{ __('Cancelada em') }} {{ $booking->cancelled_at?->format('d/m/Y') ?? '—' }}
-                    </span>
-                @endif
-            </div>
-
-            @if($booking->status === 'cancelled' && $booking->cancellation_reason)
-                <p class="mt-4 text-sm text-gray-500 dark:text-gray-400 border-l-4 border-gray-200 dark:border-gray-600 pl-3">
-                    <strong>{{ __('Motivo:') }}</strong> {{ $booking->cancellation_reason }}
-                </p>
-            @endif
-        </div>
-
+        @endif
         {{-- Modal de cancelamento --}}
         @if($mostrarCancelamento)
             <div class="fixed inset-0 z-50 bg-gray-900/60 flex items-center justify-center p-4 print:hidden" wire:key="cancelar-reserva">
