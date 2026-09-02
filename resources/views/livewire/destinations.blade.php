@@ -5,8 +5,8 @@
         <!-- Hero Section -->
         <div class="relative bg-primary overflow-hidden">
             <div class="absolute inset-0 opacity-20">
-                @if($locations->isNotEmpty() && $locations->first()->image)
-                    <img src="{{ $imageHelper::getValidImage($locations->first()->image, 'location') }}" 
+                @if($provincias->isNotEmpty() && $provincias->first()->image)
+                    <img src="{{ $imageHelper::getValidImage($provincias->first()->image, 'location') }}" 
                         alt="Angola Map Background" class="w-full h-full object-cover"
                         onerror="this.src='{{ $imageHelper::getValidImage('angola-map', 'banners') }}'">
                 @else
@@ -41,7 +41,7 @@
             {{-- Ilha React: explorador com pesquisa instantânea e grelha animada.
                  O bloco Blade abaixo (filtros + grelha) é o fallback sem JS. --}}
             @php
-                $explorerData = $locations->map(fn ($l) => [
+                $explorerData = $provincias->map(fn ($l) => [
                     'slug' => $l->province,
                     'name' => \App\Models\Location::provinceName($l->province),
                     'image' => \App\Helpers\ImageHelper::getValidImage($l->image, 'location'),
@@ -72,7 +72,7 @@
 
             <!-- Provinces Grid (fallback sem JS) -->
             <div class="native-explorer grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                @foreach($locations as $location)
+                @foreach($provincias as $location)
                     <article wire:key="destination-{{ $location->province }}" class="group h-full bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 animate-fade-in-up" style="animation-delay: {{ min($loop->iteration * 60, 600) }}ms">
                         <a href="{{ route('location.details', ['province' => $location->province]) }}" class="flex h-full flex-col">
                             <div class="h-56 overflow-hidden relative">

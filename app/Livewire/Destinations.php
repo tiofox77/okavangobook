@@ -10,11 +10,9 @@ class Destinations extends Component
 {
     public $locations;
     public string $sortBy = 'popular';
-    
+
     public function mount()
     {
-        // Agrupar localizações por província, selecionando apenas uma localização por província
-        // (geralmente a capital ou cidade principal)
         // Preço mínimo por província (uma query só) para mostrar "a partir de"
         $minPrices = \App\Models\Hotel::where('hotels.is_active', true)
             ->join('locations', 'hotels.location_id', '=', 'locations.id')
@@ -23,16 +21,16 @@ class Destinations extends Component
             ->groupBy('locations.province')
             ->pluck('min_price', 'province');
 
-        $groupedLocations = Location::withCount(['hotels' => fn ($q) => $q->where('is_active', true)])
+        // Uma entrada por província, representada pelo local com mais alojamentos
+        $this->locations = Location::withCount(['hotels' => fn ($q) => $q->where('is_active', true)])
             ->orderBy('province')
             ->get()
             ->groupBy('province')
             ->map(function ($group) use ($minPrices) {
-                // Representante da província: o local com mais alojamentos
                 $location = $group->sortByDesc('hotels_count')->first();
 
-                // BUG corrigido: a contagem mostrada era só a do primeiro local
-                // do grupo; agora é a SOMA de todos os locais da província.
+                // A contagem mostrada era só a do primeiro local do grupo;
+                // agora é a SOMA de todos os locais da província.
                 $location->hotels_count = (int) $group->sum('hotels_count');
                 $location->locations_count = $group->count();
                 $location->min_price = $minPrices[$location->province] ?? null;
@@ -52,42 +50,65 @@ class Destinations extends Component
                 }
 
                 return $location;
-            });
-            
-        $this->locations = $groupedLocations->values();
-        $this->sortLocations();
+            })
+            ->values();
     }
 
     public function setSorting(string $sort): void
     {
-        if (!in_array($sort, ['popular', 'alphabetical'], true)) {
-            return;
+        if (in_array($sort, ['popular', 'alphabetical'], true)) {
+            $this->sortBy = $sort;
         }
-
-        $this->sortBy = $sort;
-        $this->sortLocations();
     }
 
-    private function sortLocations(): void
+    /**
+     * Lista completa das províncias para apresentação: as que têm registos na
+     * base de dados mais as que ainda não têm (ex.: Cuando, Moxico Leste e
+     * Ícolo e Bengo, criadas na divisão administrativa de 2025).
+     *
+     * Construída aqui e não em $this->locations porque o Livewire não
+     * consegue serializar uma coleção que misture modelos gravados e não
+     * gravados ("multiple model connections").
+     */
+    private function todasAsProvincias(): \Illuminate\Support\Collection
     {
-        $this->locations = $this->locations
+        $comRegisto = collect($this->locations);
+        $nomesPresentes = $comRegisto->map(fn ($l) => Location::provinceName($l->province))->all();
+
+        $semRegisto = collect(Location::PROVINCE_NAMES)
+            ->reject(fn ($nome) => in_array($nome, $nomesPresentes, true))
+            ->unique()   // 'cuando-cubango' e 'cubango' partilham o nome
+            ->map(fn ($nome, $slug) => (object) [
+                'province' => $slug,
+                'name' => Location::PROVINCE_CAPITALS[$slug] ?? $nome,
+                'description' => (string) config('destination_stories.' . $slug),
+                'image' => 'locations/commons/' . $slug . '.jpg',
+                'hotels_count' => 0,
+                'locations_count' => 0,
+                'min_price' => null,
+            ])
+            ->values();
+
+        return $comRegisto->concat($semRegisto)
             ->when(
                 $this->sortBy === 'popular',
-                fn ($locations) => $locations->sortByDesc('hotels_count'),
-                fn ($locations) => $locations->sortBy('province')
+                fn ($c) => $c->sortByDesc('hotels_count'),
+                fn ($c) => $c->sortBy(fn ($l) => Location::provinceName($l->province))
             )
             ->values();
     }
-    
+
     public function render()
     {
-        // Passa o helper de imagem para a view
         return view('livewire.destinations', [
-            'imageHelper' => new ImageHelper()
+            'imageHelper' => new ImageHelper(),
+            // nome distinto: uma chave 'locations' seria sobreposta pela
+            // propriedade pública do mesmo nome ao chegar à view
+            'provincias' => $this->todasAsProvincias(),
         ])
         ->layout('layouts.app', [
             'title' => 'Destinos - Províncias de Angola',
-            'metaDescription' => 'Explore as províncias de Angola e encontre os melhores destinos para sua viagem.'
+            'metaDescription' => 'Explore as 21 províncias de Angola e encontre os melhores destinos para sua viagem.',
         ]);
     }
 }
