@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Livewire\Admin;
 
+use App\Livewire\Admin\Concerns\AuthorizesManagedHotels;
+
+use App\Livewire\Admin\Concerns\AutorizaAcessoAoHotel;
 use App\Models\Hotel;
 use App\Models\Reservation;
 use App\Models\Room;
@@ -17,6 +20,8 @@ use Livewire\WithPagination;
 
 class ReservationManagement extends Component
 {
+    use AuthorizesManagedHotels;
+
     use WithPagination;
     
     // Propriedades do filtro
@@ -35,6 +40,11 @@ class ReservationManagement extends Component
     public bool $showAssignRoomModal = false;
     public ?int $editingReservationId = null;
     public ?string $paymentMethod = null;
+
+    // A vista já usava estas três, mas o componente nunca as declarou:
+    // abrir qualquer modal de reserva rebentava com "Undefined variable".
+    public float $additionalCharges = 0;
+    public bool $issueRefund = false;
     public ?Reservation $selectedReservation = null;
     
     // Propriedades para a atribuição de quartos
@@ -116,6 +126,7 @@ class ReservationManagement extends Component
      */
     public function editReservation(int $reservationId): void
     {
+        $this->authorizeManagedReservation($reservationId);
         $this->editingReservationId = $reservationId;
         $reservation = Reservation::findOrFail($reservationId);
         
@@ -186,6 +197,7 @@ class ReservationManagement extends Component
      */
     public function openConfirmModal(int $reservationId): void
     {
+        $this->authorizeManagedReservation($reservationId);
         $this->selectedReservation = Reservation::with('user', 'hotel', 'roomType')->findOrFail($reservationId);
         $this->dispatch('open-confirm-modal');
     }
@@ -198,6 +210,7 @@ class ReservationManagement extends Component
      */
     public function openCheckInModal(int $reservationId): void
     {
+        $this->authorizeManagedReservation($reservationId);
         $this->selectedReservation = Reservation::with('user', 'hotel', 'roomType', 'room')->findOrFail($reservationId);
         $this->dispatch('open-checkin-modal');
     }
@@ -210,6 +223,7 @@ class ReservationManagement extends Component
      */
     public function openCheckOutModal(int $reservationId): void
     {
+        $this->authorizeManagedReservation($reservationId);
         $this->selectedReservation = Reservation::with('user', 'hotel', 'roomType', 'room')->findOrFail($reservationId);
         $this->dispatch('open-checkout-modal');
     }
@@ -222,6 +236,7 @@ class ReservationManagement extends Component
      */
     public function openCancelModal(int $reservationId): void
     {
+        $this->authorizeManagedReservation($reservationId);
         $this->selectedReservation = Reservation::with('user', 'hotel', 'roomType')->findOrFail($reservationId);
         $this->dispatch('open-cancel-modal');
     }
@@ -234,6 +249,7 @@ class ReservationManagement extends Component
      */
     public function openViewModal(int $reservationId): void
     {
+        $this->authorizeManagedReservation($reservationId);
         $this->selectedReservation = Reservation::with('user', 'hotel', 'roomType', 'room')->findOrFail($reservationId);
         $this->dispatch('open-view-modal');
     }
@@ -246,6 +262,7 @@ class ReservationManagement extends Component
      */
     public function openEditModal(int $reservationId): void
     {
+        $this->authorizeManagedReservation($reservationId);
         $this->editingReservationId = $reservationId;
         $this->selectedReservation = Reservation::findOrFail($reservationId);
         
@@ -267,6 +284,7 @@ class ReservationManagement extends Component
      */
     public function confirmReservation(int $reservationId = null): void
     {
+        $this->authorizeManagedReservation($reservationId ?? $this->selectedReservationId ?? null);
         if ($reservationId !== null) {
             $this->editingReservationId = $reservationId;
             $this->selectedReservation = Reservation::findOrFail($reservationId);
@@ -356,6 +374,7 @@ class ReservationManagement extends Component
      */
     public function cancelReservation(int $reservationId, ?string $reason = null, bool $refund = false): void
     {
+        $this->authorizeManagedReservation($reservationId);
         $reservation = Reservation::findOrFail($reservationId);
         
         if ($reservation->cancel($reason, $refund)) {
@@ -373,6 +392,7 @@ class ReservationManagement extends Component
      */
     public function checkIn(int $reservationId): void
     {
+        $this->authorizeManagedReservation($reservationId);
         $reservation = Reservation::findOrFail($reservationId);
         
         if ($reservation->checkIn()) {
@@ -390,6 +410,7 @@ class ReservationManagement extends Component
      */
     public function checkOut(int $reservationId): void
     {
+        $this->authorizeManagedReservation($reservationId);
         $reservation = Reservation::findOrFail($reservationId);
         
         if ($reservation->checkOut()) {
@@ -498,6 +519,14 @@ class ReservationManagement extends Component
                 Reservation::PAYMENT_REFUNDED => 'Reembolsado',
                 Reservation::PAYMENT_FAILED => 'Falhou',
                 Reservation::PAYMENT_PARTIAL => 'Parcial'
+            ],
+            'cancellationReasons' => [
+                'guest_request' => 'Pedido do hóspede',
+                'no_availability' => 'Sem disponibilidade',
+                'payment_failed' => 'Pagamento não confirmado',
+                'no_show' => 'Hóspede não compareceu',
+                'duplicate' => 'Reserva duplicada',
+                'other' => 'Outro motivo',
             ],
             'paymentMethods' => [
                 'credit_card' => 'Cartão de Crédito',

@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Livewire\Admin;
 
+use App\Livewire\Admin\Concerns\AuthorizesManagedHotels;
+
+use App\Livewire\Admin\Concerns\AutorizaAcessoAoHotel;
 use App\Models\Amenity;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Collection;
@@ -14,6 +17,8 @@ use Livewire\WithPagination;
 
 class AmenityManagement extends Component
 {
+    use AuthorizesManagedHotels;
+
     use WithPagination;
     
     // Propriedades públicas para formulário de criação/edição
@@ -77,6 +82,7 @@ class AmenityManagement extends Component
      */
     public function edit(int $id): void
     {
+        abort_unless($this->isPlatformAdmin(), 403, 'As comodidades são geridas pela administração.');
         $this->resetForm();
         $this->editing_id = $id;
         
@@ -96,6 +102,7 @@ class AmenityManagement extends Component
      */
     public function save(): void
     {
+        abort_unless($this->isPlatformAdmin(), 403, 'As comodidades são geridas pela administração.');
         $validatedData = $this->validate();
         
         try {
@@ -130,6 +137,7 @@ class AmenityManagement extends Component
      */
     public function delete(int $id): void
     {
+        abort_unless($this->isPlatformAdmin(), 403, 'As comodidades são geridas pela administração.');
         try {
             $amenity = Amenity::findOrFail($id);
             $amenity->delete();
@@ -178,6 +186,7 @@ class AmenityManagement extends Component
      */
     public function toggleAmenityActive(int $id): void
     {
+        abort_unless($this->isPlatformAdmin(), 403, 'As comodidades são geridas pela administração.');
         try {
             $amenity = Amenity::findOrFail($id);
             $amenity->is_active = !$amenity->is_active;

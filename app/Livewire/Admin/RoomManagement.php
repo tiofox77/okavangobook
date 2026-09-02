@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire\Admin;
 
+use App\Livewire\Admin\Concerns\AutorizaAcessoAoHotel;
 use App\Livewire\Admin\Concerns\AuthorizesManagedHotels;
 use App\Models\Hotel;
 use App\Models\RoomType;
@@ -16,6 +17,7 @@ use Livewire\WithPagination;
 
 class RoomManagement extends Component
 {
+
     use AuthorizesManagedHotels;
     use WithPagination;
     use \Livewire\WithFileUploads;
@@ -252,6 +254,7 @@ class RoomManagement extends Component
      */
     public function openModal(?int $hotelId = null): void
     {
+        $this->authorizeManagedHotelId($hotelId);
         $this->reset(['room_id', 'name', 'description', 'capacity', 'beds', 'bed_type',
                       'size', 'base_price', 'rooms_count', 'is_available', 'is_featured', 'amenities']);
         
@@ -391,6 +394,7 @@ class RoomManagement extends Component
      */
     public function removeGalleryImage(int $index): void
     {
+        $this->authorizeManagedHotelId($this->hotel_id ?? null);
         // Cria um novo array sem a imagem removida
         $newGalleryImages = [];
         foreach ($this->galleryImages as $i => $image) {

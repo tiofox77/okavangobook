@@ -566,7 +566,7 @@
                                         <label for="payment_method" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Método de Pagamento</label>
                                         <select wire:model="selectedPaymentMethod" id="payment_method" class="block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" required>
                                             <option value="">Selecionar método...</option>
-                                            @foreach($paymentMethodOptions as $value => $label)
+                                            @foreach($paymentMethods as $value => $label)
                                                 <option value="{{ $value }}">{{ $label }}</option>
                                             @endforeach
                                         </select>
@@ -736,7 +736,7 @@
                                             </div>
                                             <div>
                                                 <p class="text-xs text-gray-500 dark:text-gray-400">Quarto</p>
-                                                <p class="font-medium">Nº {{ $selectedReservation->room->room_number }}</p>
+                                                <p class="font-medium">Nº {{ $selectedReservation->room?->room_number ?? "Não atribuído" }}</p>
                                             </div>
                                             <div>
                                                 <p class="text-xs text-gray-500 dark:text-gray-400">Data Check-in</p>
@@ -1056,7 +1056,7 @@
                                     @if($selectedReservation->room)
                                     <div>
                                         <p class="text-xs text-gray-500 dark:text-gray-400">Quarto Atribuído</p>
-                                        <p class="text-indigo-600 dark:text-indigo-400 font-medium">Nº {{ $selectedReservation->room->room_number }} ({{ $selectedReservation->room->floor }}º andar)</p>
+                                        <p class="text-indigo-600 dark:text-indigo-400 font-medium">{{ $selectedReservation->room ? "Nº ".$selectedReservation->room->room_number." (".$selectedReservation->room->floor."º andar)" : "Não atribuído" }}</p>
                                     </div>
                                     @endif
                                 </div>

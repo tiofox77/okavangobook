@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Livewire\Admin;
 
+use App\Livewire\Admin\Concerns\AuthorizesManagedHotels;
+
+use App\Livewire\Admin\Concerns\AutorizaAcessoAoHotel;
 use Livewire\Component;
 use App\Models\Hotel;
 use App\Models\Location;
@@ -14,6 +17,8 @@ use Livewire\WithFileUploads;
 
 class HotelManagement extends Component
 {
+    use AuthorizesManagedHotels;
+
     use WithPagination;
     use WithFileUploads;
     
@@ -477,6 +482,7 @@ class HotelManagement extends Component
     
     public function delete(int $hotelId)
     {
+        $this->authorizeManagedHotel($hotelId);
         // Implementação de exclusão com confirmação no front-end
         $hotel = Hotel::findOrFail($hotelId);
         $hotel->delete();
@@ -492,6 +498,7 @@ class HotelManagement extends Component
      */
     public function removeImage(int $index)
     {
+        $this->authorizeManagedHotel($this->hotelId);
         if (isset($this->images[$index])) {
             $imageUrl = $this->images[$index];
             
