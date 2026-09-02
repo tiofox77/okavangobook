@@ -284,6 +284,9 @@
                                         <i class="fas fa-eye mr-1"></i>
                                         Ver
                                     </button>
+                                    <button wire:click="openGallery({{ $location->id }})" class="bg-purple-100 hover:bg-purple-200 text-purple-800 px-3 py-1 rounded-md text-xs font-medium transition-colors duration-200" title="Galeria de fotos e vídeos">
+                                        <i class="fas fa-images"></i>
+                                    </button>
                                     <button wire:click="openModal({{ $location->id }})" class="bg-blue-100 hover:bg-blue-200 text-blue-800 px-3 py-1 rounded-md text-xs font-medium transition-colors duration-200" title="Editar">
                                         <i class="fas fa-edit mr-1"></i>
                                         Editar
@@ -493,4 +496,125 @@
     
     <!-- Modal de confirmação de eliminação (usando partial) -->
     @include('livewire.admin.partials.location-delete-modal')
+
+    {{-- ================= Galeria de fotos e vídeos do destino ================= --}}
+    @if($showGalleryModal)
+        <div class="fixed inset-0 z-50 overflow-y-auto bg-gray-900/60 backdrop-blur-sm p-4" wire:key="gallery-modal">
+            <div class="relative mx-auto my-8 w-full max-w-4xl rounded-xl bg-white dark:bg-gray-800 shadow-2xl">
+                <div class="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                        <i class="fas fa-images text-purple-500 mr-2"></i>
+                        Galeria — {{ $galleryLocationName }}
+                    </h3>
+                    <button wire:click="closeGallery" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200" aria-label="Fechar">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+
+                <div class="p-6">
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                        Estas fotos e vídeos aparecem na página pública do destino
+                        (<code>/destino/{{ Str::slug($galleryLocationName) }}</code>). As imagens abrem em lightbox; os vídeos
+                        aceitam YouTube, Vimeo ou ficheiro MP4/WebM.
+                    </p>
+
+                    {{-- Formulário de adição --}}
+                    <div class="rounded-lg border border-gray-200 dark:border-gray-700 p-4 mb-6">
+                        <div class="flex gap-2 mb-3">
+                            <button type="button" wire:click="$set('newMediaType', 'image')"
+                                    class="px-3 py-1.5 rounded-lg text-sm font-medium {{ $newMediaType === 'image' ? 'bg-purple-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300' }}">
+                                <i class="fas fa-image mr-1"></i> Imagem
+                            </button>
+                            <button type="button" wire:click="$set('newMediaType', 'video')"
+                                    class="px-3 py-1.5 rounded-lg text-sm font-medium {{ $newMediaType === 'video' ? 'bg-purple-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300' }}">
+                                <i class="fas fa-video mr-1"></i> Vídeo
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            @if($newMediaType === 'image')
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Enviar ficheiro (máx. 4 MB)</label>
+                                    <input type="file" wire:model="newMediaFile" accept="image/*"
+                                           class="w-full text-sm text-gray-600 dark:text-gray-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-purple-100 file:text-purple-700 hover:file:bg-purple-200">
+                                    <div wire:loading wire:target="newMediaFile" class="text-xs text-purple-600 mt-1">
+                                        <i class="fas fa-circle-notch fa-spin mr-1"></i> a carregar…
+                                    </div>
+                                    @error('newMediaFile')<span class="text-xs text-red-600">{{ $message }}</span>@enderror
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">…ou colar um link (http/https)</label>
+                                    <input type="text" wire:model="newMediaUrl" placeholder="https://…/foto.jpg"
+                                           class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 dark:text-white">
+                                    @error('newMediaUrl')<span class="text-xs text-red-600">{{ $message }}</span>@enderror
+                                </div>
+                            @else
+                                <div class="md:col-span-2">
+                                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Link do vídeo (YouTube, Vimeo ou MP4/WebM)</label>
+                                    <input type="text" wire:model="newMediaUrl" placeholder="https://www.youtube.com/watch?v=…"
+                                           class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 dark:text-white">
+                                    @error('newMediaUrl')<span class="text-xs text-red-600">{{ $message }}</span>@enderror
+                                </div>
+                            @endif
+
+                            <div class="md:col-span-2">
+                                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Legenda (opcional)</label>
+                                <input type="text" wire:model="newMediaTitle" placeholder="ex.: Baía de Luanda ao pôr do sol"
+                                       class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 dark:text-white">
+                            </div>
+                        </div>
+
+                        <button wire:click="addMedia" wire:loading.attr="disabled" wire:target="addMedia,newMediaFile"
+                                class="mt-3 px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400 text-white rounded-lg text-sm font-medium">
+                            <span wire:loading.remove wire:target="addMedia"><i class="fas fa-plus mr-1"></i> Adicionar à galeria</span>
+                            <span wire:loading wire:target="addMedia"><i class="fas fa-circle-notch fa-spin mr-1"></i> A adicionar…</span>
+                        </button>
+                    </div>
+
+                    {{-- Itens existentes --}}
+                    @php $itens = $this->galleryItems; @endphp
+                    @if($itens->isEmpty())
+                        <div class="text-center py-10 text-gray-400">
+                            <i class="fas fa-photo-film text-4xl mb-3"></i>
+                            <p class="text-sm">Ainda não há fotos nem vídeos neste destino.</p>
+                        </div>
+                    @else
+                        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                            @foreach($itens as $item)
+                                <div class="relative group rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900" wire:key="media-{{ $item->id }}">
+                                    <div class="h-28 flex items-center justify-center bg-gray-100 dark:bg-gray-700">
+                                        @if($item->type === 'image')
+                                            <img src="{{ \App\Helpers\ImageHelper::getValidImage($item->url, 'location') }}" alt="{{ $item->title }}" class="w-full h-full object-cover">
+                                        @else
+                                            <div class="text-center text-gray-500 dark:text-gray-300 px-2">
+                                                <i class="fas fa-play-circle text-3xl mb-1"></i>
+                                                <p class="text-[10px] truncate">{{ $item->youtubeId() ? 'YouTube' : ($item->vimeoId() ? 'Vimeo' : 'Vídeo') }}</p>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <div class="p-2">
+                                        <p class="text-xs text-gray-700 dark:text-gray-200 truncate" title="{{ $item->title ?: $item->url }}">
+                                            {{ $item->title ?: Str::limit(basename($item->url), 24) }}
+                                        </p>
+                                    </div>
+                                    <button wire:click="removeMedia({{ $item->id }})"
+                                            wire:confirm="Remover este item da galeria?"
+                                            class="absolute top-1.5 right-1.5 h-7 w-7 rounded-full bg-red-600/90 hover:bg-red-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                                            title="Remover">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
+
+                <div class="border-t border-gray-200 dark:border-gray-700 px-6 py-3 flex justify-end">
+                    <button wire:click="closeGallery" class="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg text-sm font-medium">
+                        Fechar
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
 </div>

@@ -39,6 +39,15 @@ class LocationManagement extends Component
     public bool $showModal = false;
     public bool $showViewModal = false;
     public ?Location $viewingLocation = null;
+
+    // ----- Galeria multimédia do destino (fotos + vídeos) -----
+    public bool $showGalleryModal = false;
+    public ?int $galleryLocationId = null;
+    public string $galleryLocationName = '';
+    public string $newMediaType = 'image';
+    public string $newMediaUrl = '';
+    public string $newMediaTitle = '';
+    public $newMediaFile;
     
     // Regras de validação
     protected function rules(): array
@@ -183,6 +192,100 @@ class LocationManagement extends Component
         $this->closeModal();
     }
     
+    /* ================= Galeria multimédia do destino ================= */
+
+    public function openGallery(int $locationId): void
+    {
+        $location = Location::findOrFail($locationId);
+        $this->galleryLocationId = $location->id;
+        $this->galleryLocationName = $location->name;
+        $this->reset('newMediaUrl', 'newMediaTitle', 'newMediaFile');
+        $this->newMediaType = 'image';
+        $this->resetValidation();
+        $this->showGalleryModal = true;
+    }
+
+    public function closeGallery(): void
+    {
+        $this->showGalleryModal = false;
+        $this->galleryLocationId = null;
+        $this->reset('newMediaUrl', 'newMediaTitle', 'newMediaFile');
+    }
+
+    /** Itens da galeria do destino aberto (usado pela vista). */
+    public function getGalleryItemsProperty()
+    {
+        if (! $this->galleryLocationId || ! \Illuminate\Support\Facades\Schema::hasTable('location_media')) {
+            return collect();
+        }
+
+        return \App\Models\LocationMedia::where('location_id', $this->galleryLocationId)
+            ->orderBy('position')->orderBy('id')->get();
+    }
+
+    public function addMedia(): void
+    {
+        abort_unless(auth()->user()?->hasRole('Admin'), 403);
+
+        if (! \Illuminate\Support\Facades\Schema::hasTable('location_media')) {
+            session()->flash('error', 'A tabela da galeria ainda não existe. Corra as migrações em Actualizações → Base de Dados.');
+            return;
+        }
+
+        $isUpload = $this->newMediaType === 'image' && $this->newMediaFile;
+
+        $this->validate(
+            $isUpload
+                ? ['newMediaFile' => 'required|image|max:4096', 'newMediaTitle' => 'nullable|string|max:255']
+                : ['newMediaUrl' => 'required|string|max:1000', 'newMediaTitle' => 'nullable|string|max:255'],
+            [
+                'newMediaFile.image' => 'O ficheiro tem de ser uma imagem.',
+                'newMediaFile.max' => 'A imagem não pode exceder 4 MB.',
+                'newMediaUrl.required' => 'Indique o endereço da imagem ou do vídeo.',
+            ]
+        );
+
+        $url = $isUpload
+            ? $this->newMediaFile->store('locations/gallery', 'public')
+            : trim($this->newMediaUrl);
+
+        // Validação por tipo (mesma regra da Agent API)
+        if (! $isUpload) {
+            $isHttp = str_starts_with($url, 'http://') || str_starts_with($url, 'https://');
+            if ($this->newMediaType === 'video' && (! $isHttp || ! filter_var($url, FILTER_VALIDATE_URL))) {
+                $this->addError('newMediaUrl', 'Vídeo: use um link http(s) — YouTube, Vimeo ou ficheiro MP4/WebM.');
+                return;
+            }
+            if ($this->newMediaType === 'image' && ! $isHttp
+                && preg_match('#^[\w\-./]+\.(jpg|jpeg|png|webp|gif|avif)$#i', $url) !== 1) {
+                $this->addError('newMediaUrl', 'Imagem: use um link http(s) ou envie um ficheiro.');
+                return;
+            }
+        }
+
+        \App\Models\LocationMedia::create([
+            'location_id' => $this->galleryLocationId,
+            'type' => $this->newMediaType,
+            'url' => $url,
+            'title' => $this->newMediaTitle ?: null,
+            'position' => (int) (\App\Models\LocationMedia::where('location_id', $this->galleryLocationId)->max('position') ?? -1) + 1,
+        ]);
+
+        $this->reset('newMediaUrl', 'newMediaTitle', 'newMediaFile');
+        session()->flash('message', $this->newMediaType === 'video' ? 'Vídeo adicionado à galeria!' : 'Imagem adicionada à galeria!');
+    }
+
+    public function removeMedia(int $mediaId): void
+    {
+        abort_unless(auth()->user()?->hasRole('Admin'), 403);
+
+        $media = \App\Models\LocationMedia::where('location_id', $this->galleryLocationId)->find($mediaId);
+        if ($media) {
+            $media->delete();
+            session()->flash('message', 'Item removido da galeria.');
+        }
+    }
+
     public function delete(int $locationId): void
     {
         // Verificar se existem hotéis associados a esta localização
