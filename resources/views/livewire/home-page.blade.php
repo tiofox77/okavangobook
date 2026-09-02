@@ -365,7 +365,7 @@
                     <div class="w-24 h-1.5 bg-gradient-to-r from-primary to-blue-500 mx-auto mt-5 rounded-full"></div>
                 </h2>
                 <p class="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto text-lg font-normal leading-relaxed">
-                    Descubra a beleza e cultura das 18 províncias de Angola em {{ date('Y') }}
+                    Descubra a beleza e cultura das 21 províncias de Angola em {{ date('Y') }}
                 </p>
             </div>
 

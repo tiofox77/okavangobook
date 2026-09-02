@@ -38,25 +38,64 @@ class Location extends Model
         return $slug;
     }
 
+    /**
+     * Províncias de Angola — divisão político-administrativa em vigor desde
+     * 1 de janeiro de 2025 (21 províncias). As novas Cuando, Moxico Leste e
+     * Ícolo e Bengo resultam do desmembramento do antigo Cuando Cubango (hoje
+     * Cubango), do Moxico e de Luanda.
+     *
+     * O slug legado 'cuando-cubango' mantém-se para não quebrar URLs e dados
+     * já existentes, apontando para o nome atual.
+     */
     public const PROVINCE_NAMES = [
         'bengo' => 'Bengo',
         'benguela' => 'Benguela',
         'bie' => 'Bié',
         'cabinda' => 'Cabinda',
-        'cuando-cubango' => 'Cuando Cubango',
+        'cuando' => 'Cuando',
+        'cuando-cubango' => 'Cubango',
         'cuanza-norte' => 'Cuanza Norte',
         'cuanza-sul' => 'Cuanza Sul',
+        'cubango' => 'Cubango',
         'cunene' => 'Cunene',
         'huambo' => 'Huambo',
         'huila' => 'Huíla',
+        'icolo-e-bengo' => 'Ícolo e Bengo',
         'luanda' => 'Luanda',
         'lunda-norte' => 'Lunda Norte',
         'lunda-sul' => 'Lunda Sul',
         'malanje' => 'Malanje',
         'moxico' => 'Moxico',
+        'moxico-leste' => 'Moxico Leste',
         'namibe' => 'Namibe',
         'uige' => 'Uíge',
         'zaire' => 'Zaire',
+    ];
+
+    /** Capitais provinciais (divisão de 2025). */
+    public const PROVINCE_CAPITALS = [
+        'bengo' => 'Caxito',
+        'benguela' => 'Benguela',
+        'bie' => 'Cuíto',
+        'cabinda' => 'Cabinda',
+        'cuando' => 'Mavinga',
+        'cuando-cubango' => 'Menongue',
+        'cuanza-norte' => 'N’dalatando',
+        'cuanza-sul' => 'Sumbe',
+        'cubango' => 'Menongue',
+        'cunene' => 'Ondjiva',
+        'huambo' => 'Huambo',
+        'huila' => 'Lubango',
+        'icolo-e-bengo' => 'Catete',
+        'luanda' => 'Luanda',
+        'lunda-norte' => 'Dundo',
+        'lunda-sul' => 'Saurimo',
+        'malanje' => 'Malanje',
+        'moxico' => 'Luena',
+        'moxico-leste' => 'Cazombo',
+        'namibe' => 'Moçâmedes',
+        'uige' => 'Uíge',
+        'zaire' => 'Mbanza Kongo',
     ];
     
     /**

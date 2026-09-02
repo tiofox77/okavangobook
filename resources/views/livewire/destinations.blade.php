@@ -1,4 +1,4 @@
-@section('title', 'Destinos em Angola — 18 províncias para explorar')
+@section('title', 'Destinos em Angola — 21 províncias para explorar')
 @section('meta_description', 'Descubra os melhores destinos turísticos de Angola: Luanda, Benguela, Lubango, Namibe e mais. Encontre hotéis e acomodações em cada província.')
 <div>
     <div class="bg-gradient-to-b from-blue-50 to-white min-h-screen">
@@ -18,7 +18,7 @@
                 <div class="text-center text-white">
                     <h1 class="text-4xl md:text-5xl font-bold mb-4 animate-fade-in-down">{{ __('Províncias de Angola') }}</h1>
                     <p class="text-lg md:text-xl max-w-3xl mx-auto opacity-90 mb-8 animate-fade-in-up">
-                        Explore as 18 províncias de Angola através das suas paisagens reais, histórias, culturas e lugares inesquecíveis.
+                        Explore as 21 províncias de Angola através das suas paisagens reais, histórias, culturas e lugares inesquecíveis.
                     </p>
                     <div class="flex justify-center space-x-2 animate-fade-in">
                         <span class="inline-block w-3 h-3 bg-white rounded-full"></span>
@@ -61,7 +61,7 @@
             <div class="native-explorer mb-12 flex flex-col md:flex-row justify-between items-center bg-white p-6 rounded-xl shadow-sm animate-fade-in">
                 <div class="mb-4 md:mb-0">
                     <h2 class="text-2xl font-bold text-gray-800">{{ __('Descubra Angola') }}</h2>
-                    <p class="text-gray-600">{{ __('Encontre o seu próximo destino entre as 18 províncias') }}</p>
+                    <p class="text-gray-600">{{ __('Encontre o seu próximo destino entre as 21 províncias') }}</p>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
                     <span class="text-gray-600">{{ __('Ordenar por:') }}</span>

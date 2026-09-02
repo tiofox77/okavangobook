@@ -87,7 +87,8 @@ class LocationDetails extends Component
         // Capital real: campo capital preenchido, senão o local homónimo da
         // província, senão o próprio nome da província (antes mostrava o
         // primeiro local por ordem alfabética — ex.: "Capital: Alvalade").
-        $capital = $this->locations->pluck('capital')->filter(fn ($c) => trim((string) $c) !== '')->first()
+        $capital = ($this->isSpecificLocation ? null : (Location::PROVINCE_CAPITALS[$this->province] ?? null))
+            ?: $this->locations->pluck('capital')->filter(fn ($c) => trim((string) $c) !== '')->first()
             ?: (optional($this->locations->first(fn ($l) => \Illuminate\Support\Str::slug($l->name) === $this->province))->name
                 ?: $provinceName);
 
