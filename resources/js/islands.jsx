@@ -6,6 +6,7 @@ import Lightbox from './islands/Lightbox.jsx';
 import DestinationAutocomplete from './islands/DestinationAutocomplete.jsx';
 import DestinationsExplorer from './islands/DestinationsExplorer.jsx';
 import HeroSlideshow from './islands/HeroSlideshow.jsx';
+import LocationGallery from './islands/LocationGallery.jsx';
 
 /**
  * Entrada das ilhas React.
@@ -67,6 +68,18 @@ const ISLANDS = {
                 dateIds={(el.dataset.dates || '').split(',').filter(Boolean)}
             />
         );
+        return true;
+    },
+
+    'location-gallery': (el) => {
+        let itens;
+        try { itens = JSON.parse(el.dataset.itens || '[]'); } catch (e) { return false; }
+        if (!Array.isArray(itens) || !itens.length) return false;
+
+        el.closest('[data-island-zone]')?.classList.add('island-mounted');
+        el.classList.remove('hidden');
+
+        createRoot(el).render(<LocationGallery itens={itens} titulo={el.dataset.titulo || 'Galeria'} />);
         return true;
     },
 

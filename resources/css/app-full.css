@@ -34,6 +34,7 @@
     .island-mounted .native-dest { display: none; }
     .island-mounted .native-explorer { display: none; }
     .island-mounted .native-hero { display: none; }
+    .island-mounted .native-gallery { display: none; }
 
     /* Entrada em cascata dos resultados da pesquisa (replay a cada filtro) */
     [data-stagger].ks-stagger-run > * { animation: ksFadeIn 0.45s ease both; }

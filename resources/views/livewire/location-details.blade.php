@@ -255,7 +255,28 @@
                 $galleryVideos = $galleryMedia->where('type', 'video')->values();
                 $galleryImageUrls = $galleryImages->map(fn ($m) => \App\Helpers\ImageHelper::getValidImage($m->url, 'location'))->values();
             @endphp
-            <div class="mb-16 animate-fade-in-up">
+            @php
+                // Media unificada para a ilha React: fotos e vídeos no mesmo mosaico
+                $galleryPayload = $galleryMedia->map(fn ($m) => [
+                    'type' => $m->type,
+                    'src' => $m->type === 'image'
+                        ? \App\Helpers\ImageHelper::getValidImage($m->url, 'location')
+                        : $m->url,
+                    'title' => $m->title,
+                    'youtube' => $m->youtubeId(),
+                    'vimeo' => $m->vimeoId(),
+                ])->values();
+            @endphp
+            <div class="mb-16 animate-fade-in-up" data-island-zone>
+                {{-- Ilha React: mosaico moderno (fotos + vídeos juntos, lightbox com vídeo) --}}
+                <div wire:ignore
+                     data-island="location-gallery"
+                     data-titulo="{{ __('Galeria de') }} {{ $provinceName }}"
+                     data-itens='@json($galleryPayload)'
+                     class="hidden"></div>
+
+                {{-- Fallback sem JS: grelha simples + vídeos embebidos --}}
+                <div class="native-gallery">
                 <div class="flex items-center justify-between mb-6">
                     <h2 class="text-3xl font-bold text-gray-800">
                         <i class="fas fa-images text-primary mr-2"></i>{{ __('Galeria de') }} {{ $provinceName }}
@@ -320,6 +341,7 @@
                         @endforeach
                     </div>
                 @endif
+                </div>{{-- /native-gallery --}}
             </div>
         @endif
 
