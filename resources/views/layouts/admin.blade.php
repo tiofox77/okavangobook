@@ -40,7 +40,7 @@
     <link rel="manifest" href="{{ asset('manifest.webmanifest') }}?v=20260813">
     
     <!-- Tailwind CSS local -->
-    <link href="{{ asset('assets/css/tailwind.min.css') }}?v=20260902d" rel="stylesheet">
+    <link href="{{ asset('assets/css/tailwind.min.css') }}?v=20260902e" rel="stylesheet">
 
     <!-- Dark mode: overrides globais (antes) + variantes dark: explícitas (depois) -->
     <link href="{{ asset('assets/css/dark-overrides.css') }}" rel="stylesheet">
