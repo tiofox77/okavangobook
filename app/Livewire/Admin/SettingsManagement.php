@@ -94,13 +94,13 @@ class SettingsManagement extends Component
             'appTimezone' => 'required|string',
             'appLanguage' => 'required|string|size:2',
             'appLogo' => $this->appLogo instanceof \Livewire\Features\SupportFileUploads\TemporaryUploadedFile
-                ? 'image|max:1024'
+                ? 'mimes:jpeg,jpg,png,webp,gif|max:1024'
                 : 'nullable',
             'appFavicon' => $this->appFavicon instanceof \Livewire\Features\SupportFileUploads\TemporaryUploadedFile
-                ? 'image|max:512'
+                ? 'mimes:jpeg,jpg,png,webp,gif|max:512'
                 : 'nullable',
             'heroBackground' => $this->heroBackground instanceof \Livewire\Features\SupportFileUploads\TemporaryUploadedFile
-                ? 'image|max:2048'
+                ? 'mimes:jpeg,jpg,png,webp,gif|max:2048'
                 : 'nullable',
             'contactEmail' => 'nullable|email|max:100',
             'contactPhone' => 'nullable|string|max:30',
@@ -217,16 +217,16 @@ class SettingsManagement extends Component
             'appTimezone' => 'required|string',
             'appLanguage' => 'required|string|size:2',
             'appLogo' => $this->appLogo instanceof \Livewire\Features\SupportFileUploads\TemporaryUploadedFile
-                ? 'image|max:1024'
+                ? 'mimes:jpeg,jpg,png,webp,gif|max:1024'
                 : 'nullable',
             'appFavicon' => $this->appFavicon instanceof \Livewire\Features\SupportFileUploads\TemporaryUploadedFile
-                ? 'image|max:512'
+                ? 'mimes:jpeg,jpg,png,webp,gif|max:512'
                 : 'nullable',
             'heroBackground' => $this->heroBackground instanceof \Livewire\Features\SupportFileUploads\TemporaryUploadedFile
-                ? 'image|max:2048'
+                ? 'mimes:jpeg,jpg,png,webp,gif|max:2048'
                 : 'nullable',
             'offersBackground' => $this->offersBackground instanceof \Livewire\Features\SupportFileUploads\TemporaryUploadedFile
-                ? 'image|max:2048'
+                ? 'mimes:jpeg,jpg,png,webp,gif|max:2048'
                 : 'nullable',
         ]);
 

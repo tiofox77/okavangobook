@@ -26,7 +26,7 @@ class HotelReviews extends Component
         'rating' => 'required|integer|min:1|max:5',
         'title' => 'nullable|string|max:255',
         'comment' => 'required|string|min:10|max:1000',
-        'photos.*' => 'nullable|image|max:2048',
+        'photos.*' => 'nullable|mimes:jpeg,jpg,png,webp,gif|max:2048',
     ];
 
     public function mount($hotelId)

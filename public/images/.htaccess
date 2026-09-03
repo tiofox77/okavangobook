@@ -1,0 +1,43 @@
+# ============================================================
+#  KiandaStay — bloqueio de execução de código nesta pasta
+# ============================================================
+#  Esta pasta guarda ficheiros enviados por utilizadores. Nunca
+#  deve executar nada: em setembro de 2026 foram encontrados
+#  backdoors em PHP dentro de public/, uploads/, images/ e
+#  storage/ (.cache.php, build.php, lj.php, mf.php, mm.php).
+#
+#  Com estas regras, mesmo que um atacante volte a colocar aqui
+#  um ficheiro .php, o servidor entrega-o como texto em vez de
+#  o executar — o backdoor deixa de funcionar.
+# ============================================================
+
+# Desliga qualquer handler de script (Apache 2.2 e 2.4)
+<FilesMatch "\.(?i:php|php3|php4|php5|php7|php8|phtml|phps|phar|pl|py|jsp|asp|aspx|sh|cgi)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# Remove a associação a interpretadores, caso o bloqueio acima falhe
+<IfModule mod_mime.c>
+    RemoveHandler .php .php3 .php4 .php5 .php7 .php8 .phtml .phar .cgi .pl .py
+    RemoveType .php .php3 .php4 .php5 .php7 .php8 .phtml .phar
+    AddType text/plain .php .phtml .phar .pl .py .cgi
+</IfModule>
+
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php7.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php8.c>
+    php_flag engine off
+</IfModule>
+
+# Impede que se listem os ficheiros da pasta
+Options -Indexes -ExecCGI

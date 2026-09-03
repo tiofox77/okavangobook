@@ -150,8 +150,8 @@ class RoomManagement extends Component
             'is_available' => 'boolean',
             'is_featured' => 'boolean',
             'amenities' => 'nullable|array',
-            'thumbnail' => 'nullable|image|max:2048', // Máximo 2MB
-            'galleryImages.*' => 'nullable|image|max:2048',
+            'thumbnail' => 'nullable|mimes:jpeg,jpg,png,webp,gif|max:2048', // Máximo 2MB
+            'galleryImages.*' => 'nullable|mimes:jpeg,jpg,png,webp,gif|max:2048',
         ];
     }
     

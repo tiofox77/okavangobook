@@ -71,7 +71,7 @@ class RestaurantManagement extends Component
             'description' => 'nullable|string',
             'category' => 'required|string',
             'price' => 'required|numeric|min:0',
-            'imageUpload' => 'nullable|image|max:2048',
+            'imageUpload' => 'nullable|mimes:jpeg,jpg,png,webp,gif|max:2048',
             'is_available' => 'boolean',
             'is_vegetarian' => 'boolean',
             'is_vegan' => 'boolean',

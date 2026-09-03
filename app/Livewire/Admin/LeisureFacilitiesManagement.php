@@ -88,7 +88,7 @@ class LeisureFacilitiesManagement extends Component
             'name' => 'required|string|max:255',
             'type' => 'required|string',
             'description' => 'nullable|string',
-            'imagesUpload.*' => 'nullable|image|max:2048',
+            'imagesUpload.*' => 'nullable|mimes:jpeg,jpg,png,webp,gif|max:2048',
             'is_available' => 'boolean',
             'is_free' => 'boolean',
             'price_per_hour' => 'nullable|numeric|min:0',

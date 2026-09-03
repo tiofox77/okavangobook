@@ -59,7 +59,7 @@ class LocationManagement extends Component
             'capital' => 'nullable|string|max:255',
             'population' => 'nullable|integer|min:0',
             'isFeatured' => 'boolean',
-            'newImage' => 'nullable|image|max:1024', // max 1MB
+            'newImage' => 'nullable|mimes:jpeg,jpg,png,webp,gif|max:1024', // max 1MB
         ];
     }
     
@@ -236,7 +236,7 @@ class LocationManagement extends Component
 
         $this->validate(
             $isUpload
-                ? ['newMediaFile' => 'required|image|max:4096', 'newMediaTitle' => 'nullable|string|max:255']
+                ? ['newMediaFile' => 'required|mimes:jpeg,jpg,png,webp,gif|max:4096', 'newMediaTitle' => 'nullable|string|max:255']
                 : ['newMediaUrl' => 'required|string|max:1000', 'newMediaTitle' => 'nullable|string|max:255'],
             [
                 'newMediaFile.image' => 'O ficheiro tem de ser uma imagem.',
