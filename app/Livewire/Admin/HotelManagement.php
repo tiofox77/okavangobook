@@ -337,6 +337,26 @@ class HotelManagement extends Component
     
     public function save()
     {
+        // Limite do plano: canAddHotel() existia no modelo mas nunca era
+        // chamado — o painel mostrava "1 de 1 propriedades" e deixava criar
+        // à mesma. Só se aplica a criações (não a edições) e não trava o
+        // Admin, que gere as propriedades de toda a plataforma.
+        if (! $this->hotelId && ! $this->isPlatformAdmin()) {
+            $utilizador = auth()->user();
+
+            if (! $utilizador?->canAddHotel()) {
+                $plano = $utilizador?->currentPlan();
+                $limite = $plano?->max_hotels;
+
+                session()->flash('error', $plano
+                    ? "O plano {$plano->name} permite {$limite} propriedade(s). Faça upgrade para adicionar mais."
+                    : 'Precisa de um plano ativo para adicionar propriedades.');
+
+                $this->dispatch('show-toast', type: 'error', message: 'Limite do plano atingido.');
+
+                return;
+            }
+        }
         // Mapa de campos para abas
         $fieldTabMap = [
             'name' => 'basic',

@@ -42,6 +42,15 @@ class SettingsManagement extends Component
     public string $contactEmail = '';
     public string $contactPhone = '';
     public string $contactAddress = '';
+
+    // Coordenadas bancárias mostradas aos clientes no pagamento por
+    // transferência. Antes só existiam como valores por omissão no
+    // Blade (um IBAN de exemplo), sem forma de os configurar.
+    public string $bankName = '';
+    public string $bankHolder = '';
+    public string $bankIban = '';
+    public string $bankAccount = '';
+    public string $bankSwift = '';
     
     // Social Media
     public string $socialFacebook = '';
@@ -137,6 +146,11 @@ class SettingsManagement extends Component
         $this->contactEmail = Setting::get('contact_email', '');
         $this->contactPhone = Setting::get('contact_phone', '');
         $this->contactAddress = Setting::get('contact_address', '');
+        $this->bankName = (string) Setting::get('bank_name', '');
+        $this->bankHolder = (string) Setting::get('bank_holder', '');
+        $this->bankIban = (string) Setting::get('bank_iban', '');
+        $this->bankAccount = (string) Setting::get('bank_account', '');
+        $this->bankSwift = (string) Setting::get('bank_swift', '');
         
         // Social Media
         $this->socialFacebook = Setting::get('social_facebook', '');
@@ -313,6 +327,50 @@ class SettingsManagement extends Component
     /**
      * Save contact settings
      */
+    /**
+     * Grava as coordenadas bancárias usadas no pagamento por transferência.
+     * O IBAN angolano tem 25 caracteres depois do prefixo AO06; aceita-se
+     * com ou sem pontos e normaliza-se para maiúsculas sem espaços.
+     */
+    public function saveBankSettings(): void
+    {
+        $this->validate([
+            'bankName' => 'nullable|string|max:120',
+            'bankHolder' => 'nullable|string|max:120',
+            'bankIban' => 'nullable|string|max:60',
+            'bankAccount' => 'nullable|string|max:60',
+            'bankSwift' => 'nullable|string|max:20',
+        ], [], [
+            'bankName' => 'banco',
+            'bankHolder' => 'titular',
+            'bankIban' => 'IBAN',
+            'bankAccount' => 'número de conta',
+            'bankSwift' => 'SWIFT',
+        ]);
+
+        $iban = strtoupper(preg_replace('/\s+/', '', trim($this->bankIban)));
+
+        if ($iban !== '' && ! preg_match('/^AO06[.\d]{25,34}$/', $iban)) {
+            $this->addError('bankIban', 'IBAN angolano inválido: deve começar por AO06 seguido de 21 dígitos.');
+            return;
+        }
+
+        $this->bankIban = $iban;
+
+        try {
+            Setting::set('bank_name', $this->bankName, 'payment', 'string', 'Banco para transferências', true);
+            Setting::set('bank_holder', $this->bankHolder, 'payment', 'string', 'Titular da conta', true);
+            Setting::set('bank_iban', $iban, 'payment', 'string', 'IBAN para transferências', true);
+            Setting::set('bank_account', $this->bankAccount, 'payment', 'string', 'Número de conta', true);
+            Setting::set('bank_swift', $this->bankSwift, 'payment', 'string', 'Código SWIFT/BIC', true);
+
+            session()->flash('message', 'Coordenadas bancárias guardadas.');
+        } catch (\Throwable $e) {
+            report($e);
+            session()->flash('error', 'Não foi possível guardar as coordenadas bancárias.');
+        }
+    }
+
     public function saveContactSettings(): void
     {
         $this->validate([

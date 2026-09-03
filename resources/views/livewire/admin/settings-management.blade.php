@@ -378,6 +378,63 @@
                     </button>
                 </form>
             </div>
+            {{-- Coordenadas bancárias: mostradas ao cliente no pagamento por
+                 transferência. Antes só existiam como valor por omissão no
+                 Blade (um IBAN de exemplo), sem forma de as configurar. --}}
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mt-6">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">
+                    <i class="fas fa-building-columns text-primary mr-2" aria-hidden="true"></i>Coordenadas Bancárias
+                </h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-5">
+                    Estes dados aparecem ao cliente quando escolhe pagar por transferência. Confirme-os com cuidado.
+                </p>
+
+                <form wire:submit.prevent="saveBankSettings" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="bank_name_set" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Banco</label>
+                            <input id="bank_name_set" type="text" wire:model="bankName" placeholder="Ex.: BAI - Banco Angolano de Investimentos" class="w-full">
+                            @error('bankName') <span class="text-red-600 text-xs">{{ $message }}</span> @enderror
+                        </div>
+                        <div>
+                            <label for="bank_holder_set" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Titular da conta</label>
+                            <input id="bank_holder_set" type="text" wire:model="bankHolder" placeholder="Ex.: KiandaStay Lda" class="w-full">
+                            @error('bankHolder') <span class="text-red-600 text-xs">{{ $message }}</span> @enderror
+                        </div>
+                        <div class="md:col-span-2">
+                            <label for="bank_iban_set" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">IBAN</label>
+                            <input id="bank_iban_set" type="text" wire:model="bankIban" placeholder="AO06.0000.0000.0000.0000.0000.0" class="w-full font-mono">
+                            @error('bankIban')
+                                <span class="text-red-600 text-xs">{{ $message }}</span>
+                            @else
+                                <span class="text-xs text-gray-400">Formato angolano: AO06 seguido de 21 dígitos (com ou sem pontos).</span>
+                            @enderror
+                        </div>
+                        <div>
+                            <label for="bank_account_set" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nº de conta</label>
+                            <input id="bank_account_set" type="text" wire:model="bankAccount" placeholder="0000.0000.0000.0000.0" class="w-full font-mono">
+                            @error('bankAccount') <span class="text-red-600 text-xs">{{ $message }}</span> @enderror
+                        </div>
+                        <div>
+                            <label for="bank_swift_set" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">SWIFT / BIC <span class="text-gray-400 font-normal">(opcional)</span></label>
+                            <input id="bank_swift_set" type="text" wire:model="bankSwift" placeholder="Ex.: BAIPAOLU" class="w-full font-mono">
+                            @error('bankSwift') <span class="text-red-600 text-xs">{{ $message }}</span> @enderror
+                        </div>
+                    </div>
+
+                    @if(!$bankIban)
+                        <div class="flex items-start gap-2 p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-300 text-sm">
+                            <i class="fas fa-triangle-exclamation mt-0.5" aria-hidden="true"></i>
+                            <span>Sem IBAN configurado, o pagamento por transferência mostra dados de exemplo ao cliente.</span>
+                        </div>
+                    @endif
+
+                    <button type="submit"
+                            class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                        <i class="fas fa-save mr-2" aria-hidden="true"></i>Guardar Coordenadas Bancárias
+                    </button>
+                </form>
+            </div>
         </div>
     @endif
 
